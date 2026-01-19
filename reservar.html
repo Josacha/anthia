@@ -3,64 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <title>Reservar cita | ANTHIA ESTHETIC CENTER</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/forms.css">
 </head>
 <body>
 
 <header class="header">
-  <div class="logo">
-    <h1>ANTHIA</h1>
-    <span>Esthetic Center</span>
-  </div>
+  <h1>ANTHIA ESTHETIC CENTER</h1>
 </header>
 
-<main class="form-container">
-  <h2>Reservar cita</h2>
+<main class="contenedor">
 
+  <h2>Reserva tu cita</h2>
+
+  <!-- FORMULARIO DE RESERVA -->
   <form id="formReserva">
 
     <!-- SERVICIO -->
-    <label for="servicio">Servicio</label>
+    <label>Servicio</label>
     <select id="servicio" required>
       <option value="">Seleccione un servicio</option>
     </select>
 
     <!-- FECHA -->
-    <label for="fecha">Fecha</label>
+    <label>Fecha</label>
     <input type="date" id="fecha" required>
 
     <!-- HORA -->
-    <label for="hora">Hora disponible</label>
+    <label>Hora</label>
     <select id="hora" required>
       <option value="">Seleccione una hora</option>
     </select>
 
-    <!-- CONTACTO -->
-    <label for="contacto">Correo o teléfono</label>
-    <input type="text" id="contacto" required>
+    <hr>
 
-    <!-- NOMBRE -->
-    <label for="nombre">Nombre</label>
-    <input type="text" id="nombre" required>
+    <!-- DATOS DEL CLIENTE -->
+    <h3>Datos del cliente</h3>
 
-    <!-- APELLIDOS -->
-    <label for="apellido1">Primer apellido</label>
-    <input type="text" id="apellido1" required>
+    <input type="text"
+           id="contacto"
+           placeholder="Correo o teléfono"
+           required>
 
-    <label for="apellido2">Segundo apellido (opcional)</label>
-    <input type="text" id="apellido2">
+    <input type="text"
+           id="nombre"
+           placeholder="Nombre"
+           required>
 
-    <button type="submit" class="btn-primary">Confirmar cita</button>
+    <input type="text"
+           id="apellido1"
+           placeholder="Primer apellido"
+           required>
+
+    <input type="text"
+           id="apellido2"
+           placeholder="Segundo apellido (opcional)">
+
+    <!-- BOTÓN -->
+    <button type="submit" class="btn-primary">
+      Reservar cita
+    </button>
+
   </form>
+
 </main>
 
+<!-- SCRIPTS -->
 <script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/autocompletar.js"></script>
 <script type="module" src="js/reservas.js"></script>
-  <script type="module" src="js/autocompletar.js"></script>
-
 
 </body>
 </html>
