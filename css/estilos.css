@@ -73,3 +73,37 @@ h1, h2, h3, h4 {
   letter-spacing: 3px;
   color: #888;
 }
+
+/* FOOTER */
+.footer {
+  background-color: #f3efe9;   /* color claro elegante */
+  padding: 25px 40px;
+  text-align: center;
+  color: #555;                  /* color del texto */
+  border-top: 1px solid #e0dcd5;
+  margin-top: 40px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer-contenido {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.footer a {
+  color: #c8a97e;               /* mismo color de botones */
+  text-decoration: none;
+  margin: 0 8px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: #b5966f;               /* hover elegante */
+}
+
