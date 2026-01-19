@@ -1,27 +1,45 @@
-/* FORMULARIO */
+/* =========================
+   FORMULARIO MODERNO
+========================= */
 .form-reserva {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 /* LABELS */
 .form-reserva label {
   font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 5px;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #666;
 }
 
 /* INPUTS Y SELECTS */
 .form-reserva input,
 .form-reserva select {
   border: none;
-  border-bottom: 1.5px solid #ccc;
-  padding: 10px 6px;
+  border-radius: 10px;
+  padding: 14px 16px;
   font-size: 15px;
-  background-color: transparent;
+  background-color: #f9f9f9;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* FOCUS */
+.form-reserva input:focus,
+.form-reserva select:focus {
+  box-shadow: 0 0 0 2px #c8a97e;
+  background-color: #fff;
 }
 
 /* PLACEHOLDER */
@@ -29,28 +47,40 @@
   color: #aaa;
 }
 
-/* FOCUS */
-.form-reserva input:focus,
-.form-reserva select:focus {
-  border-bottom-color: #c8a97e;
-}
-
-/* AUTOCOMPLETADO */
-input.auto {
-  border-bottom-color: #c8a97e;
-}
-
-/* SELECT */
-.form-reserva select {
-  cursor: pointer;
-}
-
 /* BOTÓN */
 .form-reserva .btn-primary {
-  margin-top: 25px;
+  padding: 14px 0;
+  background-color: #c8a97e;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
 }
 
-.form-reserva input,
-.form-reserva select {
-  font-weight: 300;
+.form-reserva .btn-primary:hover {
+  background-color: #b5966f;
+}
+
+/* TITULOS */
+.form-reserva h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3a3a3a;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 500px) {
+  .form-reserva {
+    padding: 20px;
+  }
+
+  .form-reserva h3 {
+    font-size: 18px;
+  }
 }
