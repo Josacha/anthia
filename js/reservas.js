@@ -4,7 +4,9 @@ import {
   getDocs,
   addDoc,
   query,
-  where
+  where,
+  doc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ELEMENTOS
@@ -18,6 +20,8 @@ const nombreInput = document.getElementById("nombre");
 const apellido1Input = document.getElementById("apellido1");
 const apellido2Input = document.getElementById("apellido2");
 
+let servicioActual = null;
+
 // ===============================
 // CARGAR SERVICIOS
 // ===============================
@@ -25,15 +29,27 @@ async function cargarServicios() {
   servicioSelect.innerHTML = `<option value="">Seleccione un servicio</option>`;
 
   const snapshot = await getDocs(collection(db, "servicios"));
-  snapshot.forEach(doc => {
-    const s = doc.data();
+  snapshot.forEach(docSnap => {
+    const s = docSnap.data();
     if (s.activo) {
       servicioSelect.innerHTML += `
-        <option value="${doc.id}" data-duracion="${s.duracion}">
+        <option value="${docSnap.id}">
           ${s.nombre}
         </option>`;
     }
   });
+}
+
+// ===============================
+// OBTENER SERVICIO SELECCIONADO
+// ===============================
+async function obtenerServicio() {
+  if (!servicioSelect.value) return;
+
+  const ref = doc(db, "servicios", servicioSelect.value);
+  const snap = await getDoc(ref);
+
+  servicioActual = snap.data();
 }
 
 // ===============================
@@ -42,9 +58,8 @@ async function cargarServicios() {
 async function generarHoras() {
   horaSelect.innerHTML = `<option value="">Seleccione una hora</option>`;
 
-  if (!fechaInput.value || !servicioSelect.value) return;
+  if (!fechaInput.value || !servicioActual) return;
 
-  // Horario del salón (9:00 a 18:00)
   const horaInicioSalon = 9;
   const horaFinSalon = 18;
 
@@ -59,8 +74,15 @@ async function generarHoras() {
 
     const snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
+    // 👇 LÓGICA CLAVE
+    if (servicioActual.simultaneo) {
+      // Permitir siempre
       horaSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
+    } else {
+      // Bloquear si ya hay cita
+      if (snapshot.empty) {
+        horaSelect.innerHTML += `<option value="${hora}">${hora}</option>`;
+      }
     }
   }
 }
@@ -76,19 +98,11 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const servicioId = servicioSelect.value;
-  const fecha = fechaInput.value;
-  const horaInicio = horaSelect.value;
-
-  if (!servicioId || !fecha || !horaInicio) {
-    alert("Complete todos los campos requeridos");
-    return;
-  }
-
   await addDoc(collection(db, "citas"), {
-    servicioId,
-    fecha,
-    horaInicio,
+    servicioId: servicioSelect.value,
+    fecha: fechaInput.value,
+    horaInicio: horaSelect.value,
+    simultaneo: servicioActual.simultaneo,
     cliente: {
       nombre: nombreInput.value.trim(),
       apellido1: apellido1Input.value.trim(),
@@ -103,9 +117,12 @@ form.addEventListener("submit", async (e) => {
 });
 
 // EVENTOS
-servicioSelect.addEventListener("change", generarHoras);
+servicioSelect.addEventListener("change", async () => {
+  await obtenerServicio();
+  generarHoras();
+});
+
 fechaInput.addEventListener("change", generarHoras);
 
 // INIT
 cargarServicios();
-
