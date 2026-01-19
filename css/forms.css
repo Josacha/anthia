@@ -2,53 +2,50 @@
 .form-reserva {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 
-/* LABEL */
+/* LABELS */
 .form-reserva label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: #666;
 }
 
-/* INPUTS Y SELECT */
+/* INPUTS Y SELECTS */
 .form-reserva input,
 .form-reserva select {
-  padding: 12px 14px;
+  border: none;
+  border-bottom: 1.5px solid #ccc;
+  padding: 10px 6px;
   font-size: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  background-color: transparent;
   outline: none;
-  transition: border 0.3s ease;
+  transition: border-color 0.3s ease;
+}
+
+/* PLACEHOLDER */
+.form-reserva input::placeholder {
+  color: #aaa;
 }
 
 /* FOCUS */
 .form-reserva input:focus,
 .form-reserva select:focus {
-  border-color: #c8a97e;
+  border-bottom-color: #c8a97e;
 }
 
-/* INPUT AUTOCOMPLETADO */
+/* AUTOCOMPLETADO */
 input.auto {
-  background-color: #f6f1ea;
-  border-color: #c8a97e;
-}
-
-/* PLACEHOLDER */
-input::placeholder {
-  color: #999;
+  border-bottom-color: #c8a97e;
 }
 
 /* SELECT */
-select {
-  background-color: #fff;
+.form-reserva select {
+  cursor: pointer;
 }
 
-/* RESPONSIVE */
-@media (max-width: 480px) {
-  .contenedor {
-    margin: 20px;
-    padding: 15px;
-  }
+/* BOTÓN */
+.form-reserva .btn-primary {
+  margin-top: 25px;
 }
-
