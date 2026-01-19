@@ -78,4 +78,5 @@ formReserva.addEventListener("submit", async (e) => {
     console.error("Error al crear la reserva:", error);
     alert("Hubo un error al guardar la cita. Intente nuevamente.");
   }
+  window.location.href = "confirmar.html"; // redirige
 });
