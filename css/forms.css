@@ -49,3 +49,8 @@ input.auto {
 .form-reserva .btn-primary {
   margin-top: 25px;
 }
+
+.form-reserva input,
+.form-reserva select {
+  font-weight: 300;
+}
