@@ -19,20 +19,41 @@ h1, h2, h3, h4 {
 }
 
 /* BOTONES */
-.btn-primary {
-  background-color: #c8a97e;
-  color: white;
-  padding: 12px 22px;
+.btn-primary,
+.btn-secondary {
+  display: inline-block;
+  padding: 14px 28px;   /* ← más aire */
   border-radius: 30px;
   font-weight: 500;
+  letter-spacing: 0.5px;
+  line-height: 1.2;     /* ← evita que el texto se pegue */
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.btn-secondary {
-  border: 1px solid #c8a97e;
-  color: #c8a97e;
-  padding: 12px 22px;
-  border-radius: 30px;
+/* Botón principal */
+.btn-primary {
+  background-color: #c8a97e;
+  color: #ffffff;
 }
+
+/* Botón secundario */
+.btn-secondary {
+  border: 1.5px solid #c8a97e;
+  color: #c8a97e;
+  background-color: transparent;
+}
+
+/* Hover elegante */
+.btn-primary:hover {
+  background-color: #b5966f;
+}
+
+.btn-secondary:hover {
+  background-color: #c8a97e;
+  color: #ffffff;
+}
+
 
 /* HEADER */
 .header {
