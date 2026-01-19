@@ -1,1 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmación de cita | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/forms.css">
+
+  <style>
+    .hero-confirmar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 40px;
+      background: linear-gradient(
+          rgba(255,255,255,0.9),
+          rgba(255,255,255,0.9)
+        ),
+        url('assets/fondo/reserva-hero.jpg') center/cover no-repeat;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .hero-confirmar h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .resumen-cita {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .resumen-cita p {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .btns-confirmar {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btns-confirmar a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <h1>ANTHIA ESTHETIC CENTER</h1>
+    <span>Esthetic Center</span>
+  </div>
+</header>
+
+<main class="contenedor">
+
+  <section class="hero-confirmar">
+    <h2>¡Cita confirmada con éxito!</h2>
+
+    <div class="resumen-cita" id="resumenCita">
+      <!-- Aquí se llenará dinámicamente con JS -->
+      <p><strong>Servicio:</strong> <span id="servicioRes"></span></p>
+      <p><strong>Fecha:</strong> <span id="fechaRes"></span></p>
+      <p><strong>Hora:</strong> <span id="horaRes"></span></p>
+      <p><strong>Cliente:</strong> <span id="clienteRes"></span></p>
+    </div>
+
+    <div class="btns-confirmar">
+      <a href="index.html" class="btn-secondary">← Volver al inicio</a>
+      <a href="reservar.html" class="btn-primary">Reservar otra cita</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-contenido">
+    <p>ANTHIA ESTHETIC CENTER © 2026 | Todos los derechos reservados</p>
+    <p>
+      <a href="#">Facebook</a> | 
+      <a href="#">Instagram</a> | 
+      <a href="#">WhatsApp</a>
+    </p>
+  </div>
+</footer>
+
+<!-- SCRIPT PARA CARGAR DATOS DE LA RESERVA -->
+<script>
+  // Recuperar datos de la reserva desde sessionStorage
+  const servicioRes = document.getElementById('servicioRes');
+  const fechaRes = document.getElementById('fechaRes');
+  const horaRes = document.getElementById('horaRes');
+  const clienteRes = document.getElementById('clienteRes');
+
+  // Aquí suponemos que tu reservas.js guarda los datos en sessionStorage
+  servicioRes.textContent = sessionStorage.getItem('servicio') || 'N/D';
+  fechaRes.textContent = sessionStorage.getItem('fecha') || 'N/D';
+  horaRes.textContent = sessionStorage.getItem('hora') || 'N/D';
+  clienteRes.textContent = sessionStorage.getItem('cliente') || 'N/D';
+</script>
+
+</body>
+</html>
 
