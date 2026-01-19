@@ -54,6 +54,11 @@ h1, h2, h3, h4 {
   color: #ffffff;
 }
 
+.btn-primary,
+.btn-secondary {
+  box-shadow: 0 8px 20px rgba(200,169,126,0.3);
+}
+
 
 /* HEADER */
 .header {
