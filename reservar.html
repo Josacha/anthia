@@ -12,5 +12,53 @@
 
 <header class="header">
   <div class="logo">
-    <h1
+    <h1>ANTHIA</h1>
+    <span>Esthetic Center</span>
+  </div>
+</header>
 
+<main class="form-container">
+  <h2>Reservar cita</h2>
+
+  <form id="formReserva">
+
+    <!-- SERVICIO -->
+    <label for="servicio">Servicio</label>
+    <select id="servicio" required>
+      <option value="">Seleccione un servicio</option>
+    </select>
+
+    <!-- FECHA -->
+    <label for="fecha">Fecha</label>
+    <input type="date" id="fecha" required>
+
+    <!-- HORA -->
+    <label for="hora">Hora disponible</label>
+    <select id="hora" required>
+      <option value="">Seleccione una hora</option>
+    </select>
+
+    <!-- CONTACTO -->
+    <label for="contacto">Correo o teléfono</label>
+    <input type="text" id="contacto" required>
+
+    <!-- NOMBRE -->
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" required>
+
+    <!-- APELLIDOS -->
+    <label for="apellido1">Primer apellido</label>
+    <input type="text" id="apellido1" required>
+
+    <label for="apellido2">Segundo apellido (opcional)</label>
+    <input type="text" id="apellido2">
+
+    <button type="submit" class="btn-primary">Confirmar cita</button>
+  </form>
+</main>
+
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/reservas.js"></script>
+
+</body>
+</html>
