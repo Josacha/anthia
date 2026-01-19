@@ -1,1 +1,73 @@
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  background-color: #f3efe9;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+}
+
+.sidebar h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 25px;
+}
+
+.sidebar button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.sidebar button:hover,
+.sidebar button.active {
+  background-color: #c8a97e;
+  color: white;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  background-color: #faf9f8;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+table th {
+  background-color: #f3efe9;
+}
 
