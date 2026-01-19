@@ -3,92 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <title>Reservar cita | ANTHIA ESTHETIC CENTER</title>
+
+  <!-- Estilos generales -->
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/forms.css">
+
+  <style>
+    /* Hero con imagen y formulario */
+    .hero-reserva {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 40px;
+      gap: 40px;
+      background: linear-gradient(
+          rgba(255,255,255,0.85), 
+          rgba(255,255,255,0.85)
+        ),
+        url('assets/fondo/reserva-hero.jpg') center/cover no-repeat;
+      border-radius: 20px;
+      margin-bottom: 40px;
+    }
+
+    .hero-imagen img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .hero-formulario {
+      flex: 1;
+      max-width: 480px;
+    }
+
+    /* Títulos dentro del hero */
+    .hero-formulario h2,
+    .hero-formulario h3 {
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .contenedor {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+  </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="header">
   <div class="logo">
-    <h1>ANTHIA</h1>
-    <!-- Opcional subtítulo debajo -->
+    <h1>ANTHIA ESTHETIC CENTER</h1>
     <span>Esthetic Center</span>
   </div>
 </header>
+
 <main class="contenedor">
 
-  <h2>Reserva tu cita</h2>
+  <!-- HERO + FORMULARIO -->
+  <section class="hero-reserva">
+    <!-- Imagen decorativa -->
+    <div class="hero-imagen">
+      <img src="assets/fondo/reserva-hero.jpg" alt="Salón ANTHIA">
+    </div>
 
-  <!-- FORMULARIO DE RESERVA -->
-  <form id="formReserva" class="form-reserva">
+    <!-- Formulario -->
+    <div class="hero-formulario">
+      <h2>Reserva tu cita</h2>
+      <form id="formReserva" class="form-reserva">
 
+        <!-- SERVICIO -->
+        <label for="servicio">Servicio</label>
+        <select id="servicio" required>
+          <option value="">Seleccione un servicio</option>
+        </select>
 
-    <!-- SERVICIO -->
-    <label>Servicio</label>
-    <select id="servicio" required>
-      <option value="">Seleccione un servicio</option>
-    </select>
+        <!-- FECHA -->
+        <label for="fecha">Fecha</label>
+        <input type="date" id="fecha" required>
 
-    <!-- FECHA -->
-    <label>Fecha</label>
-    <input type="date" id="fecha" required>
+        <!-- HORA -->
+        <label for="hora">Hora</label>
+        <select id="hora" required>
+          <option value="">Seleccione una hora</option>
+        </select>
 
-    <!-- HORA -->
-    <label>Hora</label>
-    <select id="hora" required>
-      <option value="">Seleccione una hora</option>
-    </select>
+        <hr>
 
-    <hr>
+        <h3>Datos del cliente</h3>
 
-  <h3>Datos del cliente</h3>
+        <!-- CORREO -->
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" placeholder="Correo electrónico" required>
 
-<!-- CORREO -->
-<input
-  type="email"
-  id="correo"
-  placeholder="Correo electrónico"
-  required
->
+        <!-- TELÉFONO -->
+        <label for="telefono">Número de teléfono</label>
+        <input type="tel" id="telefono" placeholder="Número de teléfono" required>
 
-<!-- TELÉFONO -->
-<input
-  type="tel"
-  id="telefono"
-  placeholder="Número de teléfono"
-  required
->
+        <!-- NOMBRE Y APELLIDOS -->
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" placeholder="Nombre" required>
 
-<!-- NOMBRE Y APELLIDOS -->
-<input
-  type="text"
-  id="nombre"
-  placeholder="Nombre"
-  required
->
+        <label for="apellido1">Primer apellido</label>
+        <input type="text" id="apellido1" placeholder="Primer apellido" required>
 
-<input
-  type="text"
-  id="apellido1"
-  placeholder="Primer apellido"
-  required
->
+        <label for="apellido2">Segundo apellido (opcional)</label>
+        <input type="text" id="apellido2" placeholder="Segundo apellido (opcional)">
 
-<input
-  type="text"
-  id="apellido2"
-  placeholder="Segundo apellido (opcional)"
->
-
-
-    <!-- BOTÓN -->
-    <button type="submit" class="btn-primary">
-      Reservar cita
-    </button>
-
-  </form>
+        <button type="submit" class="btn-primary">Reservar cita</button>
+      </form>
+    </div>
+  </section>
 
 </main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-contenido">
+    <p>ANTHIA ESTHETIC CENTER © 2026 | Todos los derechos reservados</p>
+  </div>
+</footer>
 
 <!-- SCRIPTS -->
 <script type="module" src="js/firebase.js"></script>
@@ -96,11 +135,4 @@
 <script type="module" src="js/reservas.js"></script>
 
 </body>
-  <footer class="footer">
-  <div class="footer-contenido">
-    <p>ANTHIA ESTHETIC CENTER © 2026 | Todos los derechos reservados</p>
-    <img src="assets/fondo/footer.jpg" alt="Imagen decorativa" class="footer-img">
-  </div>
-</footer>
-
 </html>
