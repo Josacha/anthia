@@ -1,143 +1,54 @@
-/* =========================
-   RESET BÁSICO
-========================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
 }
 
-/* =========================
-   HERO
-========================= */
-.hero {
-  height: 80vh;
-  background: linear-gradient(
-    rgba(0,0,0,0.4),
-    rgba(0,0,0,0.4)
-  ),
-  url("../assets/fondo/hero.jpg") center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  background-color: #faf9f8;
 }
 
-.hero-content {
-  max-width: 700px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.hero-content h2 {
-  font-size: 42px;
-  margin-bottom: 15px;
-  line-height: 1.3;
-}
-
-.hero-content p {
-  font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 30px;
-}
-
-/* =========================
-   BOTONES
-========================= */
-.hero-content a,
-.hero-content button {
-  display: inline-block;
-  padding: 14px 32px;
-  border-radius: 30px;
-  background-color: #8b5e3c;
-  color: white;
+a {
   text-decoration: none;
-  font-size: 16px;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+}
+
+/* BOTONES */
+.btn-primary {
+  background-color: #c8a97e;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 30px;
   font-weight: 500;
-  border: none;
-  cursor: pointer;
-  margin-top: 10px;
-  position: relative;
 }
 
-.hero-content a:hover,
-.hero-content button:hover {
-  background-color: #734a2f;
+.btn-secondary {
+  border: 1px solid #c8a97e;
+  color: #c8a97e;
+  padding: 12px 22px;
+  border-radius: 30px;
 }
 
-/* =========================
-   SERVICIOS
-========================= */
-.servicios {
-  padding: 60px 40px;
-  text-align: center;
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
 }
 
-.servicios h3 {
-  font-size: 32px;
-  margin-bottom: 20px;
+.logo h1 {
+  font-size: 28px;
+  letter-spacing: 2px;
 }
 
-.servicios-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
-  margin-top: 30px;
-}
-
-.servicio-card {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.servicio-card h4 {
-  margin-bottom: 10px;
-}
-
-/* =========================
-   CTA
-========================= */
-.cta {
-  background-color: #f3efe9;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.cta h3 {
-  font-size: 30px;
-  margin-bottom: 15px;
-}
-
-.cta p {
-  margin-bottom: 25px;
-  font-size: 17px;
-}
-
-/* =========================
-   FOOTER
-========================= */
-.footer {
-  padding: 20px;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 768px) {
-  .hero-content h2 {
-    font-size: 32px;
-  }
-
-  .hero-content p {
-    font-size: 16px;
-  }
+.logo span {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #888;
 }
