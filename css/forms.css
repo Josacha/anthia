@@ -1,1 +1,54 @@
+/* FORMULARIO */
+.form-reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* LABEL */
+.form-reserva label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* INPUTS Y SELECT */
+.form-reserva input,
+.form-reserva select {
+  padding: 12px 14px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+/* FOCUS */
+.form-reserva input:focus,
+.form-reserva select:focus {
+  border-color: #c8a97e;
+}
+
+/* INPUT AUTOCOMPLETADO */
+input.auto {
+  background-color: #f6f1ea;
+  border-color: #c8a97e;
+}
+
+/* PLACEHOLDER */
+input::placeholder {
+  color: #999;
+}
+
+/* SELECT */
+select {
+  background-color: #fff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .contenedor {
+    margin: 20px;
+    padding: 15px;
+  }
+}
 
