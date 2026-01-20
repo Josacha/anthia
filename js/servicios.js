@@ -8,14 +8,16 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const tablaServicios = document.getElementById('tablaServicios').getElementsByTagName('tbody')[0];
+const tablaServicios = document.querySelector('#tablaServicios tbody');
+const formContainer = document.createElement('div');
+formContainer.id = 'form-servicio-container';
 
 // Referencia a la colección
 const serviciosRef = collection(db, 'servicios');
 
-// Cargar servicios
+// Función para cargar todos los servicios
 export async function cargarServicios() {
-  tablaServicios.innerHTML = '';
+  tablaServicios.innerHTML = ''; // Limpiar tabla
   const snapshot = await getDocs(serviciosRef);
 
   snapshot.forEach(docSnap => {
@@ -32,63 +34,70 @@ export async function cargarServicios() {
         <button class="btn-delete" data-id="${docSnap.id}">Borrar</button>
       </td>
     `;
+
     tablaServicios.appendChild(tr);
   });
 
-  // Agregar eventos a botones
+  // Eventos de edición
   document.querySelectorAll('.btn-edit').forEach(btn => {
     btn.addEventListener('click', () => editarServicio(btn.dataset.id));
   });
+
+  // Eventos de borrado
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', () => eliminarServicio(btn.dataset.id));
   });
 }
 
-// Agregar servicio
-export async function agregarServicio(servicio) {
+// Agregar nuevo servicio
+async function agregarServicio(servicio) {
   await addDoc(serviciosRef, servicio);
   cargarServicios();
 }
 
 // Editar servicio
-export async function editarServicio(id) {
+async function editarServicio(id) {
   const docRef = doc(db, 'servicios', id);
   const docSnap = await getDocs(docRef);
 
-  // Mostrar prompt para editar (puedes cambiar por un modal más moderno)
-  const nombre = prompt('Nombre del servicio', '');
-  const duracion = prompt('Duración (min)', '');
-  const precio = prompt('Precio', '');
+  const data = (await doc(db, 'servicios', id).get()).data(); // Tomamos los datos actuales
+
+  const nombre = prompt('Nombre del servicio', data.nombre);
+  if (!nombre) return;
+  const duracion = prompt('Duración (min)', data.duracion);
+  if (!duracion) return;
+  const precio = prompt('Precio', data.precio);
+  if (!precio) return;
   const simultaneo = confirm('Permitir citas simultáneas?');
 
   await updateDoc(docRef, { nombre, duracion: parseInt(duracion), precio: parseFloat(precio), simultaneo });
   cargarServicios();
 }
 
-// Borrar servicio
-export async function eliminarServicio(id) {
+// Eliminar servicio
+async function eliminarServicio(id) {
   if (confirm('¿Seguro que desea borrar este servicio?')) {
     await deleteDoc(doc(db, 'servicios', id));
     cargarServicios();
   }
 }
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', () => {
-  cargarServicios();
-
-  // Formulario para agregar nuevo servicio
-  const formNuevoServicio = document.createElement('form');
-  formNuevoServicio.innerHTML = `
-    <input type="text" id="nuevoNombre" placeholder="Nombre del servicio" required>
-    <input type="number" id="nuevaDuracion" placeholder="Duración (min)" required>
-    <input type="number" id="nuevoPrecio" placeholder="Precio" required>
-    <label><input type="checkbox" id="nuevoSimultaneo"> Permitir simultáneo</label>
-    <button type="submit" class="btn-primary">Agregar Servicio</button>
+// Crear formulario para agregar servicios
+function crearFormularioAgregar() {
+  formContainer.innerHTML = `
+    <h3>Agregar nuevo servicio</h3>
+    <form id="formAgregarServicio">
+      <input type="text" id="nuevoNombre" placeholder="Nombre del servicio" required>
+      <input type="number" id="nuevaDuracion" placeholder="Duración (min)" required>
+      <input type="number" id="nuevoPrecio" placeholder="Precio" required>
+      <label><input type="checkbox" id="nuevoSimultaneo"> Permitir simultáneo</label>
+      <button type="submit" class="btn-primary">Agregar Servicio</button>
+    </form>
   `;
-  tablaServicios.parentElement.insertBefore(formNuevoServicio, tablaServicios);
+  document.querySelector('#tab-servicios').prepend(formContainer);
 
-  formNuevoServicio.addEventListener('submit', async (e) => {
+  const form = document.getElementById('formAgregarServicio');
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const servicio = {
       nombre: document.getElementById('nuevoNombre').value,
@@ -97,7 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
       simultaneo: document.getElementById('nuevoSimultaneo').checked
     };
     await agregarServicio(servicio);
-    formNuevoServicio.reset();
+    form.reset();
   });
-});
+}
 
+// Inicializar todo al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  crearFormularioAgregar();
+  cargarServicios();
+});
