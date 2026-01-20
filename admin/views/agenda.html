@@ -10,28 +10,48 @@
 </head>
 <body>
 
-<main class="contenedor-admin">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h2>ANTHIA</h2>
+    <span>Agenda</span>
+  </div>
 
-  <!-- HEADER AGENDA -->
-  <section class="agenda-hero">
-    <div class="agenda-fecha">
-      <span class="agenda-dia-numero" id="diaNumero">20</span>
-      <div class="agenda-dia-texto">
-        <span class="agenda-mes" id="mesTexto">ENERO 2026</span>
-        <span class="agenda-dia-semana" id="diaSemana">MARTES</span>
-      </div>
-    </div>
+  <nav class="sidebar-menu">
+    <a href="agenda.html" class="active">Agenda</a>
+    <a href="servicios.html">Servicios</a>
+    <a href="contactos.html">Contactos</a>
+    <a href="bloqueos.html">Bloqueos</a>
+  </nav>
 
-    <div class="agenda-acciones">
-      <input type="date" id="fechaAgenda" class="agenda-date-picker">
-      <button id="btnNuevaCita" class="btn-nueva-cita">
-        ➕ Nueva cita
-      </button>
+  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- HERO -->
+  <section class="hero-admin">
+    <div class="hero-text">
+      <h1>Agenda</h1>
+      <p>Gestión diaria de citas y horarios</p>
     </div>
   </section>
 
+  <!-- CONTROLES -->
+  <div class="agenda-controls">
+    <input type="date" id="fechaAgenda">
+
+    <div class="vista-toggle">
+      <button id="btnDia" class="btn-primary">Día</button>
+      <button id="btnSemana" class="btn-secondary">Semana</button>
+    </div>
+
+    <button id="btnNuevaCita" class="btn-primary">➕ Nueva cita</button>
+  </div>
+
   <!-- TABLA -->
-  <table id="tablaAgenda" class="tabla-premium">
+  <table class="tabla" id="tablaAgenda">
     <thead>
       <tr>
         <th>Hora</th>
@@ -44,8 +64,28 @@
   </table>
 
 </main>
-<script type="module" src=""../../js/firebase.js"></script>
-<script type="module" src=""../../js/auth.js"></script>
+
+<!-- MODAL -->
+<div class="modal" id="modalCita">
+  <div class="modal-box">
+    <h3>Nueva cita</h3>
+
+    <input id="clienteNombre" placeholder="Nombre del cliente">
+    <select id="servicioSelect"></select>
+    <label>
+      <input type="checkbox" id="simultaneo"> Permitir simultáneo
+    </label>
+
+    <div class="acciones">
+      <button id="guardarCita" class="btn-primary">Guardar</button>
+      <button id="cancelarModal" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../../js/firebase.js"></script>
+<script type="module" src="../../js/auth.js"></script>
 <script type="module" src="../../js/agenda.js"></script>
+
 </body>
 </html>
