@@ -1,16 +1,16 @@
-// Cambiar vistas en el dashboard
-const tabs = document.querySelectorAll('.sidebar a');
-const mainContent = document.getElementById('main-content');
+// Tabs internas
+const tabs = document.querySelectorAll('.sidebar li');
+const contents = document.querySelectorAll('.tab-content');
 
 tabs.forEach(tab => {
-  tab.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const tabName = tab.dataset.tab;
-    const response = await fetch(`../views/${tabName}.html`);
-    const html = await response.text();
-    mainContent.innerHTML = html;
+  tab.addEventListener('click', () => {
+    // Quitar active de todos los tabs
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
 
-    // Después de cargar la vista, ejecutamos la lógica de Firebase
-    import('./admin-firebase.js');
+    // Mostrar solo el tab correspondiente
+    contents.forEach(c => c.classList.remove('active'));
+    const tabName = tab.dataset.tab;
+    document.getElementById(`tab-${tabName}`).classList.add('active');
   });
 });
