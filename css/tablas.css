@@ -18,3 +18,58 @@ table button {
   cursor:pointer;
 }
 
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.tabla th, .tabla td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.tabla thead {
+  background-color: #c8a97e;
+  color: white;
+}
+
+.tabla tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.tabla tbody tr:nth-child(even) {
+  background-color: #faf9f8;
+}
+
+.tabla tbody tr:hover {
+  background-color: #f3efe9;
+}
+
+.btn-secondary {
+  padding: 6px 12px;
+  border-radius: 25px;
+  border: 1.5px solid #c8a97e;
+  background-color: transparent;
+  color: #c8a97e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #c8a97e;
+  color: #fff;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+
