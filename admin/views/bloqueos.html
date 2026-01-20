@@ -1,32 +1,33 @@
-<div class="card">
-  <h3>Bloqueos de horas / días</h3>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bloqueos | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/tablas.css">
+</head>
+<body>
 
-  <!-- FORMULARIO BLOQUEO -->
-  <form id="formBloqueo" class="form-dashboard">
-    <input type="date" id="bloqueoFecha" required>
-    <input type="time" id="bloqueoHoraInicio">
-    <input type="time" id="bloqueoHoraFin">
-    <select id="tipoBloqueo">
-      <option value="diaCompleto">Día completo</option>
-      <option value="medioDia">Medio día</option>
-      <option value="hora">Hora específica</option>
-    </select>
-    <button type="submit" class="btn-primary">Agregar bloqueo</button>
-  </form>
 
-  <!-- TABLA BLOQUEOS -->
-  <table>
-    <thead>
-      <tr>
-        <th>Fecha</th>
-        <th>Hora inicio</th>
-        <th>Hora fin</th>
-        <th>Tipo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaBloqueos"></tbody>
-  </table>
-  <script type="module" src="../../js/auth-protect.js"></script>
-</div>
+  <main id="main-content">
+    <div id="tab-bloqueos" class="tab-content active">
+      <h2>Bloqueos</h2>
+      <table id="tablaBloqueos" class="tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
 
+  <script type="module" src="../js/firebase.js"></script>
+  <script type="module" src="../js/auth.js"></script>
+  <script type="module" src="../js/bloqueos.js"></script>
+  <script type="module" src="../js/ui-tabs.js"></script>
+</body>
+</html>
