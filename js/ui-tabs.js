@@ -1,34 +1,85 @@
-const tabs = document.querySelectorAll('.sidebar li');
-const mainContent = document.getElementById('main-content');
+// js/agenda.js
+import { db } from "./firebase.js";
+import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-async function cargarVista(tabName) {
-  try {
-    const response = await fetch(`views/${tabName}.html`);
-    const html = await response.text();
-    mainContent.innerHTML = html;
+// Elementos del DOM
+const fechaInput = document.getElementById("fechaAgenda");
+const tabla = document.getElementById("tablaAgenda").querySelector("tbody");
 
-    // Ejecutar JS específico
-    switch(tabName) {
-      case 'agenda': import('./agenda.js'); break;
-      case 'contactos': import('./contactos.js'); break;
-      case 'servicios': import('./servicios.js'); break;
-      case 'inventario': import('./inventario.js'); break;
-      case 'bloqueos': import('./bloqueos.js'); break;
-      case 'configuracion': import('./configuracion.js'); break;
-    }
-  } catch(err) {
-    mainContent.innerHTML = `<p>Error al cargar la vista ${tabName}</p>`;
-    console.error(err);
-  }
+// Horas de atención
+const HORAS = [
+  "08:00", "09:00", "10:00", "11:00", "12:00",
+  "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
+];
+
+// Función para cargar agenda de un día
+async function cargarAgenda(fechaSeleccionada) {
+  tabla.innerHTML = "";
+
+  // Obtener citas
+  const citasRef = collection(db, "citas");
+  const qCitas = query(citasRef, where("fecha", "==", fechaSeleccionada));
+  const snapshotCitas = await getDocs(qCitas);
+  const citas = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Obtener bloqueos
+  const bloqueosRef = collection(db, "bloqueos");
+  const qBloqueos = query(bloqueosRef, where("fecha", "==", fechaSeleccionada));
+  const snapshotBloqueos = await getDocs(qBloqueos);
+  const bloqueos = snapshotBloqueos.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  HORAS.forEach(hora => {
+    const citaHora = citas.find(c => c.hora === hora);
+    const bloqueado = bloqueos.find(b => b.hora === hora);
+
+    const fila = document.createElement("tr");
+
+    // Colores según estado
+    let colorFila = "";
+    if (citaHora) colorFila = "#d1f0d1";      // Verde para cita
+    else if (bloqueado) colorFila = "#f0d1d1"; // Rojo para bloqueado
+
+    fila.style.backgroundColor = colorFila;
+
+    fila.innerHTML = `
+      <td>${hora}</td>
+      <td>${citaHora ? citaHora.clienteId : "-"}</td>
+      <td>${citaHora ? citaHora.servicioId : "-"}</td>
+      <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : "-"}</td>
+      <td>
+        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar</button>` : ""}
+        ${bloqueado ? `<span style="font-weight:bold;">Bloqueado</span>` : ""}
+      </td>
+    `;
+
+    tabla.appendChild(fila);
+  });
+
+  // Eventos eliminar cita
+  document.querySelectorAll(".btnEliminar").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      if (confirm("¿Desea eliminar esta cita?")) {
+        await deleteDoc(doc(db, "citas", id));
+        cargarAgenda(fechaSeleccionada); // recargar agenda
+      }
+    });
+  });
 }
 
-// Activar la primera vista al cargar
-cargarVista('agenda');
+// =======================
+// CARGAR AGENDA DEL DÍA ACTUAL
+// =======================
+const hoy = new Date();
+const yyyy = hoy.getFullYear();
+const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+const dd = String(hoy.getDate()).padStart(2, '0');
+const fechaHoy = `${yyyy}-${mm}-${dd}`;
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    cargarVista(tab.dataset.tab);
-  });
+fechaInput.value = fechaHoy;
+cargarAgenda(fechaHoy);
+
+// Cambiar fecha manualmente
+fechaInput.addEventListener("change", () => {
+  if (fechaInput.value) cargarAgenda(fechaInput.value);
 });
