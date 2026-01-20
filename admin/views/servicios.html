@@ -9,10 +9,14 @@
 </head>
 <body>
 
-  <div class="container">
-    <h2>Servicios</h2>
+  
+  <!-- MAIN CONTENT -->
+  <main id="main-content">
+    <div id="tab-servicios" class="tab-content active">
 
-    <form id="formServicios" class="form-reserva">
+      <h2>Servicios</h2>
+
+         <form id="formServicios" class="form-reserva">
       <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
       <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
       <input type="number" id="precioServicio" placeholder="Precio ₡" required>
@@ -24,7 +28,8 @@
 
     <hr>
 
-    <table id="tablaServicios" class="tabla">
+      <!-- Tabla de servicios  -->
+      <table id="tablaServicios" class="tabla">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -36,7 +41,9 @@
       </thead>
       <tbody></tbody>
     </table>
-  </div>
+
+    </div>
+  </main>
 
   <script type="module" src="../js/firebase.js"></script>
   <script type="module" src="../js/servicios.js"></script>
