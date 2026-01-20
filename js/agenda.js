@@ -1,44 +1,47 @@
 import { db } from "./firebase.js";
 import {
-  collection, query, where, getDocs,
-  addDoc, updateDoc, doc
+  collection, addDoc, getDocs, query, where, updateDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
 
 const modal = document.getElementById("modalCita");
-const clienteInput = document.getElementById("clienteNombre");
-const servicioSelect = document.getElementById("servicioSelect");
-const btnGuardar = document.getElementById("btnGuardar");
-const btnCancelar = document.getElementById("btnCancelar");
+const btnNuevaCita = document.getElementById("btnNuevaCita");
+const guardarCita = document.getElementById("guardarCita");
+const cancelarModal = document.getElementById("cancelarModal");
 
-let horaSeleccionada = null;
-let citaEditId = null;
+const clienteNombre = document.getElementById("clienteNombre");
+const servicioSelect = document.getElementById("servicioSelect");
+const simultaneoCheck = document.getElementById("simultaneo");
 
 const HORAS = [
   "08:00","09:00","10:00","11:00","12:00",
   "13:00","14:00","15:00","16:00","17:00","18:00"
 ];
 
+let horaSeleccionada = null;
+
+// FECHA HOY
 function hoyISO() {
   return new Date().toISOString().split("T")[0];
 }
 
-/* SERVICIOS */
+// CARGAR SERVICIOS
 async function cargarServicios() {
   servicioSelect.innerHTML = "";
   const snap = await getDocs(collection(db, "servicios"));
   snap.forEach(d => {
     const s = d.data();
-    servicioSelect.innerHTML += `
-      <option value="${d.id}" data-simultaneo="${s.simultaneo}">
-        ${s.nombre}
-      </option>`;
+    const opt = document.createElement("option");
+    opt.value = s.nombre;
+    opt.dataset.simultaneo = s.simultaneo;
+    opt.textContent = s.nombre;
+    servicioSelect.appendChild(opt);
   });
 }
 
-/* AGENDA */
+// AGENDA
 async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
 
@@ -50,69 +53,67 @@ async function cargarAgenda(fecha) {
     const cita = citas.find(c => c.hora === hora);
 
     const tr = document.createElement("tr");
+    tr.dataset.hora = hora;
+
+    if (cita) {
+      tr.draggable = true;
+      tr.dataset.id = cita.id;
+    }
+
     tr.innerHTML = `
       <td>${hora}</td>
-      <td>${cita ? cita.clienteNombre : "-"}</td>
-      <td>${cita ? cita.servicioNombre : "-"}</td>
+      <td>${cita?.clienteNombre || "-"}</td>
+      <td>${cita?.servicioNombre || "-"}</td>
       <td class="${cita ? "ocupado" : "libre"}">
         ${cita ? "Ocupado" : "Disponible"}
       </td>
     `;
 
-    tr.addEventListener("click", () => abrirModal(hora, cita));
+    tr.addEventListener("click", () => {
+      if (!cita) {
+        horaSeleccionada = hora;
+        modal.classList.add("active");
+      }
+    });
+
+    tr.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("id", tr.dataset.id);
+    });
+
+    tr.addEventListener("dragover", e => e.preventDefault());
+
+    tr.addEventListener("drop", async e => {
+      const id = e.dataTransfer.getData("id");
+      await updateDoc(doc(db, "citas", id), { hora });
+      cargarAgenda(fechaInput.value);
+    });
+
     tbody.appendChild(tr);
   });
 }
 
-/* MODAL */
-function abrirModal(hora, cita) {
-  horaSeleccionada = hora;
-  citaEditId = cita ? cita.id : null;
+// NUEVA CITA
+guardarCita.onclick = async () => {
+  const servicio = servicioSelect.selectedOptions[0];
+  const permite = servicio.dataset.simultaneo === "true";
 
-  clienteInput.value = cita ? cita.clienteNombre : "";
-  modal.classList.add("active");
-}
-
-btnCancelar.onclick = () => modal.classList.remove("active");
-
-/* GUARDAR */
-btnGuardar.onclick = async () => {
-  const servicioOption = servicioSelect.selectedOptions[0];
-  const simultaneo = servicioOption.dataset.simultaneo === "true";
-
-  const q = query(
-    collection(db, "citas"),
-    where("fecha", "==", fechaInput.value),
-    where("hora", "==", horaSeleccionada)
-  );
-
-  const snap = await getDocs(q);
-
-  if (!simultaneo && !snap.empty && !citaEditId) {
-    alert("Este servicio no permite citas simultáneas");
-    return;
-  }
-
-  const data = {
+  await addDoc(collection(db, "citas"), {
     fecha: fechaInput.value,
     hora: horaSeleccionada,
-    clienteNombre: clienteInput.value,
-    servicioId: servicioSelect.value,
-    servicioNombre: servicioOption.text,
-    simultaneo
-  };
-
-  if (citaEditId) {
-    await updateDoc(doc(db, "citas", citaEditId), data);
-  } else {
-    await addDoc(collection(db, "citas"), data);
-  }
+    clienteNombre: clienteNombre.value,
+    servicioNombre: servicio.value,
+    simultaneo: permite
+  });
 
   modal.classList.remove("active");
+  clienteNombre.value = "";
   cargarAgenda(fechaInput.value);
 };
 
-/* INIT */
+cancelarModal.onclick = () => modal.classList.remove("active");
+btnNuevaCita.onclick = () => modal.classList.add("active");
+
+// INIT
 document.addEventListener("DOMContentLoaded", async () => {
   fechaInput.value = hoyISO();
   await cargarServicios();
