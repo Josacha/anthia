@@ -1,14 +1,5 @@
 import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  updateDoc,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, query, where, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
@@ -20,21 +11,16 @@ const cancelarModal = document.getElementById("cancelarModal");
 
 const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
-const simultaneoCheck = document.getElementById("simultaneo");
-
-const btnDia = document.getElementById("btnDia");
-const btnSemana = document.getElementById("btnSemana");
+const btnAgregarServicio = document.getElementById("btnAgregarServicio");
+const listaServicios = document.getElementById("listaServicios");
+const tiempoTotalSpan = document.getElementById("tiempoTotal");
 
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
-
 let horaSeleccionada = null;
-let editCitaId = null;
-let vistaSemana = false;
+let carrito = [];
 
 // FECHA HOY
-function hoyISO() {
-  return new Date().toISOString().split("T")[0];
-}
+function hoyISO() { return new Date().toISOString().split("T")[0]; }
 
 // CARGAR SERVICIOS
 async function cargarServicios() {
@@ -44,11 +30,20 @@ async function cargarServicios() {
     const s = d.data();
     const opt = document.createElement("option");
     opt.value = s.nombre;
-    opt.dataset.simultaneo = s.simultaneo;
-    opt.dataset.duracion = s.duracion || 1; // duración en horas
-    opt.textContent = s.nombre;
+    opt.dataset.duracion = s.duracion || 30; // duracion en minutos
+    opt.textContent = `${s.nombre} (${s.duracion || 30} min)`;
     servicioSelect.appendChild(opt);
   });
+}
+
+// ACTUALIZAR HERO
+function actualizarHero(fecha) {
+  const d = new Date(fecha);
+  const dias = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  document.getElementById("numeroDia").textContent = d.getDate();
+  document.getElementById("mes").textContent = meses[d.getMonth()];
+  document.getElementById("diaSemana").textContent = dias[d.getDay()];
 }
 
 // CARGAR AGENDA
@@ -56,130 +51,110 @@ async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
   const q = query(collection(db, "citas"), where("fecha", "==", fecha));
   const snap = await getDocs(q);
-  const citas = snap?.docs?.map(d => ({ id: d.id, ...d.data() })) || [];
+  const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   HORAS.forEach(hora => {
     const cita = citas.find(c => c.hora === hora);
     const tr = document.createElement("tr");
     tr.dataset.hora = hora;
 
-    if (cita) {
-      tr.draggable = true;
-      tr.dataset.id = cita.id;
-    }
-
-    // calcular duración si tiene varios servicios
-    const duracion = cita?.servicios?.reduce((sum, s) => sum + (s.duracion || 1), 0) || (cita ? 1 : 0);
-
     tr.innerHTML = `
       <td>${hora}</td>
       <td>${cita?.clienteNombre || "-"}</td>
-      <td>${cita ? (cita.servicios?.map(s => s.nombre).join(", ") || cita.servicioNombre) : "-"}</td>
-      <td class="${cita ? "ocupado" : "libre"}">
-        ${cita ? "Ocupado" : "Disponible"}
-      </td>
-      <td class="acciones">
-        ${cita ? '<button class="accion-btn editar">Editar</button><button class="accion-btn eliminar">Eliminar</button>' : ''}
+      <td>${cita ? cita.servicios.map(s=>s.nombre).join(", ") : "-"}</td>
+      <td>${cita ? (cita.servicios.reduce((acc,s)=>acc+s.duracion,0)) : "-"}</td>
+      <td class="${cita ? "ocupado" : "libre"}">${cita ? "Ocupado" : "Disponible"}</td>
+      <td>
+        ${cita ? `<button class="editar" data-id="${cita.id}">✏️</button>
+                   <button class="eliminar" data-id="${cita.id}">🗑️</button>` : ""}
       </td>
     `;
 
-    // CLICK en fila para nueva cita
-    tr.addEventListener("click", () => {
-      if (!cita) {
-        horaSeleccionada = hora;
-        editCitaId = null;
-        modal.classList.add("active");
-      }
-    });
-
-    // BOTONES DE ACCIÓN
-    tr.querySelectorAll(".accion-btn.editar").forEach(btn => {
-      btn.addEventListener("click", e => {
-        e.stopPropagation();
-        editCitaId = cita.id;
-        horaSeleccionada = hora;
-        clienteNombre.value = cita.clienteNombre;
-        simultaneoCheck.checked = cita.simultaneo || false;
-        // cargar servicios existentes
-        cargarServicios().then(() => {
-          if(cita.servicios) {
-            Array.from(servicioSelect.options).forEach(opt => {
-              opt.selected = cita.servicios.some(s => s.nombre === opt.value);
-            });
-          }
-        });
-        modal.classList.add("active");
-      });
-    });
-
-    tr.querySelectorAll(".accion-btn.eliminar").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        e.stopPropagation();
-        if(confirm("¿Eliminar esta cita?")) {
-          await deleteDoc(doc(db, "citas", cita.id));
-          cargarAgenda(fechaInput.value);
-        }
-      });
-    });
+    if (!cita) tr.addEventListener("click", () => { horaSeleccionada = hora; modal.classList.add("active"); });
 
     tbody.appendChild(tr);
   });
+
+  // EDITAR / ELIMINAR
+  document.querySelectorAll(".editar").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const c = citas.find(c=>c.id===id);
+      horaSeleccionada = c.hora;
+      clienteNombre.value = c.clienteNombre;
+      carrito = c.servicios;
+      actualizarCarrito();
+      modal.classList.add("active");
+      guardarCita.onclick = async () => {
+        await updateDoc(doc(db,"citas",id), { clienteNombre: clienteNombre.value, servicios: carrito });
+        modal.classList.remove("active");
+        cargarAgenda(fechaInput.value);
+      };
+    });
+  });
+
+  document.querySelectorAll(".eliminar").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      if(confirm("Eliminar cita?")){
+        await deleteDoc(doc(db,"citas",btn.dataset.id));
+        cargarAgenda(fechaInput.value);
+      }
+    });
+  });
 }
 
-// GUARDAR / EDITAR CITA
-guardarCita.onclick = async () => {
-  const selectedServices = Array.from(servicioSelect.selectedOptions).map(opt => ({
-    nombre: opt.value,
-    duracion: parseInt(opt.dataset.duracion),
-    simultaneo: opt.dataset.simultaneo === "true"
-  }));
+// CARRITO
+btnAgregarServicio.onclick = () => {
+  const opt = servicioSelect.selectedOptions[0];
+  carrito.push({ nombre: opt.value, duracion: parseInt(opt.dataset.duracion) });
+  actualizarCarrito();
+};
 
-  const nuevaCita = {
+function actualizarCarrito() {
+  listaServicios.innerHTML = "";
+  let total = 0;
+  carrito.forEach((s,i)=>{
+    total += s.duracion;
+    const li = document.createElement("li");
+    li.innerHTML = `${s.nombre} - ${s.duracion} min <span class="remove" data-index="${i}">x</span>`;
+    listaServicios.appendChild(li);
+  });
+  tiempoTotalSpan.textContent = total;
+  document.querySelectorAll(".remove").forEach(r=>r.addEventListener("click", e=>{
+    carrito.splice(e.target.dataset.index,1);
+    actualizarCarrito();
+  }));
+}
+
+// NUEVA CITA
+guardarCita.onclick = async () => {
+  if(!horaSeleccionada) return;
+  await addDoc(collection(db,"citas"), {
     fecha: fechaInput.value,
     hora: horaSeleccionada,
     clienteNombre: clienteNombre.value,
-    servicios: selectedServices,
-    simultaneo: selectedServices.some(s => s.simultaneo)
-  };
-
-  if(editCitaId) {
-    await updateDoc(doc(db, "citas", editCitaId), nuevaCita);
-  } else {
-    await addDoc(collection(db, "citas"), nuevaCita);
-  }
-
+    servicios: carrito
+  });
   modal.classList.remove("active");
-  clienteNombre.value = "";
+  clienteNombre.value="";
+  carrito=[];
+  actualizarCarrito();
   cargarAgenda(fechaInput.value);
 };
 
-// CANCELAR MODAL
-cancelarModal.onclick = () => modal.classList.remove("active");
-btnNuevaCita.onclick = () => {
-  editCitaId = null;
-  modal.classList.add("active");
-};
-
-// VISTA DIA / SEMANA
-btnDia.onclick = () => {
-  vistaSemana = false;
-  btnDia.classList.add("active");
-  btnSemana.classList.remove("active");
-  cargarAgenda(fechaInput.value);
-};
-
-btnSemana.onclick = () => {
-  vistaSemana = true;
-  btnSemana.classList.add("active");
-  btnDia.classList.remove("active");
-  cargarAgenda(fechaInput.value);
-};
+// CANCELAR
+cancelarModal.onclick = () => { modal.classList.remove("active"); carrito=[]; actualizarCarrito(); };
+btnNuevaCita.onclick = () => { horaSeleccionada=null; modal.classList.add("active"); };
 
 // INIT
 document.addEventListener("DOMContentLoaded", async () => {
   fechaInput.value = hoyISO();
   await cargarServicios();
+  actualizarHero(fechaInput.value);
   cargarAgenda(fechaInput.value);
 });
 
-fechaInput.addEventListener("change", () => cargarAgenda(fechaInput.value));
+fechaInput.addEventListener("change", ()=>{
+  cargarAgenda(fechaInput.value);
+  actualizarHero(fechaInput.value);
+});
