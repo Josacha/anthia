@@ -1,14 +1,16 @@
-// Script para cambiar de pestañas en el dashboard
-const tabs = document.querySelectorAll('.tab-btn');
-const contents = document.querySelectorAll('.tab-content');
+// Cambiar vistas en el dashboard
+const tabs = document.querySelectorAll('.sidebar a');
+const mainContent = document.getElementById('main-content');
 
 tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(btn => btn.classList.remove('active'));
-    contents.forEach(c => c.classList.remove('active'));
+  tab.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const tabName = tab.dataset.tab;
+    const response = await fetch(`../views/${tabName}.html`);
+    const html = await response.text();
+    mainContent.innerHTML = html;
 
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('active');
+    // Después de cargar la vista, ejecutamos la lógica de Firebase
+    import('./admin-firebase.js');
   });
 });
-
