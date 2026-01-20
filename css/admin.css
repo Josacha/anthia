@@ -1,6 +1,8 @@
-/* ===========================
-   RESET & BASE
-=========================== */
+/* ===============================
+   FUENTES Y RESET
+================================ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -9,232 +11,165 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #f8f6f3;
+  background-color: #faf9f8;
   color: #333;
-  min-height: 100vh;
 }
 
-/* ===========================
-   VARIABLES DE COLOR
-=========================== */
-:root {
-  --beige: #c8a97e;
-  --beige-dark: #b5966f;
-  --beige-light: #f3efe9;
-  --verde-spa: #3a5f5a;
-  --gris-texto: #444;
-  --blanco: #ffffff;
-}
-
-/* ===========================
+/* ===============================
    SIDEBAR
-=========================== */
+================================ */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 230px;
+  width: 240px;
   height: 100vh;
-  background: linear-gradient(180deg, #f6f2ec, #ede7df);
-  padding: 24px 18px;
+  background: linear-gradient(180deg, #f6efe6, #ede4d6);
+  padding: 25px 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 20px rgba(0,0,0,0.06);
-  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.05);
 }
 
-/* Logo / título */
-.sidebar h2 {
+.sidebar-brand {
   text-align: center;
+  margin-bottom: 40px;
+}
+
+.sidebar-brand h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 22px;
+  font-size: 28px;
+  color: #8b6f47;
+}
+
+.sidebar-brand span {
+  font-size: 12px;
   letter-spacing: 2px;
-  color: var(--verde-spa);
-  margin-bottom: 35px;
+  text-transform: uppercase;
+  color: #a8906a;
 }
 
-/* Links */
-.sidebar a {
+/* MENU */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-menu a {
   text-decoration: none;
-  color: var(--gris-texto);
   padding: 14px 18px;
-  margin-bottom: 10px;
   border-radius: 14px;
+  color: #5a4a32;
   font-weight: 500;
-  display: block;
   transition: all 0.3s ease;
+  background-color: transparent;
 }
 
-.sidebar a:hover {
-  background-color: var(--beige);
+.sidebar-menu a:hover {
+  background-color: #c8a97e;
   color: #fff;
-  transform: translateX(4px);
-  box-shadow: 0 6px 14px rgba(200,169,126,0.35);
 }
 
-/* ===========================
-   BOTÓN LOGOUT
-=========================== */
-#btnLogout {
+.sidebar-menu a.active {
+  background-color: #b5966f;
+  color: #fff;
+}
+
+/* LOGOUT */
+.btn-logout {
   margin-top: auto;
   padding: 14px;
   border-radius: 30px;
+  border: 1.5px solid #b5966f;
+  background: transparent;
+  color: #b5966f;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid var(--beige);
-  background: transparent;
-  color: var(--beige);
   transition: all 0.3s ease;
 }
 
-#btnLogout:hover {
-  background: var(--beige);
+.btn-logout:hover {
+  background-color: #b5966f;
   color: #fff;
-  box-shadow: 0 6px 16px rgba(200,169,126,0.35);
 }
 
-/* ===========================
+/* ===============================
    MAIN CONTENT
-=========================== */
-#main-content {
-  margin-left: 250px;
-  padding: 40px;
-  min-height: 100vh;
-  background: #f8f6f3;
-}
-
-/* Títulos */
-#main-content h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  margin-bottom: 25px;
-  color: var(--verde-spa);
-}
-
-/* ===========================
-   TARJETAS / SECCIONES
-=========================== */
-.section-card {
-  background: var(--blanco);
+================================ */
+.main-content {
+  margin-left: 260px;
   padding: 30px;
-  border-radius: 22px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-  margin-bottom: 30px;
 }
 
-/* ===========================
-   TABLAS
-=========================== */
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+/* HERO */
+.hero-admin {
+  height: 220px;
+  border-radius: 24px;
+  background: linear-gradient(
+    rgba(0,0,0,0.25),
+    rgba(0,0,0,0.25)
+  ),
+  url("../img/hero-spa.jpg") center/cover no-repeat;
+  display: flex;
+  align-items: flex-end;
+  padding: 30px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
 }
 
-.tabla thead {
-  background: var(--beige);
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
   color: #fff;
 }
 
-.tabla th,
-.tabla td {
-  padding: 14px 16px;
-  font-size: 14px;
-  text-align: left;
+.hero-text p {
+  color: #eee;
+  margin-top: 6px;
 }
 
-.tabla tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.25s ease;
+/* INFO */
+.dashboard-info {
+  margin-top: 30px;
 }
 
-.tabla tbody tr:hover {
-  background-color: var(--beige-light);
+.dashboard-info h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 10px;
 }
 
-/* ===========================
-   BOTONES
-=========================== */
-.btn-primary {
-  background: var(--beige);
-  color: #fff;
-  border: none;
-  padding: 12px 26px;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background: var(--beige-dark);
-  box-shadow: 0 6px 18px rgba(200,169,126,0.4);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--beige);
-  border: 1.5px solid var(--beige);
-  padding: 12px 26px;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background: var(--beige);
-  color: #fff;
-}
-
-/* ===========================
-   FORMULARIOS
-=========================== */
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  margin-top: 8px;
-  border-radius: 14px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  transition: border 0.3s ease;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--beige);
-}
-
-/* ===========================
+/* ===============================
    RESPONSIVE
-=========================== */
-@media (max-width: 900px) {
+================================ */
+@media (max-width: 768px) {
   .sidebar {
     position: relative;
     width: 100%;
     height: auto;
     flex-direction: row;
-    overflow-x: auto;
     align-items: center;
+    overflow-x: auto;
   }
 
-  .sidebar h2 {
+  .sidebar-brand {
     display: none;
   }
 
-  .sidebar a {
-    margin: 0 6px;
+  .sidebar-menu {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .sidebar-menu a {
     white-space: nowrap;
   }
 
-  #main-content {
+  .btn-logout {
+    display: none;
+  }
+
+  .main-content {
     margin-left: 0;
-    padding: 25px;
+    padding: 20px;
   }
 }
