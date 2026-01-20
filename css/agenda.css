@@ -186,3 +186,57 @@
 .btn-primario:hover {
   background: #1f2937;
 }
+
+/* HERO AGENDA */
+.hero-agenda {
+  background:
+    linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)),
+    url("../assets/fondo/dash2.jpg") center / cover no-repeat;
+}
+
+/* CONTENEDOR */
+.agenda-section {
+  margin-top: 30px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0 15px 30px rgba(0,0,0,.05);
+}
+
+/* HEADER */
+.agenda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.agenda-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+}
+
+/* ESTADOS */
+.tabla td.libre {
+  background: #e8f7ef;
+  color: #1b7f4a;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.tabla td.ocupado {
+  background: #fdecea;
+  color: #b42318;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .agenda-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
