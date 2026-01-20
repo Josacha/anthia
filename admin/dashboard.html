@@ -1,134 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard | ANTHIA ESTHETIC CENTER</title>
-  <link rel="stylesheet" href="../css/estilos.css">
-  <link rel="stylesheet" href="../css/admin.css">
-</head>
-<body>
+<div class="card">
+  <h3>Servicios</h3>
 
-  <!-- Sidebar / Menú lateral -->
-  <div class="sidebar">
-    <h2>ANTHIA ESTHETIC</h2>
-    <button class="tab-btn active" data-tab="agenda">Agenda</button>
-    <button class="tab-btn" data-tab="contactos">Contactos</button>
-    <button class="tab-btn" data-tab="servicios">Servicios</button>
-    <button class="tab-btn" data-tab="inventario">Inventario</button>
-    <button class="tab-btn" data-tab="bloqueos">Bloqueos</button>
-    <button class="tab-btn" data-tab="configuracion">Configuración</button>
-  </div>
+  <form id="formNuevoServicio" class="form-dashboard">
+    <input type="text" id="nuevoServicioNombre" placeholder="Nombre del servicio" required>
+    <input type="number" id="nuevoServicioDuracion" placeholder="Duración (min)" required>
+    <input type="number" id="nuevoServicioPrecio" placeholder="Precio ($)" required>
+    <label>
+      <input type="checkbox" id="nuevoServicioSimultaneo"> Permitir simultáneo
+    </label>
+    <button type="submit" class="btn-primary">Agregar servicio</button>
+  </form>
 
-  <!-- Contenido principal -->
-  <div class="main-content">
-
-    <!-- Agenda -->
-    <div id="agenda" class="tab-content active">
-      <div class="card">
-        <h3>Agenda diaria / semanal</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Servicio</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tablaAgenda"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Contactos -->
-    <div id="contactos" class="tab-content">
-      <div class="card">
-        <h3>Clientes registrados</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Historial de citas</th>
-            </tr>
-          </thead>
-          <tbody id="tablaContactos"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Servicios -->
-    <div id="servicios" class="tab-content">
-      <div class="card">
-        <h3>Servicios</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Duración</th>
-              <th>Precio</th>
-              <th>Simultáneo</th>
-            </tr>
-          </thead>
-          <tbody id="tablaServicios"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Inventario -->
-    <div id="inventario" class="tab-content">
-      <div class="card">
-        <h3>Inventario</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Alerta stock</th>
-            </tr>
-          </thead>
-          <tbody id="tablaInventario"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Bloqueos -->
-    <div id="bloqueos" class="tab-content">
-      <div class="card">
-        <h3>Bloqueos</h3>
-        <p>Bloquear horas o días completos</p>
-      </div>
-    </div>
-
-    <!-- Configuración -->
-    <div id="configuracion" class="tab-content">
-      <div class="card">
-        <h3>Configuración</h3>
-        <p>Horarios, intervalos y máximo de citas por día</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-contenido">
-      <p>ANTHIA ESTHETIC CENTER © 2026 | Todos los derechos reservados</p>
-      <p>
-        <a href="#">Facebook</a> | 
-        <a href="#">Instagram</a> | 
-        <a href="#">WhatsApp</a>
-      </p>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
-  <script type="module" src="../js/ui-tabs.js"></script>
- 
-  <script type="module" src="../js/admin-firebase.js"></script>
-
-
-</body>
-</html>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Duración</th>
+        <th>Precio</th>
+        <th>Simultáneo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaServicios"></tbody>
+  </table>
+</div>
