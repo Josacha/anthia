@@ -240,3 +240,68 @@
   }
 }
 
+.hero-agenda {
+  background:
+    linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)),
+    url("../assets/fondo/agenda.jpg") center/cover no-repeat;
+}
+
+.agenda-section {
+  margin-top: 30px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 24px;
+  box-shadow: 0 15px 30px rgba(0,0,0,.05);
+}
+
+.tabla td.libre {
+  background: #e8f7ef;
+  color: #1b7f4a;
+  font-weight: 600;
+}
+
+.tabla td.ocupado {
+  background: #fdecea;
+  color: #b42318;
+  font-weight: 600;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 420px;
+}
+
+.modal-box input,
+.modal-box select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+
