@@ -1,26 +1,66 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Dashboard | ANTHIA ESTHETIC CENTER</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <aside class="sidebar">
-  <h2>ANTHIA</h2>
+  <div class="brand">
+    <h2>ANTHIA</h2>
+    <span>Esthetic Center</span>
+  </div>
 
-  <a href="views/agenda.html">Agenda</a>
-  <a href="views/servicios.html">Servicios</a>
-  <a href="views/contactos.html">Contactos</a>
-  <a href="views/inventario.html">Inventario</a>
-  <a href="views/bloqueos.html">Bloqueos</a>
-  <a href="views/configuracion.html">Configuración</a>
+  <nav class="menu">
+    <a href="agenda.html">📅 Agenda</a>
+    <a href="servicios.html">✨ Servicios</a>
+    <a href="contactos.html">👤 Contactos</a>
+    <a href="inventario.html">📦 Inventario</a>
+    <a href="bloqueos.html">⛔ Bloqueos</a>
+    <a href="configuracion.html">⚙️ Configuración</a>
+  </nav>
 
-  <button id="btnLogout" class="btn-secondary">Cerrar sesión</button>
+  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 </aside>
 
+<!-- CONTENIDO -->
+<main class="dashboard">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Panel Administrativo</h1>
+      <p>Gestión de reservas, clientes y servicios de ANTHIA</p>
+    </div>
+  </section>
+
+  <!-- ACCESOS RÁPIDOS -->
+  <section class="quick-actions">
+    <a href="agenda.html" class="card">
+      <h3>Agenda</h3>
+      <p>Ver y gestionar citas</p>
+    </a>
+
+    <a href="servicios.html" class="card">
+      <h3>Servicios</h3>
+      <p>Administrar tratamientos</p>
+    </a>
+
+    <a href="contactos.html" class="card">
+      <h3>Clientes</h3>
+      <p>Base de datos de clientes</p>
+    </a>
+  </section>
+
+</main>
+
+<!-- JS -->
 <script type="module" src="../js/firebase.js"></script>
 <script type="module" src="../js/auth.js"></script>
 
