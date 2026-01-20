@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+ import { db } from "./firebase.js";
 import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const tabla = document.getElementById("tablaContactos").querySelector("tbody");
