@@ -1,1 +1,10 @@
+#tablaAgenda th, #tablaAgenda td {
+  text-align: center;
+}
+#tablaAgenda button {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
 
