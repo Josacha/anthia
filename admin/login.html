@@ -1,1 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <h2>Bienvenido al Dashboard</h2>
+    <p>Inicia sesión para administrar el salón</p>
+
+    <form id="formLogin" class="form-reserva">
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+      <input type="password" id="loginPassword" placeholder="Contraseña" required>
+      <button type="submit" class="btn-primary">Iniciar sesión</button>
+    </form>
+
+    <p id="errorMsg" style="color:red; margin-top:10px;"></p>
+  </div>
+</div>
+
+<script type="module" src="../js/auth.js"></script>
+
+</body>
+</html>
 
