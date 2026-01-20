@@ -27,7 +27,8 @@ export async function cargarServicios() {
     tr.innerHTML = `
       <td>${data.nombre}</td>
       <td>${data.duracion} min</td>
-      <td>$${data.precio}</td>
+      <td>₡${data.precio}</td>
+
       <td>${data.simultaneo ? 'Sí' : 'No'}</td>
       <td>
         <button class="btn-edit" data-id="${docSnap.id}">Editar</button>
