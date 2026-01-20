@@ -2,6 +2,7 @@
 import { db } from "./firebase.js";
 import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Elementos del DOM
 const fechaInput = document.getElementById("fechaAgenda");
 const tabla = document.getElementById("tablaAgenda").querySelector("tbody");
 
@@ -11,16 +12,7 @@ const HORAS = [
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
-// Función para formatear la fecha actual en YYYY-MM-DD
-function obtenerFechaHoy() {
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoy.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-// Función para cargar agenda
+// Función para cargar agenda de un día
 async function cargarAgenda(fechaSeleccionada) {
   tabla.innerHTML = "";
 
@@ -30,10 +22,25 @@ async function cargarAgenda(fechaSeleccionada) {
   const snapshotCitas = await getDocs(qCitas);
   const citas = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
 
+  // Obtener bloqueos
+  const bloqueosRef = collection(db, "bloqueos");
+  const qBloqueos = query(bloqueosRef, where("fecha", "==", fechaSeleccionada));
+  const snapshotBloqueos = await getDocs(qBloqueos);
+  const bloqueos = snapshotBloqueos.docs.map(d => ({ id: d.id, ...d.data() }));
+
   HORAS.forEach(hora => {
     const citaHora = citas.find(c => c.hora === hora);
+    const bloqueado = bloqueos.find(b => b.hora === hora);
 
     const fila = document.createElement("tr");
+
+    // Colores según estado
+    let colorFila = "";
+    if (citaHora) colorFila = "#d1f0d1";      // Verde para cita
+    else if (bloqueado) colorFila = "#f0d1d1"; // Rojo para bloqueado
+
+    fila.style.backgroundColor = colorFila;
+
     fila.innerHTML = `
       <td>${hora}</td>
       <td>${citaHora ? citaHora.clienteId : "-"}</td>
@@ -41,8 +48,10 @@ async function cargarAgenda(fechaSeleccionada) {
       <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : "-"}</td>
       <td>
         ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar</button>` : ""}
+        ${bloqueado ? `<span style="font-weight:bold;">Bloqueado</span>` : ""}
       </td>
     `;
+
     tabla.appendChild(fila);
   });
 
@@ -50,18 +59,27 @@ async function cargarAgenda(fechaSeleccionada) {
   document.querySelectorAll(".btnEliminar").forEach(btn => {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
-      await deleteDoc(doc(db, "citas", id));
-      cargarAgenda(fechaSeleccionada); // recargar
+      if (confirm("¿Desea eliminar esta cita?")) {
+        await deleteDoc(doc(db, "citas", id));
+        cargarAgenda(fechaSeleccionada); // recargar agenda
+      }
     });
   });
 }
 
-// ✅ Mostrar agenda automáticamente al cargar la página con la fecha de hoy
-const fechaHoy = obtenerFechaHoy();
+// =======================
+// CARGAR AGENDA DEL DÍA ACTUAL
+// =======================
+const hoy = new Date();
+const yyyy = hoy.getFullYear();
+const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+const dd = String(hoy.getDate()).padStart(2, '0');
+const fechaHoy = `${yyyy}-${mm}-${dd}`;
+
 fechaInput.value = fechaHoy;
 cargarAgenda(fechaHoy);
 
-// Cambiar agenda si el usuario selecciona otra fecha
+// Cambiar fecha manualmente
 fechaInput.addEventListener("change", () => {
   if (fechaInput.value) cargarAgenda(fechaInput.value);
 });
