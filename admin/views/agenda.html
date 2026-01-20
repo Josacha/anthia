@@ -1,34 +1,30 @@
-<div class="card">
-  <h3>Agenda diaria / semanal</h3>
+<div id="tab-agenda" class="tab-content">
 
-  <!-- FORMULARIO NUEVA CITA -->
-  <form id="formNuevaCita" class="form-dashboard">
-    <input type="text" id="citaNombre" placeholder="Nombre cliente" required>
-    <input type="text" id="citaApellido1" placeholder="Primer apellido" required>
-    <input type="text" id="citaApellido2" placeholder="Segundo apellido (opcional)">
-    <select id="citaServicio" required>
-      <option value="">Seleccione servicio</option>
-    </select>
-    <input type="date" id="citaFecha" required>
-    <input type="time" id="citaHora" required>
-    <button type="submit" class="btn-primary">Agregar cita</button>
-  </form>
+  <h2>Agenda</h2>
 
-  <!-- TABLA AGENDA -->
-  <table>
+  <!-- Selección de fecha -->
+  <div class="form-group">
+    <label for="fechaAgenda">Seleccionar fecha:</label>
+    <input type="date" id="fechaAgenda">
+  </div>
+
+  <!-- Botón para bloquear día completo -->
+  <button id="btnBloquearDia" class="btn-secondary">Bloquear día completo</button>
+
+  <!-- Agenda de citas -->
+  <table id="tablaAgenda" class="tabla">
     <thead>
       <tr>
+        <th>Hora</th>
         <th>Cliente</th>
         <th>Servicio</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Estado</th>
+        <th>Simultáneo</th>
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody id="tablaAgenda"></tbody>
+    <tbody>
+      <!-- Aquí se cargan las citas dinámicamente -->
+    </tbody>
   </table>
-  <script type="module" src="../../js/auth-protect.js"></script>
-
 
 </div>
