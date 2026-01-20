@@ -3,33 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Servicios | ANTHIA ESTHETIC CENTER</title>
+
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/tablas.css">
 </head>
 <body>
 
-  
-  <!-- MAIN CONTENT -->
-  <main id="main-content">
-    <div id="tab-servicios" class="tab-content active">
+  <!-- CONTENIDO QUE UI-TABS SÍ PUEDE USAR -->
+  <template id="vista-servicios">
 
-      <h2>Servicios</h2>
+    <h2>Servicios</h2>
 
-         <form id="formServicios" class="form-reserva">
+    <form id="formServicios" class="form-reserva">
+
       <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
       <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
       <input type="number" id="precioServicio" placeholder="Precio ₡" required>
+
       <label>
-        <input type="checkbox" id="simultaneoServicio"> Permitir citas simultáneas
+        <input type="checkbox" id="simultaneoServicio">
+        Permitir citas simultáneas
       </label>
+
       <button type="submit" class="btn-primary">Agregar servicio</button>
     </form>
 
     <hr>
 
-      <!-- Tabla de servicios  -->
-      <table id="tablaServicios" class="tabla">
+    <table id="tablaServicios" class="tabla">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -42,10 +44,17 @@
       <tbody></tbody>
     </table>
 
-    </div>
-  </main>
+  </template>
 
-  <script type="module" src="../js/firebase.js"></script>
-  <script type="module" src="../js/servicios.js"></script>
+  <!-- MODO STANDALONE -->
+  <script type="module">
+    const tpl = document.getElementById('vista-servicios');
+
+    if (!window.parent || !window.parent.document.getElementById('main-content')) {
+      document.body.appendChild(tpl.content.cloneNode(true));
+      import('../js/servicios.js').then(m => m.initServicios());
+    }
+  </script>
+
 </body>
 </html>
