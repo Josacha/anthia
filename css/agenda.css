@@ -1,103 +1,89 @@
-/* Contenedor general */
 #tab-agenda {
-  padding: 20px;
+  padding: 30px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* Títulos */
+/* Título centrado */
 #tab-agenda h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 32px;
+  font-weight: 700;
+  color: #4a3f35;
   text-align: center;
+  margin-bottom: 25px;
 }
 
-/* Formulario de selección de fecha */
+/* Formulario fecha */
 .form-group {
   display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  margin: 0 auto 20px auto;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 .form-group label {
-  margin-bottom: 5px;
+  margin-right: 15px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .form-group input[type="date"] {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 10px;
   border: 1px solid #ccc;
-  font-size: 16px;
+  transition: 0.3s;
 }
 
-/* Tabla de agenda */
+.form-group input[type="date"]:focus {
+  border-color: #c8a97e;
+  outline: none;
+  box-shadow: 0 0 8px rgba(200, 169, 126, 0.4);
+}
+
+/* Tabla elegante */
 #tablaAgenda {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 #tablaAgenda th, #tablaAgenda td {
-  padding: 12px;
-  border: 1px solid #ddd;
+  padding: 14px;
   text-align: center;
+  font-size: 15px;
 }
 
 #tablaAgenda th {
   background-color: #c8a97e;
-  color: white;
+  color: #fff;
   font-weight: 600;
-  font-size: 15px;
+  border: none;
+  border-radius: 8px 8px 0 0;
 }
 
-#tablaAgenda tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+#tablaAgenda tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #eee;
 }
 
 #tablaAgenda tbody tr:hover {
-  background-color: #f3efe9;
+  background-color: #f5f2ed;
 }
 
-/* Estados visuales */
-#tablaAgenda tbody tr td span.bloqueado {
-  color: white;
-  background-color: #e74c3c;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
+/* Estados */
+#tablaAgenda tbody tr.bloqueado { background-color: #f8d7da; color: #721c24; }
+#tablaAgenda tbody tr.ocupado { background-color: #d4edda; color: #155724; }
+#tablaAgenda tbody tr.disponible { background-color: #fff; color: #333; }
 
-#tablaAgenda tbody tr td span.ocupado {
-  color: white;
-  background-color: #f39c12;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-#tablaAgenda tbody tr td span.disponible {
-  color: white;
-  background-color: #27ae60;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-/* Botones dentro de la tabla */
+/* Botones */
 #tablaAgenda button {
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   border: none;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
-#tablaAgenda button:hover {
-  opacity: 0.8;
 }
 
 .btn-secondary {
@@ -105,24 +91,17 @@
   color: white;
 }
 
+.btn-secondary:hover {
+  background-color: #b49260;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-  #tablaAgenda th, #tablaAgenda td {
-    font-size: 12px;
-    padding: 8px;
-  }
-
-  .form-group {
-    max-width: 100%;
-  }
+  #tablaAgenda th, #tablaAgenda td { font-size: 13px; padding: 10px; }
+  .form-group { flex-direction: column; align-items: center; }
+  .form-group label { margin-bottom: 8px; }
 }
 
 @media (max-width: 480px) {
-  #tablaAgenda {
-    font-size: 11px;
-  }
-
-  #tablaAgenda th, #tablaAgenda td {
-    padding: 6px;
-  }
+  #tablaAgenda th, #tablaAgenda td { font-size: 12px; padding: 8px; }
 }
