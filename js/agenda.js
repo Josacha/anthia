@@ -1,102 +1,65 @@
-import { db } from './firebase.js';
-import { 
-  collection, getDocs, query, where, doc, deleteDoc, setDoc, getDoc, Timestamp 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db } from "./firebase.js";
+import { collection, query, where, getDocs, Timestamp, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Elementos del DOM
-const fechaInput = document.getElementById('fechaAgenda');
-const tablaAgenda = document.getElementById('tablaAgenda').querySelector('tbody');
-const btnBloquearDia = document.getElementById('btnBloquearDia');
+const fechaInput = document.getElementById("fechaAgenda");
+const tabla = document.getElementById("tablaAgenda").querySelector("tbody");
+const btnBloquearDia = document.getElementById("btnBloquearDia");
 
-// ================================
-// FUNCIONES AUXILIARES
-// ================================
+const HORAS = [
+  "08:00", "09:00", "10:00", "11:00", "12:00",
+  "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
+];
 
-// Obtener nombre de cliente por ID
-async function obtenerNombreCliente(clienteId) {
-  const docSnap = await getDoc(doc(db, 'clientes', clienteId));
-  return docSnap.exists() ? docSnap.data().nombre : clienteId;
-}
+// Función para cargar la agenda de un día
+async function cargarAgenda(fecha) {
+  tabla.innerHTML = "";
 
-// Obtener nombre de servicio por ID
-async function obtenerNombreServicio(servicioId) {
-  const docSnap = await getDoc(doc(db, 'servicios', servicioId));
-  return docSnap.exists() ? docSnap.data().nombre : servicioId;
-}
-
-// ================================
-// CARGAR AGENDA
-// ================================
-async function cargarAgenda() {
-  const fecha = fechaInput.value;
-  if (!fecha) return;
-
-  tablaAgenda.innerHTML = '';
-
-  const citasRef = collection(db, 'citas');
-  const q = query(citasRef, where('fecha', '==', fecha));
+  // Obtener citas del día seleccionado
+  const citasRef = collection(db, "citas");
+  const q = query(citasRef, where("fecha", "==", fecha));
   const snapshot = await getDocs(q);
+  const citas = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  if (snapshot.empty) {
-    tablaAgenda.innerHTML = '<tr><td colspan="5">No hay citas para esta fecha</td></tr>';
-    return;
-  }
+  HORAS.forEach(hora => {
+    const fila = document.createElement("tr");
 
-  for (const docSnap of snapshot.docs) {
-    const data = docSnap.data();
+    const citaHora = citas.find(c => c.hora === hora);
 
-    // Obtener nombres de cliente y servicio
-    const clienteNombre = await obtenerNombreCliente(data.clienteId);
-    const servicioNombre = await obtenerNombreServicio(data.servicioId);
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${data.hora}</td>
-      <td>${clienteNombre}</td>
-      <td>${servicioNombre}</td>
-      <td>${data.simultaneo ? 'Sí' : 'No'}</td>
+    fila.innerHTML = `
+      <td>${hora}</td>
+      <td>${citaHora ? citaHora.clienteId : ""}</td>
+      <td>${citaHora ? citaHora.servicio : ""}</td>
+      <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : ""}</td>
       <td>
-        <button class="btn-delete" data-id="${docSnap.id}">Cancelar</button>
+        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar</button>` : ""}
       </td>
     `;
-    tablaAgenda.appendChild(tr);
-  }
 
-  // Botones de eliminar citas
-  document.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (confirm('¿Desea cancelar esta cita?')) {
-        await deleteDoc(doc(db, 'citas', btn.dataset.id));
-        cargarAgenda(); // recarga la tabla
-      }
+    tabla.appendChild(fila);
+  });
+
+  // Eventos de eliminar
+  document.querySelectorAll(".btnEliminar").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      await deleteDoc(doc(db, "citas", id));
+      cargarAgenda(fecha); // recargar agenda
     });
   });
 }
 
-// ================================
-// BLOQUEAR DÍA COMPLETO
-// ================================
-btnBloquearDia.addEventListener('click', async () => {
+// Bloquear día completo
+btnBloquearDia.addEventListener("click", async () => {
   const fecha = fechaInput.value;
-  if (!fecha) return alert('Seleccione una fecha primero');
-
-  const bloqueosRef = doc(db, 'bloqueos', fecha);
-  await setDoc(bloqueosRef, { completo: true, creado: Timestamp.now() });
-
-  alert('Día bloqueado correctamente');
-  cargarAgenda(); // Opcional: recarga la agenda para indicar bloqueo
+  if (!fecha) return alert("Seleccione una fecha primero");
+  for (let hora of HORAS) {
+    await setDoc(doc(db, "bloqueos", `${fecha}_${hora}`), { bloqueado: true });
+  }
+  alert("Día bloqueado");
+  cargarAgenda(fecha);
 });
 
-// ================================
-// EVENTO AL CAMBIAR FECHA
-// ================================
-fechaInput.addEventListener('change', cargarAgenda);
-
-// ================================
-// INICIALIZACIÓN
-// ================================
-document.addEventListener('DOMContentLoaded', () => {
-  const hoy = new Date().toISOString().split('T')[0];
-  fechaInput.value = hoy;
-  cargarAgenda();
+// Cargar agenda al seleccionar fecha
+fechaInput.addEventListener("change", () => {
+  if (fechaInput.value) cargarAgenda(fechaInput.value);
 });
