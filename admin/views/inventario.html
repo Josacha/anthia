@@ -1,29 +1,33 @@
-<div class="card">
-  <h3>Inventario de productos</h3>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventario | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/tablas.css">
+</head>
+<body>
+ 
 
-  <!-- FORMULARIO NUEVO PRODUCTO -->
-  <form id="formNuevoProducto" class="form-dashboard">
-    <input type="text" id="nuevoProductoNombre" placeholder="Nombre del producto" required>
-    <input type="number" id="nuevoProductoCantidad" placeholder="Cantidad" required>
-    <label>
-      <input type="checkbox" id="nuevoProductoAlerta"> Alerta de stock bajo
-    </label>
-    <button type="submit" class="btn-primary">Agregar producto</button>
-  </form>
+  <main id="main-content">
+    <div id="tab-inventario" class="tab-content active">
+      <h2>Inventario</h2>
+      <table id="tablaInventario" class="tabla">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
 
-  <!-- TABLA INVENTARIO -->
-  <table>
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Alerta</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaInventario"></tbody>
-  </table>
-
-  <script type="module" src="../../js/auth-protect.js"></script>
-</div>
-
+  <script type="module" src="../js/firebase.js"></script>
+  <script type="module" src="../js/auth.js"></script>
+  <script type="module" src="../js/inventario.js"></script>
+  <script type="module" src="../js/ui-tabs.js"></script>
+</body>
+</html>
