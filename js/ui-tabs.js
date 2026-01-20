@@ -7,7 +7,14 @@ async function cargarVista(tabName) {
   try {
     const response = await fetch(`views/${tabName}.html`);
     const html = await response.text();
-    mainContent.innerHTML = html;
+    const temp = document.createElement('div');
+temp.innerHTML = html;
+
+const tpl = temp.querySelector('template');
+
+mainContent.innerHTML = '';
+mainContent.appendChild(tpl.content.cloneNode(true));
+
 
     // Ejecutar JS específico de cada vista
     switch(tabName) {
