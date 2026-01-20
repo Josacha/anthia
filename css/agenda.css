@@ -509,4 +509,109 @@ td.ocupado {
   }
 }
 
+/* ===============================
+   CONTROLES AGENDA – PREMIUM
+================================ */
+
+.agenda-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  background: #ffffff;
+  padding: 18px 22px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+
+/* FECHA */
+.agenda-fecha-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agenda-fecha-control label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.agenda-fecha-control input {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background: #f9fafb;
+}
+
+/* TOGGLE VISTA */
+.agenda-vistas {
+  display: flex;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 14px;
+}
+
+.vista-btn {
+  border: none;
+  background: transparent;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.vista-btn.active {
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+
+.vista-btn:not(.active):hover {
+  background: #e5e7eb;
+}
+
+/* BOTÓN NUEVA CITA */
+.btn-nueva-cita {
+  margin-left: auto;
+  background: linear-gradient(135deg, #1f4037, #99f2c8);
+  color: #ffffff;
+  padding: 14px 22px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all .3s ease;
+  box-shadow: 0 12px 25px rgba(0,0,0,.18);
+}
+
+.btn-nueva-cita:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 35px rgba(0,0,0,.25);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .agenda-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agenda-vistas {
+    justify-content: center;
+  }
+
+  .btn-nueva-cita {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+
 
