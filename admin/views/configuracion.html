@@ -7,32 +7,25 @@
   <link rel="stylesheet" href="../css/forms.css">
 </head>
 <body>
-  
 
-  <main id="main-content">
-    <div id="tab-configuracion" class="tab-content active">
-      <h2>Configuración</h2>
-      <form id="formConfiguracion" class="form-reserva">
-        <label for="inicioHorario">Inicio de jornada:</label>
-        <input type="time" id="inicioHorario" required>
+<main id="main-content">
+  <div id="tab-configuracion" class="tab-content active">
 
-        <label for="finHorario">Fin de jornada:</label>
-        <input type="time" id="finHorario" required>
+    <h2>Configuración</h2>
 
-        <label for="intervaloCitas">Intervalo entre citas (min):</label>
-        <input type="number" id="intervaloCitas" required>
+    <form id="formConfiguracion" class="form-reserva">
+      <input type="time" id="horaInicio" placeholder="Hora inicio">
+      <input type="time" id="horaFin" placeholder="Hora fin">
+      <input type="number" id="intervaloCitas" placeholder="Intervalo entre citas (min)">
+      <input type="number" id="maxCitas" placeholder="Máx citas por hora">
+      <button type="submit" class="btn-primary">Guardar configuración</button>
+    </form>
 
-        <label for="maxCitas">Máx citas por hora:</label>
-        <input type="number" id="maxCitas" required>
+  </div>
+</main>
 
-        <button type="submit" class="btn-primary">Guardar Configuración</button>
-      </form>
-    </div>
-  </main>
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/configuracion.js"></script>
 
-  <script type="module" src="../js/firebase.js"></script>
-  <script type="module" src="../js/auth.js"></script>
-  <script type="module" src="../js/configuracion.js"></script>
-  <script type="module" src="../js/ui-tabs.js"></script>
 </body>
 </html>
