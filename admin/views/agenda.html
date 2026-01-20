@@ -17,7 +17,7 @@
     <span>Agenda</span>
   </div>
 
-   <nav class="sidebar-menu">
+  <nav class="sidebar-menu">
     <a href="views/agenda.html">📅 Agenda</a>
     <a href="views/servicios.html">✨ Servicios</a>
     <a href="views/contactos.html">👤 Contactos</a>
@@ -41,24 +41,23 @@
   </section>
 
   <!-- CONTROLES -->
-<div class="agenda-controls">
+  <div class="agenda-controls">
 
-  <div class="agenda-fecha-control">
-    <label>Fecha</label>
-    <input type="date" id="fechaAgenda">
+    <div class="agenda-fecha-control">
+      <label>Fecha</label>
+      <input type="date" id="fechaAgenda">
+    </div>
+
+    <div class="agenda-vistas">
+      <button id="btnDia" class="vista-btn active">Día</button>
+      <button id="btnSemana" class="vista-btn">Semana</button>
+    </div>
+
+    <button id="btnNuevaCita" class="btn-nueva-cita">
+      ➕ Nueva cita
+    </button>
+
   </div>
-
-  <div class="agenda-vistas">
-    <button id="btnDia" class="vista-btn active">Día</button>
-    <button id="btnSemana" class="vista-btn">Semana</button>
-  </div>
-
-  <button id="btnNuevaCita" class="btn-nueva-cita">
-    ➕ Nueva cita
-  </button>
-
-</div>
-
 
   <!-- TABLA -->
   <table class="tabla" id="tablaAgenda">
@@ -66,8 +65,10 @@
       <tr>
         <th>Hora</th>
         <th>Cliente</th>
-        <th>Servicio</th>
+        <th>Servicios</th>
         <th>Estado</th>
+        <!-- ➕ NUEVO -->
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -80,11 +81,26 @@
   <div class="modal-box">
     <h3>Nueva cita</h3>
 
+    <!-- ➕ NUEVO: ID PARA EDITAR -->
+    <input type="hidden" id="citaId">
+
     <input id="clienteNombre" placeholder="Nombre del cliente">
-    <select id="servicioSelect"></select>
+
+    <!-- ➕ MODIFICADO: MULTIPLE -->
+    <select id="servicioSelect" multiple></select>
+
+    <!-- ➕ NUEVO: DURACIÓN -->
+    <p id="duracionTotal">Duración total: 0 min</p>
+
     <label>
-      <input type="checkbox" id="simultaneo"> Permitir simultáneo
+      <input type="checkbox" id="simultaneo">
+      Permitir simultáneo
     </label>
+
+    <!-- ➕ NUEVO: BLOQUEAR -->
+    <button id="btnBloquearHora" class="btn-secondary">
+      🔒 Bloquear hora
+    </button>
 
     <div class="acciones">
       <button id="guardarCita" class="btn-primary">Guardar</button>
