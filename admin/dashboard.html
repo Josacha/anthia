@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard | ANTHIA ESTHETIC CENTER</title>
-  <link rel="stylesheet" href="../css/admin.css">
-  <link rel="stylesheet" href="../css/tablas.css">
-  <link rel="stylesheet" href="../css/forms.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
 <aside class="sidebar">
-  <ul>
-    <li data-tab="agenda" class="active">Agenda</li>
-    <li data-tab="contactos">Contactos</li>
-    <li data-tab="servicios">Servicios</li>
-    <li data-tab="inventario">Inventario</li>
-    <li data-tab="bloqueos">Bloqueos</li>
-    <li data-tab="configuracion">Configuración</li>
-  </ul>
+  <h2>ANTHIA</h2>
+
+  <a href="views/agenda.html">Agenda</a>
+  <a href="views/servicios.html">Servicios</a>
+  <a href="views/contactos.html">Contactos</a>
+  <a href="views/inventario.html">Inventario</a>
+  <a href="views/bloqueos.html">Bloqueos</a>
+  <a href="views/configuracion.html">Configuración</a>
+
   <button id="btnLogout" class="btn-secondary">Cerrar sesión</button>
 </aside>
 
-<main id="main-content">
-  <!-- Aquí se cargan dinámicamente las vistas -->
-</main>
-
-<script type="module" src="../js/firebase.js"></script>
-<script type="module" src="../js/auth.js"></script>
-<script type="module" src="../js/ui-tabs.js"></script>
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/auth.js"></script>
 
 </body>
 </html>
