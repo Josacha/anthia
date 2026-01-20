@@ -1,31 +1,116 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Login | ANTHIA ESTHETIC CENTER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS base -->
   <link rel="stylesheet" href="../css/estilos.css">
   <link rel="stylesheet" href="../css/forms.css">
   <link rel="stylesheet" href="../css/admin.css">
+
+  <!-- Estilos SOLO para el login -->
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .login-hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(
+          rgba(0,0,0,0.55),
+          rgba(0,0,0,0.55)
+        ),
+        url("../assets/dash.jpg") center / cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(255,255,255,0.95);
+      max-width: 380px;
+      width: 100%;
+      padding: 30px 25px;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    .login-card h2 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: #163a33;
+    }
+
+    .login-card p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: #163a33;
+      color: #fff;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .login-card button:hover {
+      background: #1e4d44;
+    }
+
+    #errorMsg {
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 25px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-content">
-    <h2>Bienvenido al Dashboard</h2>
-    <p>Inicia sesión para administrar el salón</p>
+<div class="login-hero">
+  <div class="login-card">
 
-    <form id="formLogin" class="form-reserva">
+    <h2>ANTHIA</h2>
+    <p>Acceso al panel administrativo</p>
+
+    <form id="formLogin">
       <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
       <input type="password" id="loginPassword" placeholder="Contraseña" required>
-      <button type="submit" class="btn-primary">Iniciar sesión</button>
+
+      <button type="submit">Iniciar sesión</button>
     </form>
 
-    <p id="errorMsg" style="color:red; margin-top:10px;"></p>
+    <p id="errorMsg" style="color:red;"></p>
+
   </div>
 </div>
 
 <script type="module" src="../js/auth.js"></script>
-
 </body>
 </html>
-
