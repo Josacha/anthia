@@ -18,19 +18,33 @@ let carrito = [];
 let duracionTotal = 0;
 
 // =======================
+// Helpers para horas
+// =======================
+function horaAMinutos(horaStr) {
+  const [h,m] = horaStr.split(":").map(Number);
+  return h*60 + m;
+}
+
+function minutosAHora(minutos) {
+  const h = Math.floor(minutos/60);
+  const m = minutos % 60;
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+}
+
+// =======================
 // Autocompletar cliente
 // =======================
 async function autocompletarCliente(valor) {
   const clientesRef = collection(db, "clientes");
-  let q = query(clientesRef, where("correo", "==", valor));
+  let q = query(clientesRef, where("correo","==",valor));
   let snapshot = await getDocs(q);
 
-  if (snapshot.empty) {
-    q = query(clientesRef, where("telefono", "==", valor));
+  if(snapshot.empty){
+    q = query(clientesRef, where("telefono","==",valor));
     snapshot = await getDocs(q);
   }
 
-  if (!snapshot.empty) {
+  if(!snapshot.empty){
     const cliente = snapshot.docs[0].data();
     nombreInput.value = cliente.nombre || "";
     apellido1Input.value = cliente.apellido1 || "";
@@ -44,23 +58,21 @@ async function autocompletarCliente(valor) {
   }
 }
 
-correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
-telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
+correoInput.addEventListener("blur", ()=>autocompletarCliente(correoInput.value));
+telefonoInput.addEventListener("blur", ()=>autocompletarCliente(telefonoInput.value));
 
 // =======================
 // Cargar servicios
 // =======================
-async function cargarServicios() {
+async function cargarServicios(){
   servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
-  const serviciosRef = collection(db, "servicios");
-  const snapshot = await getDocs(serviciosRef);
-
-  snapshot.forEach(docSnap => {
+  const snapshot = await getDocs(collection(db,"servicios"));
+  snapshot.forEach(docSnap=>{
     const data = docSnap.data();
     const option = document.createElement("option");
     option.value = docSnap.id;
-    option.dataset.duracion = data.duracion || 1; // duración en horas
-    option.textContent = `${data.nombre} - ₡${data.precio} (${data.duracion}h)`;
+    option.dataset.duracion = data.duracion || 60; // duracion en minutos
+    option.textContent = `${data.nombre} - ₡${data.precio} (${data.duracion} min)`;
     servicioSelect.appendChild(option);
   });
 }
@@ -70,10 +82,10 @@ document.addEventListener("DOMContentLoaded", cargarServicios);
 // =======================
 // Carrito de servicios
 // =======================
-servicioSelect.addEventListener("change", () => {
+servicioSelect.addEventListener("change", ()=>{
   const selected = servicioSelect.selectedOptions[0];
-  if (!selected || selected.value === "") return;
-  if (carrito.some(s => s.id === selected.value)) return;
+  if(!selected || selected.value==="") return;
+  if(carrito.some(s=>s.id===selected.value)) return;
 
   const duracion = parseInt(selected.dataset.duracion);
   carrito.push({ id: selected.value, nombre: selected.textContent, duracion });
@@ -83,24 +95,24 @@ servicioSelect.addEventListener("change", () => {
   cargarHorasDisponibles();
 });
 
-function renderCarrito() {
+function renderCarrito(){
   carritoDiv.innerHTML = `<h3>Carrito de servicios</h3>`;
-  carrito.forEach((s, i) => {
+  carrito.forEach((s,i)=>{
     const div = document.createElement("div");
     div.innerHTML = `<span>${s.nombre}</span> <button data-index="${i}">Eliminar</button>`;
     carritoDiv.appendChild(div);
 
-    div.querySelector("button").addEventListener("click", () => {
+    div.querySelector("button").addEventListener("click", ()=>{
       duracionTotal -= s.duracion;
-      carrito.splice(i, 1);
+      carrito.splice(i,1);
       renderCarrito();
       cargarHorasDisponibles();
     });
   });
 
-  if (carrito.length > 0) {
+  if(carrito.length>0){
     const total = document.createElement("p");
-    total.textContent = `Duración total: ${duracionTotal}h`;
+    total.textContent = `Duración total: ${duracionTotal} min`;
     carritoDiv.appendChild(total);
   }
 }
@@ -108,39 +120,41 @@ function renderCarrito() {
 // =======================
 // Cargar horas disponibles según duración
 // =======================
-async function cargarHorasDisponibles() {
+async function cargarHorasDisponibles(){
   horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
   const fecha = fechaInput.value;
-  if (!fecha || carrito.length === 0) return;
+  if(!fecha || carrito.length===0) return;
 
-  // Traer citas existentes
-  const citasRef = collection(db, "citas");
-  const qCitas = query(citasRef, where("fecha", "==", fecha));
-  const snapshotCitas = await getDocs(qCitas);
-  const citas = snapshotCitas.docs.map(d => ({ hora: d.data().hora, duracion: d.data().duracion || 1 }));
+  // Citas existentes
+  const citasSnap = await getDocs(query(collection(db,"citas"), where("fecha","==",fecha)));
+  const citas = citasSnap.docs.map(d=>({
+    inicio: horaAMinutos(d.data().hora),
+    duracion: d.data().duracion || 60 // min
+  }));
 
-  // Traer bloqueos existentes
-  const bloqueosRef = collection(db, "bloqueos");
-  const qBloqueos = query(bloqueosRef, where("fecha", "==", fecha));
-  const snapshotBloqueos = await getDocs(qBloqueos);
-  const bloqueos = snapshotBloqueos.docs.map(d => ({ hora: d.data().hora, duracion: d.data().duracion || 1 }));
+  // Bloqueos existentes
+  const bloqueosSnap = await getDocs(query(collection(db,"bloqueos"), where("fecha","==",fecha)));
+  const bloqueos = bloqueosSnap.docs.map(d=>({
+    inicio: horaAMinutos(d.data().hora),
+    duracion: d.data().duracion || 60
+  }));
 
-  // Comprobar cada hora
-  HORAS.forEach((hora, index) => {
+  const duracionTotalMin = duracionTotal;
+
+  HORAS.forEach(hora=>{
+    const inicio = horaAMinutos(hora);
+    const fin = inicio + duracionTotalMin;
     let disponible = true;
 
-    for (let i = 0; i < duracionTotal; i++) {
-      const idx = index + i;
-      if (idx >= HORAS.length) { disponible = false; break; }
-      const horaCheck = HORAS[idx];
-
-      if (citas.some(c => c.hora === horaCheck) || bloqueos.some(b => b.hora === horaCheck)) {
+    for(let c of [...citas,...bloqueos]){
+      const cFin = c.inicio + c.duracion;
+      if(!(fin <= c.inicio || inicio >= cFin)){
         disponible = false;
         break;
       }
     }
 
-    if (disponible) {
+    if(disponible){
       const option = document.createElement("option");
       option.value = hora;
       option.textContent = hora;
@@ -154,13 +168,13 @@ fechaInput.addEventListener("change", cargarHorasDisponibles);
 // =======================
 // Guardar reserva
 // =======================
-formReserva.addEventListener("submit", async (e) => {
+formReserva.addEventListener("submit", async (e)=>{
   e.preventDefault();
-  try {
+  try{
     const clienteId = correoInput.value || telefonoInput.value;
-    const clienteRef = doc(db, "clientes", clienteId);
+    const clienteRef = doc(db,"clientes",clienteId);
 
-    await setDoc(clienteRef, {
+    await setDoc(clienteRef,{
       nombre: nombreInput.value,
       apellido1: apellido1Input.value,
       apellido2: apellido2Input.value,
@@ -169,20 +183,20 @@ formReserva.addEventListener("submit", async (e) => {
       actualizado: Timestamp.now()
     }, { merge: true });
 
-    // Guardar cada servicio en citas
+    // Guardar cada servicio
     let horaInicio = horaSelect.value;
-    let horaIndex = HORAS.indexOf(horaInicio);
+    let horaMin = horaAMinutos(horaInicio);
 
-    for (let s of carrito) {
-      await addDoc(collection(db, "citas"), {
+    for(let s of carrito){
+      await addDoc(collection(db,"citas"),{
         clienteId,
         servicioId: s.id,
         fecha: fechaInput.value,
-        hora: HORAS[horaIndex],
+        hora: minutosAHora(horaMin),
         duracion: s.duracion,
         creado: Timestamp.now()
       });
-      horaIndex += s.duracion; // Avanzar por la duración
+      horaMin += s.duracion;
     }
 
     alert("¡Cita reservada con éxito!");
@@ -191,9 +205,8 @@ formReserva.addEventListener("submit", async (e) => {
     duracionTotal = 0;
     carritoDiv.innerHTML = "";
     horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
-
-  } catch (error) {
-    console.error(error);
+  } catch(err){
+    console.error(err);
     alert("Hubo un error al guardar la cita");
   }
 });
