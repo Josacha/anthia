@@ -1,8 +1,7 @@
-// admin-firebase.js
 import { db } from './firebase.js';
-import { collection, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, query, orderBy, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ======== Funciones de borrado y edición ========
+// ====== FUNCIONES GENERALES ======
 async function eliminarDocumento(collectionName, id) {
   if (confirm("¿Seguro que deseas eliminar este registro?")) {
     await deleteDoc(doc(db, collectionName, id));
@@ -13,15 +12,15 @@ async function eliminarDocumento(collectionName, id) {
 async function editarDocumento(collectionName, id, campo, valor) {
   const nuevoValor = prompt(`Editar ${campo}:`, valor);
   if (nuevoValor !== null) {
-    const ref = doc(db, collectionName, id);
-    await updateDoc(ref, { [campo]: nuevoValor });
+    await updateDoc(doc(db, collectionName, id), { [campo]: nuevoValor });
     cargarTodas();
   }
 }
 
-// ======== Agenda ========
+// ====== AGENDA ======
 export async function cargarAgenda() {
   const tabla = document.getElementById('tablaAgenda');
+  if (!tabla) return;
   tabla.innerHTML = '';
   const q = query(collection(db, 'citas'), orderBy('fecha'));
   const snapshot = await getDocs(q);
@@ -43,9 +42,10 @@ export async function cargarAgenda() {
   });
 }
 
-// ======== Contactos ========
+// ====== CONTACTOS ======
 export async function cargarContactos() {
   const tabla = document.getElementById('tablaContactos');
+  if (!tabla) return;
   tabla.innerHTML = '';
   const q = query(collection(db, 'clientes'), orderBy('nombre'));
   const snapshot = await getDocs(q);
@@ -66,9 +66,10 @@ export async function cargarContactos() {
   });
 }
 
-// ======== Servicios ========
+// ====== SERVICIOS ======
 export async function cargarServicios() {
   const tabla = document.getElementById('tablaServicios');
+  if (!tabla) return;
   tabla.innerHTML = '';
   const q = query(collection(db, 'servicios'), orderBy('nombre'));
   const snapshot = await getDocs(q);
@@ -87,11 +88,27 @@ export async function cargarServicios() {
     `;
     tabla.appendChild(tr);
   });
+
+  // Formulario nuevo servicio
+  const formNuevoServicio = document.getElementById('formNuevoServicio');
+  if (formNuevoServicio) {
+    formNuevoServicio.addEventListener('submit', async e => {
+      e.preventDefault();
+      const nombre = document.getElementById('nuevoServicioNombre').value.trim();
+      const duracion = parseInt(document.getElementById('nuevoServicioDuracion').value);
+      const precio = parseFloat(document.getElementById('nuevoServicioPrecio').value);
+      const simultaneo = document.getElementById('nuevoServicioSimultaneo').checked;
+      await addDoc(collection(db, 'servicios'), { nombre, duracion, precio, simultaneo });
+      formNuevoServicio.reset();
+      cargarServicios();
+    });
+  }
 }
 
-// ======== Inventario ========
+// ====== INVENTARIO ======
 export async function cargarInventario() {
   const tabla = document.getElementById('tablaInventario');
+  if (!tabla) return;
   tabla.innerHTML = '';
   const q = query(collection(db, 'inventario'), orderBy('nombre'));
   const snapshot = await getDocs(q);
@@ -111,7 +128,23 @@ export async function cargarInventario() {
   });
 }
 
-// ======== Cargar todo ========
+// ====== NUEVO CLIENTE ======
+const formNuevoCliente = document.getElementById('formNuevoCliente');
+if (formNuevoCliente) {
+  formNuevoCliente.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nombre = document.getElementById('nuevoClienteNombre').value.trim();
+    const apellido1 = document.getElementById('nuevoClienteApellido1').value.trim();
+    const apellido2 = document.getElementById('nuevoClienteApellido2').value.trim();
+    const correo = document.getElementById('nuevoClienteCorreo').value.trim();
+    const telefono = document.getElementById('nuevoClienteTelefono').value.trim();
+    await addDoc(collection(db, 'clientes'), { nombre, apellido1, apellido2, correo, telefono, historial: [] });
+    formNuevoCliente.reset();
+    cargarContactos();
+  });
+}
+
+// ====== CARGAR TODO ======
 function cargarTodas() {
   cargarAgenda();
   cargarContactos();
@@ -121,6 +154,6 @@ function cargarTodas() {
 
 document.addEventListener('DOMContentLoaded', cargarTodas);
 
-// Exponer funciones globales para onclick
+// Exponer globales para los onclick de editar/eliminar
 window.eliminarDocumento = eliminarDocumento;
 window.editarDocumento = editarDocumento;
