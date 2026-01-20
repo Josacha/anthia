@@ -1,56 +1,67 @@
-// js/ui-tabs.js
 const tabs = document.querySelectorAll('.sidebar li');
 const mainContent = document.getElementById('main-content');
 
-// Función para cargar una vista HTML en mainContent
+// Cargar una vista HTML dentro del main
 async function cargarVista(tabName) {
   try {
     const response = await fetch(`views/${tabName}.html`);
     const html = await response.text();
-    const temp = document.createElement('div');
-temp.innerHTML = html;
 
-const tpl = temp.querySelector('template');
+    // Inyectar HTML
+    mainContent.innerHTML = html;
 
-mainContent.innerHTML = '';
-mainContent.appendChild(tpl.content.cloneNode(true));
-
-
-    // Ejecutar JS específico de cada vista
-    switch(tabName) {
+    // Ejecutar JS específico
+    switch (tabName) {
       case 'agenda':
-        import('../js/agenda.js').then(module => module.initAgenda());
+        import('../js/agenda.js')
+          .then(m => m.initAgenda());
         break;
+
       case 'contactos':
-        import('../js/contactos.js').then(module => module.initContactos());
+        import('../js/contactos.js')
+          .then(m => m.initContactos());
         break;
+
       case 'servicios':
-        import('../js/servicios.js').then(module => module.initServicios());
+        import('../js/servicios.js')
+          .then(m => m.initServicios());
         break;
+
       case 'inventario':
-        import('../js/inventario.js').then(module => module.initInventario());
+        import('../js/inventario.js')
+          .then(m => m.initInventario());
         break;
+
       case 'bloqueos':
-        import('../js/bloqueos.js').then(module => module.initBloqueos());
+        import('../js/bloqueos.js')
+          .then(m => m.initBloqueos());
         break;
+
       case 'configuracion':
-        import('../js/configuracion.js').then(module => module.initConfiguracion());
+        import('../js/configuracion.js')
+          .then(m => m.initConfiguracion());
         break;
     }
 
-  } catch(err) {
-    mainContent.innerHTML = `<p style="color:red;">Error al cargar la vista ${tabName}</p>`;
+  } catch (err) {
     console.error(err);
+    mainContent.innerHTML = `
+      <p style="color:red;">
+        Error al cargar la vista ${tabName}
+      </p>
+    `;
   }
 }
 
-// Activar la primera vista al cargar
+// Vista inicial
 cargarVista('agenda');
 
+// Click en tabs
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
+
     cargarVista(tab.dataset.tab);
   });
 });
