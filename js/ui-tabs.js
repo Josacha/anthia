@@ -1,23 +1,38 @@
+// js/ui-tabs.js
 const tabs = document.querySelectorAll('.sidebar li');
 const mainContent = document.getElementById('main-content');
 
+// Función para cargar una vista HTML en mainContent
 async function cargarVista(tabName) {
   try {
     const response = await fetch(`views/${tabName}.html`);
     const html = await response.text();
     mainContent.innerHTML = html;
 
-    // Ejecutar JS específico
+    // Ejecutar JS específico de cada vista
     switch(tabName) {
-      case 'agenda': import('./agenda.js'); break;
-      case 'contactos': import('./contactos.js'); break;
-      case 'servicios': import('./servicios.js'); break;
-      case 'inventario': import('./inventario.js'); break;
-      case 'bloqueos': import('./bloqueos.js'); break;
-      case 'configuracion': import('./configuracion.js'); break;
+      case 'agenda':
+        import('../js/agenda.js').then(module => module.initAgenda());
+        break;
+      case 'contactos':
+        import('../js/contactos.js').then(module => module.initContactos());
+        break;
+      case 'servicios':
+        import('../js/servicios.js').then(module => module.initServicios());
+        break;
+      case 'inventario':
+        import('../js/inventario.js').then(module => module.initInventario());
+        break;
+      case 'bloqueos':
+        import('../js/bloqueos.js').then(module => module.initBloqueos());
+        break;
+      case 'configuracion':
+        import('../js/configuracion.js').then(module => module.initConfiguracion());
+        break;
     }
+
   } catch(err) {
-    mainContent.innerHTML = `<p>Error al cargar la vista ${tabName}</p>`;
+    mainContent.innerHTML = `<p style="color:red;">Error al cargar la vista ${tabName}</p>`;
     console.error(err);
   }
 }
