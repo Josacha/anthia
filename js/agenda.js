@@ -1,8 +1,7 @@
 // js/agenda.js
 import { db } from "./firebase.js";
-import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, query, where, getDocs, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Elementos del DOM
 const fechaInput = document.getElementById("fechaAgenda");
 const tabla = document.getElementById("tablaAgenda").querySelector("tbody");
 
@@ -11,6 +10,15 @@ const HORAS = [
   "08:00", "09:00", "10:00", "11:00", "12:00",
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
+
+// Obtener fecha actual en formato yyyy-mm-dd
+function fechaActual() {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 // Función para cargar agenda de un día
 async function cargarAgenda(fechaSeleccionada) {
@@ -36,8 +44,8 @@ async function cargarAgenda(fechaSeleccionada) {
 
     // Colores según estado
     let colorFila = "";
-    if (citaHora) colorFila = "#d1f0d1";      // Verde para cita
-    else if (bloqueado) colorFila = "#f0d1d1"; // Rojo para bloqueado
+    if (citaHora) colorFila = "#d1f0d1";      // Verde
+    else if (bloqueado) colorFila = "#f0d1d1"; // Rojo
 
     fila.style.backgroundColor = colorFila;
 
@@ -61,25 +69,29 @@ async function cargarAgenda(fechaSeleccionada) {
       const id = btn.dataset.id;
       if (confirm("¿Desea eliminar esta cita?")) {
         await deleteDoc(doc(db, "citas", id));
-        cargarAgenda(fechaSeleccionada); // recargar agenda
+        cargarAgenda(fechaSeleccionada);
       }
     });
   });
 }
 
 // =======================
-// CARGAR AGENDA DEL DÍA ACTUAL
+// CARGAR AGENDA AL INICIO CON FECHA ACTUAL
 // =======================
-const hoy = new Date();
-const yyyy = hoy.getFullYear();
-const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-const dd = String(hoy.getDate()).padStart(2, '0');
-const fechaHoy = `${yyyy}-${mm}-${dd}`;
+function cargarAgendaHoy() {
+  const hoy = fechaActual();
+  fechaInput.value = hoy;
+  cargarAgenda(hoy);
+}
 
-fechaInput.value = fechaHoy;
-cargarAgenda(fechaHoy);
-
-// Cambiar fecha manualmente
+// =======================
+// EVENTO AL CAMBIAR FECHA
+// =======================
 fechaInput.addEventListener("change", () => {
   if (fechaInput.value) cargarAgenda(fechaInput.value);
 });
+
+// =======================
+// EXPORTAR FUNCIÓN PARA UI-TABS
+// =======================
+export { cargarAgendaHoy };
