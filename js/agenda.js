@@ -1,63 +1,61 @@
+// js/agenda.js
 import { db } from "./firebase.js";
-import { collection, query, where, getDocs, Timestamp, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const fechaInput = document.getElementById("fechaAgenda");
 const tabla = document.getElementById("tablaAgenda").querySelector("tbody");
-const btnBloquearDia = document.getElementById("btnBloquearDia");
 
+// Horas de atención
 const HORAS = [
   "08:00", "09:00", "10:00", "11:00", "12:00",
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
-// Función para cargar la agenda de un día
-async function cargarAgenda(fecha) {
+// Cargar agenda del día
+async function cargarAgenda(fechaSeleccionada) {
   tabla.innerHTML = "";
 
-  // Obtener citas del día seleccionado
+  // Obtener citas
   const citasRef = collection(db, "citas");
-  const q = query(citasRef, where("fecha", "==", fecha));
-  const snapshot = await getDocs(q);
-  const citas = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  const qCitas = query(citasRef, where("fecha", "==", fechaSeleccionada));
+  const snapshotCitas = await getDocs(qCitas);
+  const citas = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Obtener bloqueos
+  const bloqueosRef = collection(db, "bloqueos");
+  const qBloqueos = query(bloqueosRef, where("fecha", "==", fechaSeleccionada));
+  const snapshotBloqueos = await getDocs(qBloqueos);
+  const bloqueos = snapshotBloqueos.docs.map(d => ({ id: d.id, ...d.data() }));
 
   HORAS.forEach(hora => {
-    const fila = document.createElement("tr");
-
     const citaHora = citas.find(c => c.hora === hora);
+    const bloqueado = bloqueos.find(b => b.hora === hora);
+
+    const fila = document.createElement("tr");
 
     fila.innerHTML = `
       <td>${hora}</td>
-      <td>${citaHora ? citaHora.clienteId : ""}</td>
-      <td>${citaHora ? citaHora.servicio : ""}</td>
-      <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : ""}</td>
+      <td>${citaHora ? citaHora.clienteId : "-"}</td>
+      <td>${citaHora ? citaHora.servicio : "-"}</td>
+      <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : "-"}</td>
       <td>
-        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar</button>` : ""}
+        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar cita</button>` : ""}
+        ${bloqueado ? `<span style="color:red;font-weight:bold;">Bloqueado</span>` : ""}
       </td>
     `;
 
     tabla.appendChild(fila);
   });
 
-  // Eventos de eliminar
+  // Eventos eliminar cita
   document.querySelectorAll(".btnEliminar").forEach(btn => {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
       await deleteDoc(doc(db, "citas", id));
-      cargarAgenda(fecha); // recargar agenda
+      cargarAgenda(fechaSeleccionada); // recargar
     });
   });
 }
-
-// Bloquear día completo
-btnBloquearDia.addEventListener("click", async () => {
-  const fecha = fechaInput.value;
-  if (!fecha) return alert("Seleccione una fecha primero");
-  for (let hora of HORAS) {
-    await setDoc(doc(db, "bloqueos", `${fecha}_${hora}`), { bloqueado: true });
-  }
-  alert("Día bloqueado");
-  cargarAgenda(fecha);
-});
 
 // Cargar agenda al seleccionar fecha
 fechaInput.addEventListener("change", () => {
