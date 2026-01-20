@@ -1,10 +1,95 @@
-#tablaAgenda th, #tablaAgenda td {
-  text-align: center;
-}
-#tablaAgenda button {
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
+/* Contenedor de la agenda */
+#tab-agenda {
+  padding: 40px 20px;
+  background-color: #faf9f8;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  margin-top: 20px;
 }
 
+/* Títulos */
+#tab-agenda h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Formulario de selección de fecha y botones */
+#tab-agenda .form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+#tab-agenda input[type="date"] {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* Botones */
+#tab-agenda .btn-secondary {
+  padding: 10px 20px;
+  border-radius: 30px;
+  background-color: #f3efe9;
+  border: 1.5px solid #c8a97e;
+  color: #c8a97e;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#tab-agenda .btn-secondary:hover {
+  background-color: #c8a97e;
+  color: #fff;
+}
+
+/* Tabla */
+#tab-agenda .tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+#tab-agenda .tabla th,
+#tab-agenda .tabla td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#tab-agenda .tabla th {
+  background-color: #c8a97e;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px 10px 0 0;
+}
+
+#tab-agenda .tabla tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#tab-agenda .tabla tr:hover {
+  background-color: #f3efe9;
+}
+
+/* Botones dentro de la tabla */
+#tab-agenda .btn-delete {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background-color: #e27a7a;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#tab-agenda .btn-delete:hover {
+  background-color: #c95c5c;
+}
