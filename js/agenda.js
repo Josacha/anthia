@@ -1,3 +1,4 @@
+// js/agenda.js
 import { db } from "./firebase.js";
 import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -10,7 +11,16 @@ const HORAS = [
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
-// Función para cargar la agenda
+// Función para formatear la fecha actual en YYYY-MM-DD
+function obtenerFechaHoy() {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// Función para cargar agenda
 async function cargarAgenda(fechaSeleccionada) {
   tabla.innerHTML = "";
 
@@ -22,15 +32,15 @@ async function cargarAgenda(fechaSeleccionada) {
 
   HORAS.forEach(hora => {
     const citaHora = citas.find(c => c.hora === hora);
-    const fila = document.createElement("tr");
 
+    const fila = document.createElement("tr");
     fila.innerHTML = `
       <td>${hora}</td>
       <td>${citaHora ? citaHora.clienteId : "-"}</td>
       <td>${citaHora ? citaHora.servicioId : "-"}</td>
       <td>${citaHora ? (citaHora.simultaneo ? "Sí" : "No") : "-"}</td>
       <td>
-        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar cita</button>` : ""}
+        ${citaHora ? `<button class="btn-secondary btnEliminar" data-id="${citaHora.id}">Eliminar</button>` : ""}
       </td>
     `;
     tabla.appendChild(fila);
@@ -46,23 +56,12 @@ async function cargarAgenda(fechaSeleccionada) {
   });
 }
 
-// ==========================
-// Mostrar la agenda del día de hoy al entrar
-// ==========================
-function getFechaHoy() {
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth() + 1).padStart(2, "0");
-  const dd = String(hoy.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-// Colocar fecha de hoy en el input y cargar agenda
-const fechaHoy = getFechaHoy();
+// ✅ Mostrar agenda automáticamente al cargar la página con la fecha de hoy
+const fechaHoy = obtenerFechaHoy();
 fechaInput.value = fechaHoy;
 cargarAgenda(fechaHoy);
 
-// Cambiar agenda al seleccionar otra fecha
+// Cambiar agenda si el usuario selecciona otra fecha
 fechaInput.addEventListener("change", () => {
   if (fechaInput.value) cargarAgenda(fechaInput.value);
 });
