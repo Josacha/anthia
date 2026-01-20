@@ -1,5 +1,5 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, doc, getDoc, setDoc, Timestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, addDoc, doc, setDoc, getDocs, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const formReserva = document.getElementById("formReserva");
 const correoInput = document.getElementById("correo");
@@ -11,18 +11,19 @@ const servicioSelect = document.getElementById("servicio");
 const fechaInput = document.getElementById("fecha");
 const horaSelect = document.getElementById("hora");
 
+// Horas estándar del día
+const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+
 // ================================
 // AUTOCOMPLETAR CLIENTE
 // ================================
 async function autocompletarCliente(valor) {
   const clientesRef = collection(db, "clientes");
   
-  // Buscar por correo
   let q = query(clientesRef, where("correo", "==", valor));
   let snapshot = await getDocs(q);
 
   if (snapshot.empty) {
-    // Si no hay por correo, buscar por teléfono
     q = query(clientesRef, where("telefono", "==", valor));
     snapshot = await getDocs(q);
   }
@@ -35,14 +36,12 @@ async function autocompletarCliente(valor) {
     correoInput.value = cliente.correo || "";
     telefonoInput.value = cliente.telefono || "";
   } else {
-    // Limpiar campos excepto correo/teléfono
     nombreInput.value = "";
     apellido1Input.value = "";
     apellido2Input.value = "";
   }
 }
 
-// Eventos autocompletar
 correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
 telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
 
@@ -57,14 +56,46 @@ async function cargarServicios() {
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
     const option = document.createElement("option");
-    option.value = docSnap.id; // guardar el id del servicio
+    option.value = docSnap.id;
     option.textContent = `${data.nombre} - ₡${data.precio}`;
     servicioSelect.appendChild(option);
   });
 }
 
-// Llamar al cargar la página
 document.addEventListener("DOMContentLoaded", cargarServicios);
+
+// ================================
+// CARGAR HORAS DISPONIBLES
+// ================================
+async function cargarHorasDisponibles() {
+  horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
+  const fecha = fechaInput.value;
+  if (!fecha) return;
+
+  // Obtener citas y bloqueos de la fecha
+  const citasRef = collection(db, "citas");
+  const qCitas = query(citasRef, where("fecha", "==", fecha));
+  const snapshotCitas = await getDocs(qCitas);
+
+  const citas = snapshotCitas.docs.map(d => d.data());
+
+  const bloqueosRef = collection(db, "bloqueos");
+  const qBloqueos = query(bloqueosRef, where("fecha", "==", fecha));
+  const snapshotBloqueos = await getDocs(qBloqueos);
+  const bloqueos = snapshotBloqueos.docs.map(d => d.data());
+
+  HORAS.forEach(hora => {
+    const ocupada = citas.some(c => c.hora === hora) || bloqueos.some(b => b.hora === hora);
+    if (!ocupada) {
+      const option = document.createElement("option");
+      option.value = hora;
+      option.textContent = hora;
+      horaSelect.appendChild(option);
+    }
+  });
+}
+
+fechaInput.addEventListener("change", cargarHorasDisponibles);
 
 // ================================
 // CREAR RESERVA
@@ -73,8 +104,7 @@ formReserva.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   try {
-    // Crear/actualizar cliente en Firestore
-    const clienteId = correoInput.value || telefonoInput.value; // ID único
+    const clienteId = correoInput.value || telefonoInput.value;
     const clienteRef = doc(db, "clientes", clienteId);
 
     await setDoc(clienteRef, {
@@ -86,19 +116,18 @@ formReserva.addEventListener("submit", async (e) => {
       actualizado: Timestamp.now()
     }, { merge: true });
 
-    // Crear la cita
     await addDoc(collection(db, "citas"), {
       servicioId: servicioSelect.value,
       fecha: fechaInput.value,
       hora: horaSelect.value,
-      clienteId: clienteId,
+      clienteId,
       creado: Timestamp.now()
     });
 
     alert("¡Cita reservada con éxito!");
     formReserva.reset();
+    horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
 
-    // Redirigir a confirmar
     window.location.href = "confirmar.html";
 
   } catch (error) {
