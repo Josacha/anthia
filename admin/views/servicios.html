@@ -1,1 +1,27 @@
+<div class="card">
+  <h3>Servicios</h3>
+
+  <form id="formNuevoServicio" class="form-dashboard">
+    <input type="text" id="nuevoServicioNombre" placeholder="Nombre del servicio" required>
+    <input type="number" id="nuevoServicioDuracion" placeholder="Duración (min)" required>
+    <input type="number" id="nuevoServicioPrecio" placeholder="Precio ($)" required>
+    <label>
+      <input type="checkbox" id="nuevoServicioSimultaneo"> Permitir simultáneo
+    </label>
+    <button type="submit" class="btn-primary">Agregar servicio</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Duración</th>
+        <th>Precio</th>
+        <th>Simultáneo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaServicios"></tbody>
+  </table>
+</div>
 
