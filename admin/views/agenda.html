@@ -41,16 +41,24 @@
   </section>
 
   <!-- CONTROLES -->
-  <div class="agenda-controls">
+<div class="agenda-controls">
+
+  <div class="agenda-fecha-control">
+    <label>Fecha</label>
     <input type="date" id="fechaAgenda">
-
-    <div class="vista-toggle">
-      <button id="btnDia" class="btn-primary">Día</button>
-      <button id="btnSemana" class="btn-secondary">Semana</button>
-    </div>
-
-    <button id="btnNuevaCita" class="btn-primary">➕ Nueva cita</button>
   </div>
+
+  <div class="agenda-vistas">
+    <button id="btnDia" class="vista-btn active">Día</button>
+    <button id="btnSemana" class="vista-btn">Semana</button>
+  </div>
+
+  <button id="btnNuevaCita" class="btn-nueva-cita">
+    ➕ Nueva cita
+  </button>
+
+</div>
+
 
   <!-- TABLA -->
   <table class="tabla" id="tablaAgenda">
