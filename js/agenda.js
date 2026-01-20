@@ -1,4 +1,4 @@
-// js/agenda.js
+ // js/agenda.js
 import { db } from "./firebase.js";
 import { collection, query, where, getDocs, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
