@@ -40,23 +40,22 @@
     </div>
   </section>
 
-  <!-- CONTROLES -->
-  <div class="agenda-controls">
-
-    <div class="agenda-fecha-control">
-      <label>Fecha</label>
-      <input type="date" id="fechaAgenda">
+  <!-- AGENDA HERO CON CONTROLES -->
+  <div class="agenda-hero">
+    <div class="agenda-fecha">
+      <div class="agenda-dia-numero" id="numeroDia">20</div>
+      <div class="agenda-dia-texto">
+        <div class="agenda-mes" id="mes">Enero</div>
+        <div class="agenda-dia-semana" id="diaSemana">Martes</div>
+      </div>
     </div>
 
-    <div class="agenda-vistas">
-      <button id="btnDia" class="vista-btn active">Día</button>
-      <button id="btnSemana" class="vista-btn">Semana</button>
+    <div class="agenda-acciones">
+      <input type="date" id="fechaAgenda" class="agenda-date-picker">
+      <button id="btnDia" class="btn-nueva-cita">Día</button>
+      <button id="btnSemana" class="btn-nueva-cita">Semana</button>
+      <button id="btnNuevaCita" class="btn-nueva-cita">➕ Nueva cita</button>
     </div>
-
-    <button id="btnNuevaCita" class="btn-nueva-cita">
-      ➕ Nueva cita
-    </button>
-
   </div>
 
   <!-- TABLA -->
@@ -65,9 +64,9 @@
       <tr>
         <th>Hora</th>
         <th>Cliente</th>
-        <th>Servicios</th>
+        <th>Servicio</th>
+        <th>Tiempo</th>
         <th>Estado</th>
-        <!-- ➕ NUEVO -->
         <th>Acciones</th>
       </tr>
     </thead>
@@ -76,31 +75,26 @@
 
 </main>
 
-<!-- MODAL -->
+<!-- MODAL NUEVA CITA -->
 <div class="modal" id="modalCita">
   <div class="modal-box">
     <h3>Nueva cita</h3>
 
-    <!-- ➕ NUEVO: ID PARA EDITAR -->
-    <input type="hidden" id="citaId">
-
     <input id="clienteNombre" placeholder="Nombre del cliente">
 
-    <!-- ➕ MODIFICADO: MULTIPLE -->
-    <select id="servicioSelect" multiple></select>
+    <div class="servicios-disponibles">
+      <label>Selecciona los tratamientos:</label>
+      <select id="servicioSelect">
+        <!-- Se cargan desde JS -->
+      </select>
+      <button id="btnAgregarServicio" class="btn-primario">Agregar</button>
+    </div>
 
-    <!-- ➕ NUEVO: DURACIÓN -->
-    <p id="duracionTotal">Duración total: 0 min</p>
-
-    <label>
-      <input type="checkbox" id="simultaneo">
-      Permitir simultáneo
-    </label>
-
-    <!-- ➕ NUEVO: BLOQUEAR -->
-    <button id="btnBloquearHora" class="btn-secondary">
-      🔒 Bloquear hora
-    </button>
+    <div class="carrito-servicios">
+      <h4>Servicios seleccionados</h4>
+      <ul id="listaServicios"></ul>
+      <p>Total tiempo: <span id="tiempoTotal">0</span> min</p>
+    </div>
 
     <div class="acciones">
       <button id="guardarCita" class="btn-primary">Guardar</button>
