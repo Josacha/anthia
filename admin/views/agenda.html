@@ -4,49 +4,38 @@
   <meta charset="UTF-8">
   <title>Agenda | ANTHIA ESTHETIC CENTER</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- CSS -->
+
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="../css/agenda.css">
   <link rel="stylesheet" href="../css/tablas.css">
-  <link rel="stylesheet" href="../css/forms.css">
 </head>
 <body>
 
-<main id="main-content">
-  <div id="tab-agenda" class="tab-content active">
+<main class="contenedor-admin">
 
-    <h2>Agenda</h2>
+  <h2>Agenda</h2>
 
-    <!-- Selección de fecha -->
-    <div class="form-group">
-      <label for="fechaAgenda">Seleccionar fecha:</label>
-      <input type="date" id="fechaAgenda">
-    </div>
-
-    <!-- Tabla de agenda -->
-    <table id="tablaAgenda" class="tabla">
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Cliente</th>
-          <th>Servicio</th>
-          <th>Simultáneo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Las filas se llenan con JS -->
-      </tbody>
-    </table>
-
+  <div class="form-group">
+    <label for="fechaAgenda">Fecha</label>
+    <input type="date" id="fechaAgenda">
   </div>
+
+  <table id="tablaAgenda" class="tabla">
+    <thead>
+      <tr>
+        <th>Hora</th>
+        <th>Cliente</th>
+        <th>Servicio</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
 </main>
 
-<!-- Scripts -->
 <script type="module" src="../js/firebase.js"></script>
 <script type="module" src="../js/auth.js"></script>
-<script type="module" src="../js/ui-tabs.js"></script>
 <script type="module" src="../js/agenda.js"></script>
 
 </body>
