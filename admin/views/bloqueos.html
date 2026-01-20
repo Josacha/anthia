@@ -1,1 +1,31 @@
+<div class="card">
+  <h3>Bloqueos de horas / días</h3>
+
+  <!-- FORMULARIO BLOQUEO -->
+  <form id="formBloqueo" class="form-dashboard">
+    <input type="date" id="bloqueoFecha" required>
+    <input type="time" id="bloqueoHoraInicio">
+    <input type="time" id="bloqueoHoraFin">
+    <select id="tipoBloqueo">
+      <option value="diaCompleto">Día completo</option>
+      <option value="medioDia">Medio día</option>
+      <option value="hora">Hora específica</option>
+    </select>
+    <button type="submit" class="btn-primary">Agregar bloqueo</button>
+  </form>
+
+  <!-- TABLA BLOQUEOS -->
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Hora inicio</th>
+        <th>Hora fin</th>
+        <th>Tipo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaBloqueos"></tbody>
+  </table>
+</div>
 
