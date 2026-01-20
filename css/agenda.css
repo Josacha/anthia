@@ -1,107 +1,17 @@
-#tab-agenda {
-  padding: 30px;
-  max-width: 900px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-/* Título centrado */
-#tab-agenda h2 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #4a3f35;
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-/* Formulario fecha */
-.form-group {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-
-.form-group label {
-  margin-right: 15px;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.form-group input[type="date"] {
-  padding: 10px 14px;
-  font-size: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  transition: 0.3s;
-}
-
-.form-group input[type="date"]:focus {
-  border-color: #c8a97e;
-  outline: none;
-  box-shadow: 0 0 8px rgba(200, 169, 126, 0.4);
-}
-
-/* Tabla elegante */
-#tablaAgenda {
-  width: 100%;
-  border-collapse: collapse;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-#tablaAgenda th, #tablaAgenda td {
-  padding: 14px;
-  text-align: center;
-  font-size: 15px;
-}
-
-#tablaAgenda th {
-  background-color: #c8a97e;
-  color: #fff;
+.tabla td.libre {
+  background: #e6f7ee;
+  color: #1b7f4a;
   font-weight: 600;
-  border: none;
-  border-radius: 8px 8px 0 0;
 }
 
-#tablaAgenda tbody tr {
-  transition: all 0.3s ease;
-  border-bottom: 1px solid #eee;
+.tabla td.ocupado {
+  background: #fdecea;
+  color: #b42318;
+  font-weight: 600;
 }
 
-#tablaAgenda tbody tr:hover {
-  background-color: #f5f2ed;
-}
-
-/* Estados */
-#tablaAgenda tbody tr.bloqueado { background-color: #f8d7da; color: #721c24; }
-#tablaAgenda tbody tr.ocupado { background-color: #d4edda; color: #155724; }
-#tablaAgenda tbody tr.disponible { background-color: #fff; color: #333; }
-
-/* Botones */
-#tablaAgenda button {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: none;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary {
-  background-color: #c8a97e;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #b49260;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  #tablaAgenda th, #tablaAgenda td { font-size: 13px; padding: 10px; }
-  .form-group { flex-direction: column; align-items: center; }
-  .form-group label { margin-bottom: 8px; }
-}
-
-@media (max-width: 480px) {
-  #tablaAgenda th, #tablaAgenda td { font-size: 12px; padding: 8px; }
+  table {
+    font-size: 13px;
+  }
 }
