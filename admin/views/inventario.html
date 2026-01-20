@@ -1,1 +1,27 @@
+<div class="card">
+  <h3>Inventario de productos</h3>
+
+  <!-- FORMULARIO NUEVO PRODUCTO -->
+  <form id="formNuevoProducto" class="form-dashboard">
+    <input type="text" id="nuevoProductoNombre" placeholder="Nombre del producto" required>
+    <input type="number" id="nuevoProductoCantidad" placeholder="Cantidad" required>
+    <label>
+      <input type="checkbox" id="nuevoProductoAlerta"> Alerta de stock bajo
+    </label>
+    <button type="submit" class="btn-primary">Agregar producto</button>
+  </form>
+
+  <!-- TABLA INVENTARIO -->
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Alerta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaInventario"></tbody>
+  </table>
+</div>
 
