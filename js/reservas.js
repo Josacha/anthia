@@ -7,21 +7,24 @@ const telefonoInput = document.getElementById("telefono");
 const nombreInput = document.getElementById("nombre");
 const apellido1Input = document.getElementById("apellido1");
 const apellido2Input = document.getElementById("apellido2");
+const servicioSelect = document.getElementById("servicio");
+const fechaInput = document.getElementById("fecha");
+const horaSelect = document.getElementById("hora");
 
-// Función para autocompletar si ya existe el cliente
+// ================================
+// AUTOCOMPLETAR CLIENTE
+// ================================
 async function autocompletarCliente(valor) {
   const clientesRef = collection(db, "clientes");
   
-  // Buscar por correo o teléfono
-  const q = query(clientesRef, 
-                  where("correo", "==", valor));
+  // Buscar por correo
+  let q = query(clientesRef, where("correo", "==", valor));
   let snapshot = await getDocs(q);
 
   if (snapshot.empty) {
     // Si no hay por correo, buscar por teléfono
-    const q2 = query(clientesRef, 
-                    where("telefono", "==", valor));
-    snapshot = await getDocs(q2);
+    q = query(clientesRef, where("telefono", "==", valor));
+    snapshot = await getDocs(q);
   }
 
   if (!snapshot.empty) {
@@ -32,19 +35,40 @@ async function autocompletarCliente(valor) {
     correoInput.value = cliente.correo || "";
     telefonoInput.value = cliente.telefono || "";
   } else {
-    // Si no existe, limpiar campos excepto correo/teléfono
+    // Limpiar campos excepto correo/teléfono
     nombreInput.value = "";
     apellido1Input.value = "";
     apellido2Input.value = "";
   }
 }
 
-// Llamar autocompletar al cambiar correo o teléfono
+// Eventos autocompletar
 correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
 telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
 
+// ================================
+// CARGAR SERVICIOS DESDE FIRESTORE
+// ================================
+async function cargarServicios() {
+  servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
+  const serviciosRef = collection(db, "servicios");
+  const snapshot = await getDocs(serviciosRef);
 
-// Función para crear reserva
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    const option = document.createElement("option");
+    option.value = docSnap.id; // guardar el id del servicio
+    option.textContent = `${data.nombre} - ₡${data.precio}`;
+    servicioSelect.appendChild(option);
+  });
+}
+
+// Llamar al cargar la página
+document.addEventListener("DOMContentLoaded", cargarServicios);
+
+// ================================
+// CREAR RESERVA
+// ================================
 formReserva.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -60,13 +84,13 @@ formReserva.addEventListener("submit", async (e) => {
       correo: correoInput.value,
       telefono: telefonoInput.value,
       actualizado: Timestamp.now()
-    }, { merge: true }); // merge:true para no borrar datos existentes
+    }, { merge: true });
 
     // Crear la cita
     await addDoc(collection(db, "citas"), {
-      servicio: document.getElementById("servicio").value,
-      fecha: document.getElementById("fecha").value,
-      hora: document.getElementById("hora").value,
+      servicioId: servicioSelect.value,
+      fecha: fechaInput.value,
+      hora: horaSelect.value,
       clienteId: clienteId,
       creado: Timestamp.now()
     });
@@ -74,9 +98,11 @@ formReserva.addEventListener("submit", async (e) => {
     alert("¡Cita reservada con éxito!");
     formReserva.reset();
 
+    // Redirigir a confirmar
+    window.location.href = "confirmar.html";
+
   } catch (error) {
     console.error("Error al crear la reserva:", error);
     alert("Hubo un error al guardar la cita. Intente nuevamente.");
   }
-  window.location.href = "confirmar.html"; // redirige
 });
