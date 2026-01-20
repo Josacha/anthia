@@ -1,3 +1,16 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/agenda.css">
+  <link rel="stylesheet" href="../css/tablas.css">
+  <link rel="stylesheet" href="../css/forms.css">
+</head>
+<body>
+
 <aside class="sidebar">
   <ul>
     <li data-tab="agenda" class="active">Agenda</li>
@@ -13,3 +26,63 @@
 <main id="main-content">
   <!-- Aquí se cargará dinámicamente la vista correspondiente -->
 </main>
+
+<main class="main-content">
+
+  <!-- TAB: Agenda -->
+  <div id="tab-agenda" class="tab-content active">
+    <h2>Agenda</h2>
+    <div id="agenda-container"></div>
+  </div>
+
+  <!-- TAB: Contactos -->
+  <div id="tab-contactos" class="tab-content">
+    <h2>Contactos</h2>
+    <div id="contactos-container"></div>
+  </div>
+
+  <!-- TAB: Servicios -->
+  <div id="tab-servicios" class="tab-content">
+    <h2>Servicios</h2>
+    <table id="tablaServicios">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Simultáneo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- TAB: Inventario -->
+  <div id="tab-inventario" class="tab-content">
+    <h2>Inventario</h2>
+    <div id="inventario-container"></div>
+  </div>
+
+  <!-- TAB: Bloqueos -->
+  <div id="tab-bloqueos" class="tab-content">
+    <h2>Bloqueos</h2>
+    <div id="bloqueos-container"></div>
+  </div>
+
+  <!-- TAB: Configuración -->
+  <div id="tab-configuracion" class="tab-content">
+    <h2>Configuración</h2>
+    <div id="configuracion-container"></div>
+  </div>
+
+</main>
+
+<script type="module" src="../js/ui-tabs.js"></script>
+<script type="module" src="../js/admin-firebase.js"></script>
+<script type="module" src="../js/agenda.js"></script>
+<script type="module" src="../js/contactos.js"></script>
+<script type="module" src="../js/servicios.js"></script>
+
+</body>
+</html>
