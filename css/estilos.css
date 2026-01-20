@@ -107,3 +107,24 @@ h1, h2, h3, h4 {
   color: #b5966f;               /* hover elegante */
 }
 
+.footer {
+  background-color: #f3efe9;
+  padding: 25px 40px;
+  text-align: center;
+  color: #555;
+  border-top: 1px solid #e0dcd5;
+  margin-top: 40px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer a {
+  color: #c8a97e;
+  text-decoration: none;
+  margin: 0 8px;
+}
+
+.footer a:hover {
+  color: #b5966f;
+}
+
+
