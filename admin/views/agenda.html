@@ -1,30 +1,18 @@
-<div id="tab-agenda" class="tab-content">
-
-  <h2>Agenda</h2>
-
-  <!-- Selección de fecha -->
-  <div class="form-group">
-    <label for="fechaAgenda">Seleccionar fecha:</label>
-    <input type="date" id="fechaAgenda">
-  </div>
-
-  <!-- Botón para bloquear día completo -->
-  <button id="btnBloquearDia" class="btn-secondary">Bloquear día completo</button>
-
-  <!-- Agenda de citas -->
-  <table id="tablaAgenda" class="tabla">
-    <thead>
-      <tr>
-        <th>Hora</th>
-        <th>Cliente</th>
-        <th>Servicio</th>
-        <th>Simultáneo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Aquí se cargan las citas dinámicamente -->
-    </tbody>
-  </table>
-
+<h2>Agenda</h2>
+<div class="form-group">
+  <label for="fechaAgenda">Seleccionar fecha:</label>
+  <input type="date" id="fechaAgenda">
 </div>
+<button id="btnBloquearDia" class="btn-secondary">Bloquear día completo</button>
+<table id="tablaAgenda" class="tabla">
+  <thead>
+    <tr>
+      <th>Hora</th>
+      <th>Cliente</th>
+      <th>Servicio</th>
+      <th>Simultáneo</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
