@@ -1,9 +1,12 @@
 <h2>Agenda</h2>
+
 <div class="form-group">
   <label for="fechaAgenda">Seleccionar fecha:</label>
   <input type="date" id="fechaAgenda">
 </div>
+
 <button id="btnBloquearDia" class="btn-secondary">Bloquear día completo</button>
+
 <table id="tablaAgenda" class="tabla">
   <thead>
     <tr>
@@ -14,5 +17,7 @@
       <th>Acciones</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody>
+    <!-- Las filas por hora se generarán dinámicamente -->
+  </tbody>
 </table>
