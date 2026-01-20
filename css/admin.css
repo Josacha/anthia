@@ -1,5 +1,5 @@
 /* ===========================
-   RESET Y FUENTES
+   RESET & BASE
 =========================== */
 * {
   margin: 0;
@@ -9,32 +9,21 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #faf9f8;
+  background: #f8f6f3;
   color: #333;
   min-height: 100vh;
 }
 
-h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
-  color: #3d3d3d;
-}
-
 /* ===========================
-   HEADER
+   VARIABLES DE COLOR
 =========================== */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background-color: #c8a97e;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.header h1 {
-  font-size: 28px;
-  letter-spacing: 2px;
+:root {
+  --beige: #c8a97e;
+  --beige-dark: #b5966f;
+  --beige-light: #f3efe9;
+  --verde-spa: #3a5f5a;
+  --gris-texto: #444;
+  --blanco: #ffffff;
 }
 
 /* ===========================
@@ -42,380 +31,210 @@ h1, h2, h3, h4 {
 =========================== */
 .sidebar {
   position: fixed;
-  left: 0;
   top: 0;
-  width: 220px;
-  height: 100%;
-  background-color: #f3efe9;
-  padding: 20px;
+  left: 0;
+  width: 230px;
+  height: 100vh;
+  background: linear-gradient(180deg, #f6f2ec, #ede7df);
+  padding: 24px 18px;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.05);
+  box-shadow: 4px 0 20px rgba(0,0,0,0.06);
+  z-index: 100;
 }
 
-.sidebar ul {
-  list-style: none;
-  margin-top: 30px;
-}
-
-.sidebar ul li {
-  padding: 12px 20px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-weight: 500;
-}
-
-.sidebar ul li.active,
-.sidebar ul li:hover {
-  background-color: #c8a97e;
-  color: #fff;
-}
-
-/* Botón cerrar sesión */
-#btnLogout {
-  margin-top: auto;
-  padding: 12px 20px;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* ===========================
-   MAIN CONTENT
-=========================== */
-main#main-content {
-  margin-left: 240px;
-  padding: 30px;
-  min-height: 100vh;
-  background-color: #faf9f8;
-}
-
-/* ===========================
-   TAB CONTENT
-=========================== */
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-/* ===========================
-   FORMULARIOS (reusar forms.css)
-=========================== */
-.form-reserva {
-  background-color: #fff;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-  margin-bottom: 30px;
-}
-
-.form-reserva input,
-.form-reserva select,
-.form-reserva textarea {
-  width: 100%;
-  padding: 10px 15px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-/* BOTONES */
-.btn-primary,
-.btn-secondary {
-  display: inline-block;
-  padding: 12px 28px;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #c8a97e;
-  color: #fff;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #b5966f;
-}
-
-.btn-secondary {
-  border: 1.5px solid #c8a97e;
-  color: #c8a97e;
-  background-color: transparent;
-}
-
-.btn-secondary:hover {
-  background-color: #c8a97e;
-  color: #fff;
-}
-
-/* ===========================
-   TABLAS
-=========================== */
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 14px;
-  font-family: 'Poppins', sans-serif;
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.tabla thead {
-  background-color: #c8a97e;
-  color: #fff;
-  text-align: left;
-}
-
-.tabla th, .tabla td {
-  padding: 12px 15px;
-}
-
-.tabla tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.3s ease;
-}
-
-.tabla tbody tr:hover {
-  background-color: #f3efe9;
-}
-
-/* RESPONSIVE MOVIL */
-@media (max-width: 768px) {
-  .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-  main#main-content {
-    margin-left: 0;
-    padding: 20px;
-  }
-}
-/* ===========================
-   RESET Y FUENTES
-=========================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #faf9f8;
-  color: #333;
-  min-height: 100vh;
-}
-
-h1, h2, h3, h4 {
+/* Logo / título */
+.sidebar h2 {
+  text-align: center;
   font-family: 'Playfair Display', serif;
-  color: #3d3d3d;
-}
-
-/* ===========================
-   HEADER
-=========================== */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background-color: #c8a97e;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.header h1 {
-  font-size: 28px;
+  font-size: 22px;
   letter-spacing: 2px;
+  color: var(--verde-spa);
+  margin-bottom: 35px;
+}
+
+/* Links */
+.sidebar a {
+  text-decoration: none;
+  color: var(--gris-texto);
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  font-weight: 500;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+  background-color: var(--beige);
+  color: #fff;
+  transform: translateX(4px);
+  box-shadow: 0 6px 14px rgba(200,169,126,0.35);
 }
 
 /* ===========================
-   SIDEBAR
+   BOTÓN LOGOUT
 =========================== */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 220px;
-  height: 100%;
-  background-color: #f3efe9;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.05);
-}
-
-.sidebar ul {
-  list-style: none;
-  margin-top: 30px;
-}
-
-.sidebar ul li {
-  padding: 12px 20px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-weight: 500;
-}
-
-.sidebar ul li.active,
-.sidebar ul li:hover {
-  background-color: #c8a97e;
-  color: #fff;
-}
-
-/* Botón cerrar sesión */
 #btnLogout {
   margin-top: auto;
-  padding: 12px 20px;
+  padding: 14px;
   border-radius: 30px;
   font-weight: 500;
   cursor: pointer;
+  border: 1.5px solid var(--beige);
+  background: transparent;
+  color: var(--beige);
+  transition: all 0.3s ease;
+}
+
+#btnLogout:hover {
+  background: var(--beige);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(200,169,126,0.35);
 }
 
 /* ===========================
    MAIN CONTENT
 =========================== */
-main#main-content {
-  margin-left: 240px;
-  padding: 30px;
+#main-content {
+  margin-left: 250px;
+  padding: 40px;
   min-height: 100vh;
-  background-color: #faf9f8;
+  background: #f8f6f3;
 }
 
-/* ===========================
-   TAB CONTENT
-=========================== */
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-/* ===========================
-   FORMULARIOS (reusar forms.css)
-=========================== */
-.form-reserva {
-  background-color: #fff;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-  margin-bottom: 30px;
-}
-
-.form-reserva input,
-.form-reserva select,
-.form-reserva textarea {
-  width: 100%;
-  padding: 10px 15px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-/* BOTONES */
-.btn-primary,
-.btn-secondary {
-  display: inline-block;
-  padding: 12px 28px;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #c8a97e;
-  color: #fff;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #b5966f;
-}
-
-.btn-secondary {
-  border: 1.5px solid #c8a97e;
-  color: #c8a97e;
-  background-color: transparent;
-}
-
-.btn-secondary:hover {
-  background-color: #c8a97e;
-  color: #fff;
-}
-
-/* ===========================
-   TABLAS
-=========================== */
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 14px;
-  font-family: 'Poppins', sans-serif;
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.tabla thead {
-  background-color: #c8a97e;
-  color: #fff;
-  text-align: left;
-}
-
-.tabla th, .tabla td {
-  padding: 12px 15px;
-}
-
-.tabla tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.3s ease;
-}
-
-.tabla tbody tr:hover {
-  background-color: #f3efe9;
-}
-
-/* RESPONSIVE MOVIL */
-@media (max-width: 768px) {
-  .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-  main#main-content {
-    margin-left: 0;
-    padding: 20px;
-  }
-}
+/* Títulos */
 #main-content h2 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 18px;
-  color: #3a3a3a;
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  margin-bottom: 25px;
+  color: var(--verde-spa);
 }
 
+/* ===========================
+   TARJETAS / SECCIONES
+=========================== */
+.section-card {
+  background: var(--blanco);
+  padding: 30px;
+  border-radius: 22px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  margin-bottom: 30px;
+}
+
+/* ===========================
+   TABLAS
+=========================== */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.tabla thead {
+  background: var(--beige);
+  color: #fff;
+}
+
+.tabla th,
+.tabla td {
+  padding: 14px 16px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.tabla tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.25s ease;
+}
+
+.tabla tbody tr:hover {
+  background-color: var(--beige-light);
+}
+
+/* ===========================
+   BOTONES
+=========================== */
+.btn-primary {
+  background: var(--beige);
+  color: #fff;
+  border: none;
+  padding: 12px 26px;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--beige-dark);
+  box-shadow: 0 6px 18px rgba(200,169,126,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--beige);
+  border: 1.5px solid var(--beige);
+  padding: 12px 26px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--beige);
+  color: #fff;
+}
+
+/* ===========================
+   FORMULARIOS
+=========================== */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--beige);
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 900px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    align-items: center;
+  }
+
+  .sidebar h2 {
+    display: none;
+  }
+
+  .sidebar a {
+    margin: 0 6px;
+    white-space: nowrap;
+  }
+
+  #main-content {
+    margin-left: 0;
+    padding: 25px;
+  }
+}
