@@ -5,14 +5,12 @@
   <title>Agenda | ANTHIA ESTHETIC CENTER</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- CSS BASE -->
-  <link rel="stylesheet" href="../../css/admin.css">
-  <link rel="stylesheet" href="../../css/agenda.css">
-  <link rel="stylesheet" href="../../css/tablas.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/agenda.css">
+  <link rel="stylesheet" href="../css/tablas.css">
 </head>
 <body>
 
-<!-- SIDEBAR (misma del dashboard) -->
 <aside class="sidebar">
   <div class="sidebar-brand">
     <h2>ANTHIA</h2>
@@ -23,33 +21,29 @@
     <a href="agenda.html" class="active">Agenda</a>
     <a href="servicios.html">Servicios</a>
     <a href="contactos.html">Contactos</a>
-    <a href="inventario.html">Inventario</a>
-    <a href="bloqueos.html">Bloqueos</a>
-    <a href="configuracion.html">Configuración</a>
   </nav>
 
   <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 </aside>
 
-<!-- MAIN -->
 <main class="main-content">
 
   <!-- HERO -->
   <section class="hero-admin hero-agenda">
     <div class="hero-text">
       <h1>Agenda</h1>
-      <p>Organiza citas, horarios y disponibilidad</p>
+      <p>Gestión inteligente de citas</p>
     </div>
   </section>
 
-  <!-- CONTENIDO -->
+  <!-- AGENDA -->
   <section class="agenda-section">
 
     <div class="agenda-header">
       <h2>Agenda del día</h2>
 
       <div class="form-group">
-        <label for="fechaAgenda">Fecha</label>
+        <label>Fecha</label>
         <input type="date" id="fechaAgenda">
       </div>
     </div>
@@ -70,10 +64,24 @@
 
 </main>
 
-<!-- SCRIPTS -->
-<script type="module" src="../../js/firebase.js"></script>
-<script type="module" src="../../js/auth.js"></script>
-<script type="module" src="../../js/agenda.js"></script>
+<!-- MODAL -->
+<div id="modalCita" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitulo">Nueva cita</h3>
+
+    <input type="text" id="clienteNombre" placeholder="Nombre del cliente">
+    <select id="servicioSelect"></select>
+
+    <div class="acciones">
+      <button id="btnGuardar" class="btn-primary">Guardar</button>
+      <button id="btnCancelar" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="../js/agenda.js"></script>
 
 </body>
 </html>
