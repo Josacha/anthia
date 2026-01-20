@@ -5,29 +5,39 @@
   <title>Inventario | ANTHIA ESTHETIC CENTER</title>
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="../css/tablas.css">
+  <link rel="stylesheet" href="../css/forms.css">
 </head>
 <body>
- 
 
-  <main id="main-content">
-    <div id="tab-inventario" class="tab-content active">
-      <h2>Inventario</h2>
-      <table id="tablaInventario" class="tabla">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </main>
+<main id="main-content">
+  <div id="tab-inventario" class="tab-content active">
 
-  <script type="module" src="../js/firebase.js"></script>
-  <script type="module" src="../js/auth.js"></script>
-  <script type="module" src="../js/inventario.js"></script>
-  <script type="module" src="../js/ui-tabs.js"></script>
+    <h2>Inventario</h2>
+
+    <form id="formInventario" class="form-reserva">
+      <input type="text" id="nombreProducto" placeholder="Nombre del producto" required>
+      <input type="number" id="stockProducto" placeholder="Cantidad en stock" required>
+      <button type="submit" class="btn-primary">Agregar producto</button>
+    </form>
+
+    <hr>
+
+    <table id="tablaInventario" class="tabla">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div>
+</main>
+
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/inventario.js"></script>
+
 </body>
 </html>
