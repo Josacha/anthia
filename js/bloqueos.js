@@ -1,11 +1,19 @@
 // js/bloqueos.js
 import { db } from "./firebase.js";
-import { collection, getDocs, setDoc, doc, deleteDoc, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  deleteDoc,
+  query,
+  where,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Elementos del DOM
-const fechaInput = document.getElementById("fechaBloqueo");
-const btnBloquearDiaCompleto = document.getElementById("btnBloquearDiaCompleto");
-const tabla = document.getElementById("tablaBloqueos").querySelector("tbody");
+let fechaInput;
+let btnBloquearDiaCompleto;
+let tabla;
 
 // Horas del día
 const HORAS = [
@@ -13,8 +21,12 @@ const HORAS = [
   "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
 ];
 
-// Función para cargar bloqueos en la tabla
+// ============================
+// Cargar bloqueos
+// ============================
 async function cargarBloqueos(fechaSeleccionada) {
+  if (!tabla) return;
+
   tabla.innerHTML = "";
 
   const bloqueosRef = collection(db, "bloqueos");
@@ -31,43 +43,67 @@ async function cargarBloqueos(fechaSeleccionada) {
       <td>${hora}</td>
       <td>${bloqueoHora ? "Sí" : "No"}</td>
       <td>
-        ${bloqueoHora ? `<button class="btn-secondary btnEliminar" data-id="${bloqueoHora.id}">Eliminar</button>` : ""}
+        ${
+          bloqueoHora
+            ? `<button class="btn-secondary btnEliminar" data-id="${bloqueoHora.id}">Eliminar</button>`
+            : ""
+        }
       </td>
     `;
 
     tabla.appendChild(fila);
   });
 
-  // Eventos de eliminar
   document.querySelectorAll(".btnEliminar").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const id = btn.dataset.id;
-      await deleteDoc(doc(db, "bloqueos", id));
+      await deleteDoc(doc(db, "bloqueos", btn.dataset.id));
       cargarBloqueos(fechaSeleccionada);
     });
   });
 }
 
-// Función para bloquear día completo
-btnBloquearDiaCompleto.addEventListener("click", async () => {
-  const fecha = fechaInput.value;
-  if (!fecha) return alert("Seleccione una fecha primero");
+// ============================
+// INIT BLOQUEOS (OBLIGATORIO)
+// ============================
+function initBloqueos() {
+  fechaInput = document.getElementById("fechaBloqueo");
+  btnBloquearDiaCompleto = document.getElementById("btnBloquearDiaCompleto");
+  tabla = document
+    .getElementById("tablaBloqueos")
+    ?.querySelector("tbody");
 
-  for (let hora of HORAS) {
-    const bloqueoId = `${fecha}_${hora}`;
-    await setDoc(doc(db, "bloqueos", bloqueoId), {
-      fecha: fecha,
-      hora: hora,
-      bloqueado: true,
-      creado: Timestamp.now()
-    });
+  if (!fechaInput || !btnBloquearDiaCompleto || !tabla) {
+    console.warn("Bloqueos: HTML no cargado aún");
+    return;
   }
 
-  alert("Día bloqueado correctamente");
-  cargarBloqueos(fecha);
-});
+  btnBloquearDiaCompleto.addEventListener("click", async () => {
+    const fecha = fechaInput.value;
+    if (!fecha) {
+      alert("Seleccione una fecha primero");
+      return;
+    }
 
-// Cargar bloqueos al seleccionar fecha
-fechaInput.addEventListener("change", () => {
-  if (fechaInput.value) cargarBloqueos(fechaInput.value);
-});
+    for (let hora of HORAS) {
+      const bloqueoId = `${fecha}_${hora}`;
+      await setDoc(doc(db, "bloqueos", bloqueoId), {
+        fecha,
+        hora,
+        bloqueado: true,
+        creado: Timestamp.now()
+      });
+    }
+
+    alert("Día bloqueado correctamente");
+    cargarBloqueos(fecha);
+  });
+
+  fechaInput.addEventListener("change", () => {
+    if (fechaInput.value) {
+      cargarBloqueos(fechaInput.value);
+    }
+  });
+}
+
+// 👇 ESTO ES LO QUE ui-tabs.js NECESITA
+export { initBloqueos };
