@@ -412,3 +412,10 @@ main#main-content {
     padding: 20px;
   }
 }
+#main-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #3a3a3a;
+}
+
