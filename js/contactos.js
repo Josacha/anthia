@@ -1,14 +1,17 @@
- import { db } from "./firebase.js";
+import { db } from "./firebase.js";
 import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const tabla = document.getElementById("tablaContactos").querySelector("tbody");
 
-async function cargarContactos(){
+async function cargarContactos() {
   tabla.innerHTML = "";
+
   const snapshot = await getDocs(collection(db, "clientes"));
+
   snapshot.forEach(docu => {
     const cliente = docu.data();
     const fila = document.createElement("tr");
+
     fila.innerHTML = `
       <td>${cliente.nombre}</td>
       <td>${cliente.apellido1}</td>
@@ -19,17 +22,21 @@ async function cargarContactos(){
         <button class="btn-secondary btnEliminar" data-id="${docu.id}">Eliminar</button>
       </td>
     `;
+
     tabla.appendChild(fila);
   });
 
-  document.querySelectorAll(".btnEliminar").forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
+  // Botones eliminar
+  document.querySelectorAll(".btnEliminar").forEach(btn => {
+    btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
-      await deleteDoc(doc(db, "clientes", id));
-      cargarContactos();
+      if(confirm("¿Eliminar este contacto?")) {
+        await deleteDoc(doc(db, "clientes", id));
+        cargarContactos();
+      }
     });
   });
 }
 
+// Cargar contactos al inicio
 cargarContactos();
-
