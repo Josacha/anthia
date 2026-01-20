@@ -267,7 +267,7 @@ body {
 .hero {
   background:
     linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
-    url("../img/hero-spa.jpg") center/cover no-repeat;
+    url("../assets/fondo/dash.jpg") center/cover no-repeat;
   border-radius: 25px;
   padding: 60px;
   color: #fff;
