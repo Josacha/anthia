@@ -1,38 +1,48 @@
-<div id="tab-servicios" class="tab-content">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Servicios | ANTHIA ESTHETIC CENTER</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/forms.css">
+  <link rel="stylesheet" href="../css/tablas.css">
+</head>
+<body>
 
-  <h2>Servicios</h2>
 
-  <!-- FORMULARIO PARA AGREGAR SERVICIO -->
-  <form id="formAgregarServicio" class="form-reserva">
-    <h3>Agregar nuevo servicio</h3>
+  <main id="main-content">
+    <div id="tab-servicios" class="tab-content active">
+      <h2>Servicios</h2>
 
-    <input type="text" id="nuevoNombre" placeholder="Nombre del servicio" required>
+      <form id="formServicios" class="form-reserva">
+        <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
+        <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
+        <input type="number" id="precioServicio" placeholder="Precio (₡)" required>
+        <label>
+          <input type="checkbox" id="simultaneoServicio"> Permitir simultáneas
+        </label>
+        <button type="submit" class="btn-primary">Agregar Servicio</button>
+      </form>
 
-    <input type="number" id="nuevaDuracion" placeholder="Duración (min)" required>
+      <table id="tablaServicios" class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Duración</th>
+            <th>Precio</th>
+            <th>Simultáneo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-    <input type="number" id="nuevoPrecio" placeholder="Precio (₡)" required>
+    </div>
+  </main>
 
-    <label class="checkbox-label">
-      <input type="checkbox" id="nuevoSimultaneo"> Permitir citas simultáneas
-    </label>
-
-    <button type="submit" class="btn-primary">Agregar Servicio</button>
-  </form>
-
-  <!-- TABLA DE SERVICIOS -->
-  <table id="tablaServicios" class="tabla">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Duración</th>
-        <th>Precio</th>
-        <th>Simultáneo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Aquí se cargan los servicios desde Firebase -->
-    </tbody>
-  </table>
-
-</div>
+  <script type="module" src="../js/firebase.js"></script>
+  <script type="module" src="../js/auth.js"></script>
+  <script type="module" src="../js/servicios.js"></script>
+  <script type="module" src="../js/ui-tabs.js"></script>
+</body>
+</html>
