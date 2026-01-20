@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Agenda | ANTHIA ESTHETIC CENTER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CSS -->
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="../css/agenda.css">
   <link rel="stylesheet" href="../css/tablas.css">
@@ -10,46 +13,41 @@
 </head>
 <body>
 
+<main id="main-content">
+  <div id="tab-agenda" class="tab-content active">
 
-  <!-- MAIN CONTENT -->
-  <main id="main-content">
-    <div id="tab-agenda" class="tab-content active">
+    <h2>Agenda</h2>
 
-      <h2>Agenda</h2>
-
-      <!-- Selección de fecha -->
-      <div class="form-group">
-        <label for="fechaAgenda">Seleccionar fecha:</label>
-        <input type="date" id="fechaAgenda">
-      </div>
-
-      <!-- Botón para bloquear día completo -->
-      <button id="btnBloquearDia" class="btn-secondary">Bloquear día completo</button>
-
-      <!-- Tabla de agenda por horas -->
-      <table id="tablaAgenda" class="tabla">
-        <thead>
-          <tr>
-            <th>Hora</th>
-            <th>Cliente</th>
-            <th>Servicio</th>
-            <th>Simultáneo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Las filas se llenan con JS -->
-        </tbody>
-      </table>
-
+    <!-- Selección de fecha -->
+    <div class="form-group">
+      <label for="fechaAgenda">Seleccionar fecha:</label>
+      <input type="date" id="fechaAgenda">
     </div>
-  </main>
 
-  <!-- SCRIPTS -->
-  <script type="module" src="../js/firebase.js"></script>
-  <script type="module" src="../js/auth.js"></script>
-  <script type="module" src="../js/agenda.js"></script>
-  <script type="module" src="../js/ui-tabs.js"></script>
+    <!-- Tabla de agenda -->
+    <table id="tablaAgenda" class="tabla">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Simultáneo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Las filas se llenan con JS -->
+      </tbody>
+    </table>
+
+  </div>
+</main>
+
+<!-- Scripts -->
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="../js/ui-tabs.js"></script>
+<script type="module" src="../js/agenda.js"></script>
 
 </body>
 </html>
