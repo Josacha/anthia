@@ -1,45 +1,42 @@
-// Tabs internas
 const tabs = document.querySelectorAll('.sidebar li');
-const contents = document.querySelectorAll('.tab-content');
+const mainContent = document.getElementById('main-content');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', async () => {
-    // Quitar active de todos los tabs
+    // Resaltar pestaña activa
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
-    // Ocultar todos los contenidos
-    contents.forEach(c => c.classList.remove('active'));
-
-    // Mostrar el contenido correspondiente
+    // Cargar vista correspondiente
     const tabName = tab.dataset.tab;
-    const tabContent = document.getElementById(`tab-${tabName}`);
-    tabContent.classList.add('active');
-
-    // Importar JS correspondiente a la vista
     try {
+      const response = await fetch(`views/${tabName}.html`);
+      const html = await response.text();
+      mainContent.innerHTML = html;
+
+      // Ejecutar el JS correspondiente a esa vista
       switch(tabName) {
         case 'agenda':
-          await import('./agenda.js');
+          import('./agenda.js');
           break;
         case 'contactos':
-          await import('./contactos.js');
+          import('./contactos.js');
           break;
         case 'servicios':
-          await import('./servicios.js');
+          import('./servicios.js');
           break;
         case 'inventario':
-          await import('./inventario.js');
+          import('./inventario.js');
           break;
         case 'bloqueos':
-          await import('./bloqueos.js');
+          import('./bloqueos.js');
           break;
         case 'configuracion':
-          await import('./configuracion.js');
+          import('./configuracion.js');
           break;
       }
-    } catch(err) {
-      console.error(`Error al cargar la vista ${tabName}:`, err);
+    } catch (err) {
+      console.error(`Error al cargar ${tabName}.html:`, err);
     }
   });
 });
