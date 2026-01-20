@@ -1,20 +1,26 @@
-<div class="card">
-  <h3>Servicios</h3>
+<div id="tab-servicios" class="tab-content">
 
-  <!-- FORMULARIO NUEVO SERVICIO -->
-  <form id="formNuevoServicio" class="form-dashboard">
-    <input type="text" id="nuevoServicioNombre" placeholder="Nombre del servicio" required>
-    <input type="number" id="nuevoServicioDuracion" placeholder="Duración (minutos)" required>
-   <input type="number" id="nuevoPrecio" placeholder="Precio (₡)" required>
+  <h2>Servicios</h2>
 
-    <label>
-      <input type="checkbox" id="nuevoServicioSimultaneo"> Permitir citas simultáneas
+  <!-- FORMULARIO PARA AGREGAR SERVICIO -->
+  <form id="formAgregarServicio" class="form-reserva">
+    <h3>Agregar nuevo servicio</h3>
+
+    <input type="text" id="nuevoNombre" placeholder="Nombre del servicio" required>
+
+    <input type="number" id="nuevaDuracion" placeholder="Duración (min)" required>
+
+    <input type="number" id="nuevoPrecio" placeholder="Precio (₡)" required>
+
+    <label class="checkbox-label">
+      <input type="checkbox" id="nuevoSimultaneo"> Permitir citas simultáneas
     </label>
-    <button type="submit" class="btn-primary">Agregar servicio</button>
+
+    <button type="submit" class="btn-primary">Agregar Servicio</button>
   </form>
 
-  <!-- TABLA SERVICIOS -->
-  <table>
+  <!-- TABLA DE SERVICIOS -->
+  <table id="tablaServicios" class="tabla">
     <thead>
       <tr>
         <th>Nombre</th>
@@ -24,7 +30,9 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody id="tablaServicios"></tbody>
+    <tbody>
+      <!-- Aquí se cargan los servicios desde Firebase -->
+    </tbody>
   </table>
-  <script type="module" src="../../js/auth-protect.js"></script>
+
 </div>
