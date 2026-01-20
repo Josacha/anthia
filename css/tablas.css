@@ -73,3 +73,81 @@ table button {
 }
 
 
+/* TABLAS MODERNAS Y RESPONSIVE */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tabla thead {
+  background-color: #c8a97e;
+  color: #fff;
+  text-align: left;
+}
+
+.tabla th, .tabla td {
+  padding: 12px 15px;
+}
+
+.tabla tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s ease;
+}
+
+.tabla tbody tr:hover {
+  background-color: #f3efe9;
+}
+
+.tabla tbody td button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* RESPONSIVE MOVIL */
+@media (max-width: 768px) {
+  .tabla thead {
+    display: none;
+  }
+
+  .tabla, .tabla tbody, .tabla tr, .tabla td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabla tr {
+    margin-bottom: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .tabla td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .tabla td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: calc(50% - 30px);
+    font-weight: 600;
+    text-align: left;
+    color: #555;
+  }
+
+  .tabla tbody td button {
+    width: 100%;
+    margin-top: 5px;
+  }
+}
