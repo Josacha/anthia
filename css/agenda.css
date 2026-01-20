@@ -613,5 +613,38 @@ td.ocupado {
   }
 }
 
+.accion-btn {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  margin: 0 2px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.accion-btn.editar {
+  background-color: #fbbf24;
+  color: #fff;
+}
+
+.accion-btn.editar:hover {
+  background-color: #f59e0b;
+}
+
+.accion-btn.eliminar {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.accion-btn.eliminar:hover {
+  background-color: #dc2626;
+}
+
+.tabla td.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
 
 
