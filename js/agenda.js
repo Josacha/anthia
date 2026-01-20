@@ -1,10 +1,28 @@
 import { db } from './firebase.js';
-import { collection, getDocs, query, where, doc, deleteDoc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  collection, getDocs, query, where, doc, deleteDoc, setDoc, getDoc, Timestamp 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Elementos del DOM
 const fechaInput = document.getElementById('fechaAgenda');
 const tablaAgenda = document.getElementById('tablaAgenda').querySelector('tbody');
 const btnBloquearDia = document.getElementById('btnBloquearDia');
+
+// ================================
+// FUNCIONES AUXILIARES
+// ================================
+
+// Obtener nombre de cliente por ID
+async function obtenerNombreCliente(clienteId) {
+  const docSnap = await getDoc(doc(db, 'clientes', clienteId));
+  return docSnap.exists() ? docSnap.data().nombre : clienteId;
+}
+
+// Obtener nombre de servicio por ID
+async function obtenerNombreServicio(servicioId) {
+  const docSnap = await getDoc(doc(db, 'servicios', servicioId));
+  return docSnap.exists() ? docSnap.data().nombre : servicioId;
+}
 
 // ================================
 // CARGAR AGENDA
@@ -15,7 +33,6 @@ async function cargarAgenda() {
 
   tablaAgenda.innerHTML = '';
 
-  // Consultar citas del día seleccionado
   const citasRef = collection(db, 'citas');
   const q = query(citasRef, where('fecha', '==', fecha));
   const snapshot = await getDocs(q);
@@ -25,28 +42,32 @@ async function cargarAgenda() {
     return;
   }
 
-  snapshot.forEach(docSnap => {
+  for (const docSnap of snapshot.docs) {
     const data = docSnap.data();
-    const tr = document.createElement('tr');
 
+    // Obtener nombres de cliente y servicio
+    const clienteNombre = await obtenerNombreCliente(data.clienteId);
+    const servicioNombre = await obtenerNombreServicio(data.servicioId);
+
+    const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${data.hora}</td>
-      <td>${data.clienteId}</td>
-      <td>${data.servicioId}</td>
+      <td>${clienteNombre}</td>
+      <td>${servicioNombre}</td>
       <td>${data.simultaneo ? 'Sí' : 'No'}</td>
       <td>
         <button class="btn-delete" data-id="${docSnap.id}">Cancelar</button>
       </td>
     `;
     tablaAgenda.appendChild(tr);
-  });
+  }
 
-  // Evento para eliminar citas
+  // Botones de eliminar citas
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (confirm('¿Desea cancelar esta cita?')) {
         await deleteDoc(doc(db, 'citas', btn.dataset.id));
-        cargarAgenda();
+        cargarAgenda(); // recarga la tabla
       }
     });
   });
@@ -63,6 +84,7 @@ btnBloquearDia.addEventListener('click', async () => {
   await setDoc(bloqueosRef, { completo: true, creado: Timestamp.now() });
 
   alert('Día bloqueado correctamente');
+  cargarAgenda(); // Opcional: recarga la agenda para indicar bloqueo
 });
 
 // ================================
@@ -70,10 +92,11 @@ btnBloquearDia.addEventListener('click', async () => {
 // ================================
 fechaInput.addEventListener('change', cargarAgenda);
 
-// Inicialización
+// ================================
+// INICIALIZACIÓN
+// ================================
 document.addEventListener('DOMContentLoaded', () => {
   const hoy = new Date().toISOString().split('T')[0];
   fechaInput.value = hoy;
   cargarAgenda();
 });
-
