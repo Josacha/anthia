@@ -1,12 +1,15 @@
 import { db } from "./firebase.js";
 import {
-  collection, addDoc, getDocs, query, where,
-  updateDoc, deleteDoc, doc
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ===============================
-   ELEMENTOS
-================================ */
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
 
@@ -19,179 +22,164 @@ const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
 const simultaneoCheck = document.getElementById("simultaneo");
 
-let editandoId = null;
+const btnDia = document.getElementById("btnDia");
+const btnSemana = document.getElementById("btnSemana");
+
+const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+
 let horaSeleccionada = null;
+let editCitaId = null;
+let vistaSemana = false;
 
-/* ===============================
-   HORAS
-================================ */
-const HORAS = [
-  "08:00","09:00","10:00","11:00","12:00",
-  "13:00","14:00","15:00","16:00","17:00","18:00"
-];
-
-/* ===============================
-   UTILIDADES
-================================ */
+// FECHA HOY
 function hoyISO() {
   return new Date().toISOString().split("T")[0];
 }
 
-function sumarMinutos(hora, minutos) {
-  const [h, m] = hora.split(":").map(Number);
-  const d = new Date(0,0,0,h,m + minutos);
-  return d.toTimeString().slice(0,5);
-}
-
-/* ===============================
-   SERVICIOS
-================================ */
+// CARGAR SERVICIOS
 async function cargarServicios() {
   servicioSelect.innerHTML = "";
   const snap = await getDocs(collection(db, "servicios"));
-
   snap.forEach(d => {
     const s = d.data();
     const opt = document.createElement("option");
     opt.value = s.nombre;
-    opt.dataset.duracion = s.duracion; // ⏱ minutos
     opt.dataset.simultaneo = s.simultaneo;
-    opt.textContent = `${s.nombre} (${s.duracion} min)`;
+    opt.dataset.duracion = s.duracion || 1; // duración en horas
+    opt.textContent = s.nombre;
     servicioSelect.appendChild(opt);
   });
 }
 
-/* ===============================
-   AGENDA
-================================ */
+// CARGAR AGENDA
 async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
-
   const q = query(collection(db, "citas"), where("fecha", "==", fecha));
   const snap = await getDocs(q);
-  const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const citas = snap?.docs?.map(d => ({ id: d.id, ...d.data() })) || [];
 
   HORAS.forEach(hora => {
-
-    const cita = citas.find(c =>
-      c.hora === hora ||
-      (c.hora < hora && c.horaFin > hora)
-    );
-
+    const cita = citas.find(c => c.hora === hora);
     const tr = document.createElement("tr");
+    tr.dataset.hora = hora;
 
     if (cita) {
-      tr.classList.add("ocupado");
       tr.draggable = true;
       tr.dataset.id = cita.id;
     }
 
+    // calcular duración si tiene varios servicios
+    const duracion = cita?.servicios?.reduce((sum, s) => sum + (s.duracion || 1), 0) || (cita ? 1 : 0);
+
     tr.innerHTML = `
       <td>${hora}</td>
-      <td>${cita ? cita.clienteNombre : "-"}</td>
-      <td>${cita ? cita.servicios.map(s => s.nombre).join(", ") : "-"}</td>
+      <td>${cita?.clienteNombre || "-"}</td>
+      <td>${cita ? (cita.servicios?.map(s => s.nombre).join(", ") || cita.servicioNombre) : "-"}</td>
       <td class="${cita ? "ocupado" : "libre"}">
         ${cita ? "Ocupado" : "Disponible"}
       </td>
+      <td class="acciones">
+        ${cita ? '<button class="accion-btn editar">Editar</button><button class="accion-btn eliminar">Eliminar</button>' : ''}
+      </td>
     `;
 
-    /* CLICK */
-    tr.onclick = () => {
+    // CLICK en fila para nueva cita
+    tr.addEventListener("click", () => {
       if (!cita) {
         horaSeleccionada = hora;
-        editandoId = null;
+        editCitaId = null;
         modal.classList.add("active");
-      } else {
-        editarCita(cita);
       }
-    };
-
-    /* DRAG */
-    tr.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("id", tr.dataset.id);
     });
 
-    tr.addEventListener("dragover", e => e.preventDefault());
-
-    tr.addEventListener("drop", async e => {
-      const id = e.dataTransfer.getData("id");
-      await updateDoc(doc(db, "citas", id), {
-        hora,
-        horaFin: sumarMinutos(hora, cita.duracionTotal)
+    // BOTONES DE ACCIÓN
+    tr.querySelectorAll(".accion-btn.editar").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        editCitaId = cita.id;
+        horaSeleccionada = hora;
+        clienteNombre.value = cita.clienteNombre;
+        simultaneoCheck.checked = cita.simultaneo || false;
+        // cargar servicios existentes
+        cargarServicios().then(() => {
+          if(cita.servicios) {
+            Array.from(servicioSelect.options).forEach(opt => {
+              opt.selected = cita.servicios.some(s => s.nombre === opt.value);
+            });
+          }
+        });
+        modal.classList.add("active");
       });
-      cargarAgenda(fechaInput.value);
+    });
+
+    tr.querySelectorAll(".accion-btn.eliminar").forEach(btn => {
+      btn.addEventListener("click", async e => {
+        e.stopPropagation();
+        if(confirm("¿Eliminar esta cita?")) {
+          await deleteDoc(doc(db, "citas", cita.id));
+          cargarAgenda(fechaInput.value);
+        }
+      });
     });
 
     tbody.appendChild(tr);
   });
 }
 
-/* ===============================
-   EDITAR / ELIMINAR
-================================ */
-function editarCita(cita) {
-  modal.classList.add("active");
-  clienteNombre.value = cita.clienteNombre;
-  horaSeleccionada = cita.hora;
-  editandoId = cita.id;
-}
-
-async function eliminarCita(id) {
-  if (confirm("¿Eliminar esta cita?")) {
-    await deleteDoc(doc(db, "citas", id));
-    cargarAgenda(fechaInput.value);
-  }
-}
-
-/* ===============================
-   GUARDAR
-================================ */
+// GUARDAR / EDITAR CITA
 guardarCita.onclick = async () => {
-  const servicios = [...servicioSelect.selectedOptions].map(opt => ({
+  const selectedServices = Array.from(servicioSelect.selectedOptions).map(opt => ({
     nombre: opt.value,
-    duracion: Number(opt.dataset.duracion)
+    duracion: parseInt(opt.dataset.duracion),
+    simultaneo: opt.dataset.simultaneo === "true"
   }));
 
-  const duracionTotal = servicios.reduce((a,b) => a + b.duracion, 0);
-  const horaFin = sumarMinutos(horaSeleccionada, duracionTotal);
-
-  const data = {
+  const nuevaCita = {
     fecha: fechaInput.value,
     hora: horaSeleccionada,
-    horaFin,
     clienteNombre: clienteNombre.value,
-    servicios,
-    duracionTotal
+    servicios: selectedServices,
+    simultaneo: selectedServices.some(s => s.simultaneo)
   };
 
-  if (editandoId) {
-    await updateDoc(doc(db, "citas", editandoId), data);
+  if(editCitaId) {
+    await updateDoc(doc(db, "citas", editCitaId), nuevaCita);
   } else {
-    await addDoc(collection(db, "citas"), data);
+    await addDoc(collection(db, "citas"), nuevaCita);
   }
 
   modal.classList.remove("active");
   clienteNombre.value = "";
-  editandoId = null;
   cargarAgenda(fechaInput.value);
 };
 
+// CANCELAR MODAL
 cancelarModal.onclick = () => modal.classList.remove("active");
 btnNuevaCita.onclick = () => {
-  editandoId = null;
-  clienteNombre.value = "";
+  editCitaId = null;
   modal.classList.add("active");
 };
 
-/* ===============================
-   INIT
-================================ */
+// VISTA DIA / SEMANA
+btnDia.onclick = () => {
+  vistaSemana = false;
+  btnDia.classList.add("active");
+  btnSemana.classList.remove("active");
+  cargarAgenda(fechaInput.value);
+};
+
+btnSemana.onclick = () => {
+  vistaSemana = true;
+  btnSemana.classList.add("active");
+  btnDia.classList.remove("active");
+  cargarAgenda(fechaInput.value);
+};
+
+// INIT
 document.addEventListener("DOMContentLoaded", async () => {
   fechaInput.value = hoyISO();
   await cargarServicios();
   cargarAgenda(fechaInput.value);
 });
 
-fechaInput.addEventListener("change", () => {
-  cargarAgenda(fechaInput.value);
-});
+fechaInput.addEventListener("change", () => cargarAgenda(fechaInput.value));
