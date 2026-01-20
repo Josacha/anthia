@@ -181,3 +181,54 @@ table button:hover {
 .form-dashboard button.btn-primary:hover {
   background-color: #b5966f;
 }
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: #f3efe9;
+  min-height: 100vh;
+  padding: 30px 20px;
+  float: left;
+}
+
+.sidebar h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+
+.sidebar li.active,
+.sidebar li:hover {
+  background-color: #c8a97e;
+  color: #fff;
+}
+
+/* Main content */
+.main-content {
+  margin-left: 240px;
+  padding: 30px;
+  background-color: #faf9f8;
+  min-height: 100vh;
+}
+
+/* Tabs */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
