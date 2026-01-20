@@ -1,1 +1,31 @@
+<div class="card">
+  <h3>Agenda diaria / semanal</h3>
 
+  <!-- FORMULARIO NUEVA CITA -->
+  <form id="formNuevaCita" class="form-dashboard">
+    <input type="text" id="citaNombre" placeholder="Nombre cliente" required>
+    <input type="text" id="citaApellido1" placeholder="Primer apellido" required>
+    <input type="text" id="citaApellido2" placeholder="Segundo apellido (opcional)">
+    <select id="citaServicio" required>
+      <option value="">Seleccione servicio</option>
+    </select>
+    <input type="date" id="citaFecha" required>
+    <input type="time" id="citaHora" required>
+    <button type="submit" class="btn-primary">Agregar cita</button>
+  </form>
+
+  <!-- TABLA AGENDA -->
+  <table>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Servicio</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaAgenda"></tbody>
+  </table>
+</div>
