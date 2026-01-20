@@ -48,3 +48,136 @@ table th, table td {
 table th {
   background-color: #f5f5f5;
 }
+
+
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9f7f6;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #fff;
+  padding: 30px 20px;
+  box-shadow: 3px 0 15px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar .logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: #c8a97e;
+  margin-bottom: 5px;
+}
+.sidebar .logo span {
+  font-size: 12px;
+  color: #888;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  margin-top: 40px;
+}
+.sidebar nav ul li {
+  padding: 12px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+.sidebar nav ul li.active,
+.sidebar nav ul li:hover {
+  background-color: #c8a97e;
+  color: #fff;
+}
+
+/* Logout Button */
+#btnLogout {
+  padding: 12px 15px;
+  border-radius: 15px;
+  border: 1px solid #c8a97e;
+  background: transparent;
+  color: #c8a97e;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#btnLogout:hover {
+  background-color: #c8a97e;
+  color: #fff;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
+  overflow-x: auto;
+}
+
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+.tab-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+table th, table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+table th {
+  background-color: #f3efe9;
+}
+table button {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #c8a97e;
+  color: #fff;
+  transition: 0.3s;
+}
+table button:hover {
+  background-color: #b5966f;
+}
+
+/* Forms */
+.form-dashboard input,
+.form-dashboard select,
+.form-dashboard button {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 15px;
+  border: 1px solid #ddd;
+}
+.form-dashboard button.btn-primary {
+  background-color: #c8a97e;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+.form-dashboard button.btn-primary:hover {
+  background-color: #b5966f;
+}
