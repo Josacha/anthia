@@ -1,3 +1,4 @@
+// servicios.js
 import { db } from "./firebase.js";
 import {
   collection,
@@ -11,69 +12,88 @@ let form;
 let tabla;
 
 // ==========================
-// Cargar servicios
+// Crear fila de servicio
+// ==========================
+function crearFilaServicio(id, servicio) {
+  const fila = document.createElement("tr");
+
+  fila.innerHTML = `
+    <td>${servicio.nombre}</td>
+    <td>${servicio.duracion} min</td>
+    <td>₡${servicio.precio}</td>
+    <td>${servicio.simultaneo ? "Sí" : "No"}</td>
+    <td>
+      <button class="btn-eliminar" data-id="${id}">🗑️ Eliminar</button>
+    </td>
+  `;
+
+  // Botón eliminar
+  fila.querySelector(".btn-eliminar").addEventListener("click", async () => {
+    if (confirm(`¿Eliminar el servicio "${servicio.nombre}"?`)) {
+      await deleteDoc(doc(db, "servicios", id));
+      cargarServicios();
+    }
+  });
+
+  return fila;
+}
+
+// ==========================
+// Cargar servicios desde Firebase
 // ==========================
 async function cargarServicios() {
   if (!tabla) return;
 
-  tabla.innerHTML = "";
+  tabla.innerHTML = ""; // limpiar
+
   const snapshot = await getDocs(collection(db, "servicios"));
-
   snapshot.forEach(docu => {
-    const s = docu.data();
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-      <td>${s.nombre}</td>
-      <td>${s.duracion} min</td>
-      <td>₡${s.precio}</td>
-      <td>${s.simultaneo ? "Sí" : "No"}</td>
-      <td>
-        <button class="btn-secondary btnEliminar" data-id="${docu.id}">
-          Eliminar
-        </button>
-      </td>
-    `;
+    const fila = crearFilaServicio(docu.id, docu.data());
     tabla.appendChild(fila);
-  });
-
-  document.querySelectorAll(".btnEliminar").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      await deleteDoc(doc(db, "servicios", btn.dataset.id));
-      cargarServicios();
-    });
   });
 }
 
 // ==========================
-// INIT (OBLIGATORIO)
+// Inicializar módulo servicios
 // ==========================
 function initServicios() {
   form = document.getElementById("formServicios");
-  tabla = document
-    .getElementById("tablaServicios")
-    ?.querySelector("tbody");
+  tabla = document.getElementById("tablaServicios")?.querySelector("tbody");
 
   if (!form || !tabla) {
     console.warn("Servicios: HTML no cargado aún");
     return;
   }
 
+  // Evento agregar servicio
   form.addEventListener("submit", async e => {
     e.preventDefault();
 
+    const nombre = document.getElementById("nombreServicio").value.trim();
+    const duracion = Number(document.getElementById("duracionServicio").value);
+    const precio = Number(document.getElementById("precioServicio").value);
+    const simultaneo = document.getElementById("simultaneoServicio").checked;
+
+    if (!nombre || !duracion || !precio) {
+      return alert("Por favor completa todos los campos.");
+    }
+
     await addDoc(collection(db, "servicios"), {
-      nombre: document.getElementById("nombreServicio").value,
-      duracion: Number(document.getElementById("duracionServicio").value),
-      precio: Number(document.getElementById("precioServicio").value),
-      simultaneo: document.getElementById("simultaneoServicio").checked
+      nombre,
+      duracion,
+      precio,
+      simultaneo
     });
 
     form.reset();
     cargarServicios();
   });
 
+  // Cargar servicios inicialmente
   cargarServicios();
 }
 
-// 👇 ESTO ES LO QUE FALTABA
+// ==========================
+// Export
+// ==========================
 export { initServicios };
