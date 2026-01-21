@@ -133,48 +133,59 @@ async function cargarAgenda(fecha) {
   const citas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
 
   HORAS.forEach(hora=>{
-    let ocupadas = [];
-    let tr = document.createElement("tr");
-    tr.dataset.hora = hora;
+    const horaMin = horaAMinutos(hora);
 
-    // Encontrar todas las citas que coincidan con esa hora
-    citas.forEach(c=>{
-      const inicio = horaAMinutos(c.hora);
-      const fin = inicio + (c.duracion || 60);
-      const horaMin = horaAMinutos(hora);
-      if(horaMin >= inicio && horaMin < fin){
-        ocupadas.push({
-          ...c,
-          clienteNombreCompleto: (() => {
-            const cliente = clientesMap[c.clienteId];
-            if(cliente) return `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}`;
-            return c.clienteId;
-          })()
-        });
-      }
+    // Filtrar todas las citas que se solapan con esta hora
+    const citasHora = citas.filter(c=>{
+      const cInicio = horaAMinutos(c.hora);
+      const cFin = cInicio + c.duracion;
+      return horaMin >= cInicio && horaMin < cFin;
     });
 
-    tr.innerHTML = `
-      <td>${hora}</td>
-      <td>${ocupadas.map(c=>c.clienteNombreCompleto).join(", ") || "-"}</td>
-      <td>${ocupadas.map(c=>serviciosMap[c.servicioId]?.nombre || "Servicio").join(", ") || "-"}</td>
-      <td>${ocupadas.length ? "Ocupado" : "Disponible"}</td>
-      <td>${ocupadas.map(c=>`
-        <button class="editar" data-id="${c.id}">✏️</button>
-        <button class="eliminar" data-id="${c.id}">🗑️</button>
-      `).join("")}</td>
-    `;
-
-    if(ocupadas.length === 0){
+    if(citasHora.length === 0){
+      // Fila vacía
+      const tr = document.createElement("tr");
+      tr.dataset.hora = hora;
+      tr.innerHTML = `
+        <td>${hora}</td>
+        <td>-</td>
+        <td>-</td>
+        <td>Disponible</td>
+        <td></td>
+      `;
       tr.addEventListener("click", ()=>{
         horaSeleccionada = hora;
         modal.classList.add("active");
         carrito = [];
         actualizarCarrito();
       });
-    }
+      tbody.appendChild(tr);
+    } else {
+      // Una fila por cada cita
+      citasHora.forEach(c=>{
+        const tr = document.createElement("tr");
+        tr.dataset.hora = hora;
+        tr.dataset.id = c.id;
 
-    tbody.appendChild(tr);
+        const clienteNombreCompleto = (() => {
+          const cliente = clientesMap[c.clienteId];
+          if(cliente) return `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}`;
+          return c.clienteId;
+        })();
+
+        tr.innerHTML = `
+          <td>${hora}</td>
+          <td>${clienteNombreCompleto}</td>
+          <td>${serviciosMap[c.servicioId]?.nombre || "Servicio"}</td>
+          <td>Ocupado</td>
+          <td>
+            <button class="editar" data-id="${c.id}">✏️</button>
+            <button class="eliminar" data-id="${c.id}">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
   });
 
   // Editar y eliminar
@@ -222,24 +233,29 @@ guardarCita.onclick = async ()=>{
   const inicio = horaAMinutos(horaSeleccionada);
   const duracionTotal = carrito.reduce((acc,s)=>acc+s.duracion,0);
 
-  // Obtener citas del mismo día
   const snap = await getDocs(query(collection(db,"citas"), where("fecha","==",fechaInput.value)));
   const citas = snap.docs.map(d=>d.data());
 
-  // --------------------
-  // REGLA SIMULTANEIDAD
-  // --------------------
   const fin = inicio + duracionTotal;
-  for(const c of citas){
+
+  // --------------------
+  // REGLA SIMULTANEIDAD Y MAX DOS CITAS POR RANGO
+  // --------------------
+  const citasSolapadas = citas.filter(c=>{
     const cInicio = horaAMinutos(c.hora);
     const cFin = cInicio + c.duracion;
+    return !(fin <= cInicio || inicio >= cFin);
+  });
 
-    // Si hay solapamiento
-    if(!(fin <= cInicio || inicio >= cFin)){
-      if(!carrito.every(s=>s.simultaneo) && !c.simultaneo){
-        return alert(`No se puede agendar: se solapa con ${clientesMap[c.clienteId]?.nombre || c.clienteId} a las ${c.hora}`);
-      }
-    }
+  // Verificar si hay servicio no simultáneo primero
+  const hayNoSimultaneo = citasSolapadas.some(c => !c.simultaneo);
+
+  if(hayNoSimultaneo && carrito.some(s=>s.simultaneo)){
+    return alert("No se puede agendar un servicio simultáneo porque ya hay un servicio no simultáneo en este rango de tiempo.");
+  }
+
+  if(citasSolapadas.length >= 2){
+    return alert("No se pueden agendar más de 2 citas en este rango de tiempo.");
   }
 
   // Guardar citas
@@ -274,7 +290,7 @@ btnNuevaCita.onclick = ()=>{
 };
 
 // --------------------
-// SELECCIÓN DE FECHA HERO
+// Selección de fecha hero
 // --------------------
 fechaInput.addEventListener("change", () => {
   if(fechaInput.value){
