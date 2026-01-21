@@ -25,7 +25,7 @@
       font-size: 1.8rem;
     }
 
-    /* Tabla estilo agenda */
+    /* Tabla estilo Agenda */
     #tablaServicios {
       width: 100%;
       border-collapse: collapse;
@@ -83,7 +83,6 @@
 <body>
 
   <template id="vista-servicios">
-
     <div class="hero-servicios">
       <h2>Gestión de Servicios</h2>
     </div>
@@ -115,17 +114,12 @@
       </thead>
       <tbody></tbody>
     </table>
-
   </template>
 
   <script type="module">
     const tpl = document.getElementById('vista-servicios');
-
-    if (!window.parent || !window.parent.document.getElementById('main-content')) {
-      document.body.appendChild(tpl.content.cloneNode(true));
-      import('../../js/servicios.js').then(m => m.initServicios());
-    }
+    document.body.appendChild(tpl.content.cloneNode(true));
+    import('../../js/servicios.js').then(m => m.initServicios());
   </script>
-
 </body>
 </html>
