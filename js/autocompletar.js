@@ -1,51 +1,73 @@
-document.addEventListener("DOMContentLoaded", () => {
+// autocompletar.js
+import { db } from "./firebase.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+  // -----------------------------
+  // ELEMENTOS DEL DOM
+  // -----------------------------
   const contactoInput = document.getElementById("contacto");
   const nombreInput = document.getElementById("nombre");
   const apellido1Input = document.getElementById("apellido1");
   const apellido2Input = document.getElementById("apellido2");
 
+  if (!contactoInput || !nombreInput || !apellido1Input || !apellido2Input) return;
+
   let timeout = null;
 
+  // ===============================
   // AUTOCOMPLETAR CLIENTE
+  // ===============================
   contactoInput.addEventListener("input", () => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       buscarCliente(contactoInput.value.trim());
-    }, 600);
+    }, 600); // espera a que termine de escribir
   });
 
   async function buscarCliente(valor) {
-    if (!valor) {
+    if (valor.length < 6) {
       limpiarCampos();
       return;
     }
 
-    let cliente = null;
+    let idCliente = null;
 
-    // Buscar por correo
+    // Detectar si es correo
     if (valor.includes("@")) {
-      const clientesRef = collection(db, "clientes");
-      const q = query(clientesRef, where("correo", "==", valor));
-      const snap = await getDocs(q);
-      if (!snap.empty) cliente = snap.docs[0].data();
+      idCliente = valor.replace(/[.#$[\]]/g, "_"); // mismo formato que usas en Firebase
     } else {
-      // Buscar por teléfono
-      const clientesRef = collection(db, "clientes");
-      const q = query(clientesRef, where("telefono", "==", valor));
-      const snap = await getDocs(q);
-      if (!snap.empty) cliente = snap.docs[0].data();
+      // Solo números para teléfono
+      const telefono = valor.replace(/\D/g, "");
+      if (telefono.length < 8) {
+        limpiarCampos();
+        return;
+      }
+      idCliente = telefono; // si quieres también puedes usar prefijo "tel_" en Firebase
     }
 
-    if (cliente) {
-      nombreInput.value = cliente.nombre || "";
-      apellido1Input.value = cliente.apellido1 || "";
-      apellido2Input.value = cliente.apellido2 || "";
+    try {
+      const ref = doc(db, "clientes", idCliente);
+      const snap = await getDoc(ref);
 
-      nombreInput.classList.add("auto");
-      apellido1Input.classList.add("auto");
-      apellido2Input.classList.add("auto");
-    } else {
+      if (snap.exists()) {
+        const c = snap.data();
+
+        nombreInput.value = c.nombre || "";
+        apellido1Input.value = c.apellido1 || "";
+        apellido2Input.value = c.apellido2 || "";
+
+        // Opcional: mostrar nombre completo en otro campo si quieres
+        // fullNameInput.value = `${c.nombre} ${c.apellido1} ${c.apellido2}`;
+
+        nombreInput.classList.add("auto");
+        apellido1Input.classList.add("auto");
+        apellido2Input.classList.add("auto");
+      } else {
+        limpiarCampos();
+      }
+    } catch (err) {
+      console.error("Error buscando cliente:", err);
       limpiarCampos();
     }
   }
@@ -59,5 +81,4 @@ document.addEventListener("DOMContentLoaded", () => {
     apellido1Input.classList.remove("auto");
     apellido2Input.classList.remove("auto");
   }
-
 });
