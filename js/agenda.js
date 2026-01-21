@@ -3,6 +3,7 @@ import {
   collection, addDoc, getDocs, query, where, updateDoc, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ELEMENTOS DEL DOM
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
 
@@ -15,15 +16,15 @@ const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
 const simultaneoCheck = document.getElementById("simultaneo");
 
-// Carrito de servicios
+// CARRITO DE SERVICIOS
 let carrito = [];
+let horaSeleccionada = null;
 
+// HORAS
 const HORAS = [
   "08:00","09:00","10:00","11:00","12:00",
   "13:00","14:00","15:00","16:00","17:00","18:00"
 ];
-
-let horaSeleccionada = null;
 
 // FECHA HOY
 function hoyISO() {
@@ -38,22 +39,22 @@ async function cargarServicios() {
     const s = d.data();
     const opt = document.createElement("option");
     opt.value = s.nombre;
-    opt.dataset.simultaneo = s.simultaneo;
-    opt.dataset.duracion = s.duracion; // minutos
-    opt.textContent = `${s.nombre} (${s.duracion} min)`;
+    opt.dataset.simultaneo = s.simultaneo || false;
+    opt.dataset.duracion = s.duracion || 60; // en minutos
+    opt.textContent = `${s.nombre} (${s.duracion || 60} min)`;
     servicioSelect.appendChild(opt);
   });
 }
 
 // ACTUALIZAR CARRITO EN MODAL
 function actualizarCarrito() {
-  // El modal puede mostrar el carrito de servicios seleccionados
   const existente = document.getElementById("carritoServicios");
   if (existente) existente.remove();
 
   const div = document.createElement("div");
   div.id = "carritoServicios";
   div.style.marginTop = "10px";
+
   div.innerHTML = carrito.map((s,i)=>`
     <div style="display:flex;justify-content:space-between;margin-bottom:5px">
       <span>${s.nombre} (${s.duracion} min)</span>
@@ -64,16 +65,15 @@ function actualizarCarrito() {
   modal.querySelector(".acciones").before(div);
 
   div.querySelectorAll("button").forEach(b=>{
-    b.addEventListener("click", ()=> {
+    b.addEventListener("click", ()=>{
       carrito.splice(b.dataset.index,1);
       actualizarCarrito();
     });
   });
 
-  // Actualizar duración total
-  const total = carrito.reduce((acc,s)=>acc+s.duracion,0);
+  const total = carrito.reduce((acc,s)=>acc + (s.duracion || 0),0);
   let totalDiv = document.getElementById("totalDuracion");
-  if (!totalDiv) {
+  if(!totalDiv){
     totalDiv = document.createElement("div");
     totalDiv.id = "totalDuracion";
     totalDiv.style.marginTop = "10px";
@@ -86,7 +86,11 @@ function actualizarCarrito() {
 servicioSelect.addEventListener("change", ()=>{
   const opt = servicioSelect.selectedOptions[0];
   if(opt){
-    carrito.push({ nombre: opt.value, duracion: parseInt(opt.dataset.duracion) });
+    carrito.push({ 
+      nombre: opt.value, 
+      duracion: parseInt(opt.dataset.duracion), 
+      simultaneo: opt.dataset.simultaneo === "true" 
+    });
     actualizarCarrito();
   }
 });
@@ -95,7 +99,7 @@ servicioSelect.addEventListener("change", ()=>{
 async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
 
-  const q = query(collection(db, "citas"), where("fecha","==",fecha));
+  const q = query(collection(db,"citas"), where("fecha","==",fecha));
   const snap = await getDocs(q);
   const citas = snap.docs.map(d=>({ id: d.id, ...d.data() }));
 
@@ -104,10 +108,12 @@ async function cargarAgenda(fecha) {
     let cita = null;
 
     citas.forEach(c=>{
+      const serviciosCita = Array.isArray(c.servicios) ? c.servicios : [];
+      const duracionTotal = serviciosCita.reduce((acc,s)=>acc + (s.duracion || 0),0);
+      const bloques = Math.ceil(duracionTotal / 60); // bloques de 1h
       const inicioIndex = HORAS.indexOf(c.hora);
-      const duracionTotal = c.servicios.reduce((acc,s)=>acc+s.duracion,0);
-      const bloques = Math.ceil(duracionTotal / 60);
       const rangoHoras = HORAS.slice(inicioIndex, inicioIndex + bloques);
+
       if(rangoHoras.includes(hora)){
         ocupado = true;
         cita = c;
@@ -125,7 +131,7 @@ async function cargarAgenda(fecha) {
     tr.innerHTML = `
       <td>${hora}</td>
       <td>${cita?.clienteNombre || "-"}</td>
-      <td>${cita ? cita.servicios.map(s=>s.nombre).join(", ") : "-"}</td>
+      <td>${cita ? (Array.isArray(cita.servicios) ? cita.servicios.map(s=>s.nombre).join(", ") : "-") : "-"}</td>
       <td>${ocupado ? "Ocupado" : "Disponible"}</td>
       <td>
         ${cita && hora === cita.hora ? `
@@ -153,9 +159,7 @@ async function cargarAgenda(fecha) {
     tr.addEventListener("dragover", e=> e.preventDefault());
     tr.addEventListener("drop", async e=>{
       const id = e.dataTransfer.getData("id");
-      const c = citas.find(c=>c.id===id);
-      const nuevaHora = hora;
-      await updateDoc(doc(db,"citas",id),{hora:nuevaHora});
+      await updateDoc(doc(db,"citas",id),{hora});
       cargarAgenda(fechaInput.value);
     });
 
@@ -169,7 +173,7 @@ async function cargarAgenda(fecha) {
       const c = citas.find(c=>c.id===id);
       horaSeleccionada = c.hora;
       clienteNombre.value = c.clienteNombre;
-      carrito = c.servicios.slice();
+      carrito = Array.isArray(c.servicios) ? c.servicios.slice() : [];
       actualizarCarrito();
       modal.classList.add("active");
 
@@ -202,7 +206,7 @@ guardarCita.onclick = async ()=>{
     fecha: fechaInput.value,
     hora: horaSeleccionada,
     clienteNombre: clienteNombre.value,
-    servicios: carrito,
+    servicios: carrito.length ? carrito : [],
     simultaneo: simultaneoCheck.checked
   });
   modal.classList.remove("active");
@@ -213,7 +217,7 @@ guardarCita.onclick = async ()=>{
 };
 
 cancelarModal.onclick = ()=> modal.classList.remove("active");
-btnNuevaCita.onclick = ()=> {
+btnNuevaCita.onclick = ()=>{
   horaSeleccionada = null;
   clienteNombre.value = "";
   carrito = [];
