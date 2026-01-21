@@ -203,3 +203,58 @@ table button {
 .btn-secondary:hover {
   background: #e5ccee;
 }
+
+/* Estilo tabla servicios */
+#tablaServicios {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+#tablaServicios th, #tablaServicios td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+#tablaServicios tbody tr:hover {
+  background: #f0f8ff;
+}
+
+#tablaServicios th {
+  background: #163a33;
+  color: white;
+}
+
+button.btn-eliminar {
+  background: #e63946;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button.btn-eliminar:hover {
+  background: #d62828;
+}
+
+.form-reserva input, .form-reserva button {
+  margin: 5px 0;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+button.btn-primary {
+  background: #163a33;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button.btn-primary:hover {
+  background: #1a4b40;
+}
