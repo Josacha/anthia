@@ -1,4 +1,3 @@
-// servicios.js
 import { db } from "./firebase.js";
 import {
   collection,
@@ -8,8 +7,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-let form;
-let tabla;
+let form, tabla;
 
 // --------------------
 // Crear fila de servicio
@@ -27,6 +25,7 @@ function crearFilaServicio(id, servicio) {
     </td>
   `;
 
+  // Botón eliminar
   fila.querySelector(".btn-eliminar").addEventListener("click", async () => {
     if (confirm(`¿Eliminar el servicio "${servicio.nombre}"?`)) {
       await deleteDoc(doc(db, "servicios", id));
