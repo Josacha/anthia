@@ -123,7 +123,7 @@
 
     if (!window.parent || !window.parent.document.getElementById('main-content')) {
       document.body.appendChild(tpl.content.cloneNode(true));
-      import('../js/servicios.js').then(m => m.initServicios());
+      import('../../js/servicios.js').then(m => m.initServicios());
     }
   </script>
 
