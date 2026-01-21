@@ -65,4 +65,3 @@ function limpiarCampos() {
   apellido1Input.classList.remove("auto");
   apellido2Input.classList.remove("auto");
 }
-
