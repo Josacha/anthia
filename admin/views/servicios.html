@@ -44,38 +44,46 @@
       <p>Administra los servicios disponibles y sus detalles</p>
     
 
-  <!-- FORMULARIO Y TABLA -->
-  <div class="agenda-section card">
+ <!-- FORMULARIO Y TABLA -->
+<div class="agenda-section card" style="max-width: 900px; margin: 20px auto; padding: 25px;">
 
-    <!-- Formulario de servicios -->
-    <form id="formServicios" class="agenda-controls">
-      <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
-      <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
-      <input type="number" id="precioServicio" placeholder="Precio ₡" required>
-      <label>
-        <input type="checkbox" id="simultaneoServicio">
-        Permitir citas simultáneas
-      </label>
-      <button type="submit" class="btn-primary">Agregar servicio</button>
-    </form>
+  <!-- Formulario de servicios mejorado -->
+  <form id="formServicios" class="agenda-controls" style="flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+    <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required
+           style="flex: 2; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
 
-    <hr>
+    <input type="number" id="duracionServicio" placeholder="Duración (min)" required
+           style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
 
-    <!-- Tabla de servicios -->
-    <table id="tablaServicios" class="tabla-premium">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Simultáneo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <input type="number" id="precioServicio" placeholder="Precio ₡" required
+           style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
 
-  </div>
+    <label style="flex-basis: 100%; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+      <input type="checkbox" id="simultaneoServicio">
+      Permitir citas simultáneas
+    </label>
+
+    <button type="submit" class="btn-primary" style="flex: 1; min-width: 150px;">Agregar servicio</button>
+  </form>
+
+  <hr style="margin: 25px 0; border-color: #e5e7eb;">
+
+  <!-- Tabla de servicios -->
+  <table id="tablaServicios" class="tabla-premium">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Duración</th>
+        <th>Precio</th>
+        <th>Simultáneo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
 
 </main>
 
