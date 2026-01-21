@@ -1,9 +1,7 @@
 import { db } from "./firebase.js";
 import { collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ----------------------
-// ELEMENTOS DEL DOM
-// ----------------------
+// DOM
 const formReserva = document.getElementById("formReserva");
 const correoInput = document.getElementById("correo");
 const telefonoInput = document.getElementById("telefono");
@@ -15,17 +13,19 @@ const fechaInput = document.getElementById("fecha");
 const horaSelect = document.getElementById("hora");
 const carritoDiv = document.getElementById("carritoServicios");
 
-// ----------------------
 // HORAS DISPONIBLES
-// ----------------------
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
 let carrito = [];
 let duracionTotal = 0;
 
-// ----------------------
+// UTIL: convertir hora "HH:MM" a minutos desde medianoche
+function horaAMinutos(hora){
+    const [h,m] = hora.split(":").map(Number);
+    return h*60 + m;
+}
+
 // AUTOCOMPLETAR CLIENTE
-// ----------------------
 async function autocompletarCliente(valor) {
     if (!valor) return;
     const clientesRef = collection(db, "clientes");
@@ -54,9 +54,7 @@ async function autocompletarCliente(valor) {
 correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
 telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
 
-// ----------------------
 // CARGAR SERVICIOS
-// ----------------------
 async function cargarServicios() {
     servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
     const serviciosRef = collection(db, "servicios");
@@ -66,7 +64,7 @@ async function cargarServicios() {
         const data = docSnap.data();
         const option = document.createElement("option");
         option.value = docSnap.id;
-        option.dataset.duracion = data.duracion || 60; // duración en minutos
+        option.dataset.duracion = data.duracion || 60;
         option.dataset.simultaneo = data.simultaneo || false;
         option.textContent = `${data.nombre} - ₡${data.precio} (${data.duracion || 60} min)`;
         servicioSelect.appendChild(option);
@@ -75,9 +73,7 @@ async function cargarServicios() {
 
 document.addEventListener("DOMContentLoaded", cargarServicios);
 
-// ----------------------
-// CARRITO DE SERVICIOS
-// ----------------------
+// CARRITO
 servicioSelect.addEventListener("change", () => {
     const selected = servicioSelect.selectedOptions[0];
     if (!selected || selected.value === "") return;
@@ -115,41 +111,33 @@ function renderCarrito() {
     }
 }
 
-// ----------------------
-// HORAS DISPONIBLES SEGÚN AGENDA
-// ----------------------
+// HORAS DISPONIBLES (control de minutos)
 async function cargarHorasDisponibles() {
     horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
     const fecha = fechaInput.value;
     if (!fecha || carrito.length === 0) return;
 
-    // Citas existentes
     const citasRef = collection(db, "citas");
     const snapshotCitas = await getDocs(citasRef);
     const citas = snapshotCitas.docs.map(d => d.data());
 
-    HORAS.forEach((hora, index) => {
+    for (const hora of HORAS) {
+        const inicio = horaAMinutos(hora);
+        const fin = inicio + duracionTotal;
+
         let disponible = true;
-        for (let i = 0; i < duracionTotal/60; i++) { // bloques de 1h
-            const idx = index + i;
-            if (idx >= HORAS.length) { disponible = false; break; }
-            const horaCheck = HORAS[idx];
 
-            let citasEnHora = citas.filter(c => c.fecha === fecha && c.hora === horaCheck);
-            // Si hay 2 o más citas y ninguna permite simultaneidad
-            if(citasEnHora.length >= 2 && !carrito.some(s=>s.simultaneo)){
-                disponible = false;
-                break;
-            }
+        for (const cita of citas.filter(c=>c.fecha===fecha)) {
+            const cInicio = horaAMinutos(cita.hora);
+            const cFin = cInicio + cita.duracion;
 
-            for (const cita of citasEnHora) {
-                if (!carrito.some(s => s.simultaneo) && !cita.simultaneo) {
+            // Si hay **solapamiento de tiempo**
+            if (!(fin <= cInicio || inicio >= cFin)) {
+                if (!carrito.some(s=>s.simultaneo) && !cita.simultaneo) {
                     disponible = false;
                     break;
                 }
             }
-
-            if (!disponible) break;
         }
 
         if (disponible) {
@@ -158,24 +146,18 @@ async function cargarHorasDisponibles() {
             option.textContent = hora;
             horaSelect.appendChild(option);
         }
-    });
+    }
 }
 
 fechaInput.addEventListener("change", cargarHorasDisponibles);
 
-// ----------------------
 // GUARDAR RESERVA
-// ----------------------
 formReserva.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    if (!fechaInput.value || !horaSelect.value || carrito.length === 0) {
-        return alert("Seleccione fecha, hora y servicio(s).");
-    }
+    if (!fechaInput.value || !horaSelect.value || carrito.length === 0) return alert("Seleccione fecha, hora y servicio(s).");
 
     try {
-        const clienteId = (correoInput.value || telefonoInput.value || "cliente_" + Date.now())
-            .replace(/[.#$[\]]/g,'_');
+        const clienteId = (correoInput.value || telefonoInput.value || "cliente_" + Date.now()).replace(/[.#$[\]]/g,'_');
         const clienteRef = doc(db, "clientes", clienteId);
 
         await setDoc(clienteRef, {
@@ -187,18 +169,19 @@ formReserva.addEventListener("submit", async (e) => {
             actualizado: Timestamp.now()
         }, { merge: true });
 
-        let horaIndex = HORAS.indexOf(horaSelect.value);
+        let horaInicio = horaAMinutos(horaSelect.value);
+
         for (const s of carrito) {
             await addDoc(collection(db, "citas"), {
                 clienteId,
                 servicioId: s.id,
                 fecha: fechaInput.value,
-                hora: HORAS[horaIndex],
+                hora: horaSelect.value,
                 duracion: s.duracion,
                 simultaneo: s.simultaneo,
                 creado: Timestamp.now()
             });
-            horaIndex += Math.ceil(s.duracion / 60);
+            horaInicio += s.duracion;
         }
 
         alert("¡Cita reservada con éxito!");
@@ -214,7 +197,5 @@ formReserva.addEventListener("submit", async (e) => {
     }
 });
 
-// OPCIONAL: actualizar horas si otra persona reserva
-onSnapshot(collection(db, "citas"), snapshot => {
-    cargarHorasDisponibles();
-});
+// Actualizar horas si hay nuevas reservas
+onSnapshot(collection(db, "citas"), snapshot => cargarHorasDisponibles());
