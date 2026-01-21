@@ -1,14 +1,14 @@
 import { db } from "./firebase.js";
 import {
   collection,
-  doc,
-  getDocs,
   addDoc,
-  updateDoc,
-  deleteDoc,
+  getDocs,
   query,
   where,
-  onSnapshot
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // DOM
@@ -20,7 +20,6 @@ const guardarCita = document.getElementById("guardarCita");
 const cancelarModal = document.getElementById("cancelarModal");
 const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
-const simultaneoCheck = document.getElementById("simultaneo");
 
 // Carrito
 let carrito = [];
@@ -29,21 +28,19 @@ let horaSeleccionada = null;
 // Horas
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
-// Mapas de datos
+// Mapas
 let serviciosMap = {};
 let clientesMap = {};
 
 // --------------------
-// Convertir hora a minutos
+// Utilidades
 // --------------------
 function horaAMinutos(h) {
   const [hh, mm] = h.split(":").map(Number);
-  return hh*60 + mm;
+  return hh * 60 + mm;
 }
 
-// --------------------
-// Actualizar carrito modal
-// --------------------
+// Actualiza el carrito en el modal
 function actualizarCarrito() {
   const existente = document.getElementById("carritoServicios");
   if (existente) existente.remove();
@@ -80,14 +77,14 @@ function actualizarCarrito() {
 }
 
 // --------------------
-// Cargar servicios desde Firebase
+// Cargar servicios
 // --------------------
 async function cargarServicios() {
   const snap = await getDocs(collection(db,"servicios"));
   servicioSelect.innerHTML = "";
   snap.forEach(d => {
     const s = d.data();
-    serviciosMap[d.id] = s; // mapa id -> datos
+    serviciosMap[d.id] = s;
     const opt = document.createElement("option");
     opt.value = d.id;
     opt.dataset.simultaneo = s.simultaneo || false;
@@ -98,7 +95,7 @@ async function cargarServicios() {
 }
 
 // --------------------
-// Cargar clientes en memoria
+// Cargar clientes
 // --------------------
 async function cargarClientes() {
   const snap = await getDocs(collection(db,"clientes"));
@@ -108,7 +105,7 @@ async function cargarClientes() {
 }
 
 // --------------------
-// Añadir servicio al carrito
+// Selección de servicio al carrito
 // --------------------
 servicioSelect.addEventListener("change", ()=>{
   const opt = servicioSelect.selectedOptions[0];
@@ -116,8 +113,8 @@ servicioSelect.addEventListener("change", ()=>{
     const s = serviciosMap[opt.value];
     carrito.push({ 
       id: opt.value,
-      nombre: s.nombre, 
-      duracion: s.duracion, 
+      nombre: s.nombre,
+      duracion: s.duracion,
       simultaneo: s.simultaneo || false
     });
     actualizarCarrito();
@@ -125,25 +122,23 @@ servicioSelect.addEventListener("change", ()=>{
 });
 
 // --------------------
-// Cargar agenda
+// Cargar agenda para un día
 // --------------------
 async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
+
   const snap = await getDocs(query(collection(db,"citas"), where("fecha","==",fecha)));
   const citas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
 
   HORAS.forEach(hora=>{
-    const horaMin = horaAMinutos(hora);
-
-    // Filtrar todas las citas que se solapan con esta hora
     const citasHora = citas.filter(c=>{
-      const cInicio = horaAMinutos(c.hora);
-      const cFin = cInicio + c.duracion;
-      return horaMin >= cInicio && horaMin < cFin;
+      const inicio = horaAMinutos(c.hora);
+      const fin = inicio + c.duracion;
+      const horaMin = horaAMinutos(hora);
+      return horaMin >= inicio && horaMin < fin;
     });
 
     if(citasHora.length === 0){
-      // Fila vacía
       const tr = document.createElement("tr");
       tr.dataset.hora = hora;
       tr.innerHTML = `
@@ -155,28 +150,20 @@ async function cargarAgenda(fecha) {
       `;
       tr.addEventListener("click", ()=>{
         horaSeleccionada = hora;
-        modal.classList.add("active");
         carrito = [];
         actualizarCarrito();
+        modal.classList.add("active");
       });
       tbody.appendChild(tr);
     } else {
-      // Una fila por cada cita
       citasHora.forEach(c=>{
         const tr = document.createElement("tr");
         tr.dataset.hora = hora;
         tr.dataset.id = c.id;
-
-        const clienteNombreCompleto = (() => {
-          const cliente = clientesMap[c.clienteId];
-          if(cliente) return `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}`;
-          return c.clienteId;
-        })();
-
         tr.innerHTML = `
           <td>${hora}</td>
-          <td>${clienteNombreCompleto}</td>
-          <td>${serviciosMap[c.servicioId]?.nombre || "Servicio"}</td>
+          <td>${clientesMap[c.clienteId]?.nombre || c.clienteId}</td>
+          <td>${serviciosMap[c.servicioId]?.nombre || c.servicioId}</td>
           <td>Ocupado</td>
           <td>
             <button class="editar" data-id="${c.id}">✏️</button>
@@ -195,7 +182,7 @@ async function cargarAgenda(fecha) {
       const c = citas.find(c=>c.id===id);
       horaSeleccionada = c.hora;
       const cliente = clientesMap[c.clienteId];
-      clienteNombre.value = cliente ? `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}` : c.clienteId;
+      clienteNombre.value = cliente ? `${cliente.nombre} ${cliente.apellido1 || ''} ${cliente.apellido2 || ''}` : c.clienteId;
       carrito = [{id:c.servicioId, nombre:serviciosMap[c.servicioId]?.nombre, duracion:c.duracion, simultaneo:c.simultaneo}];
       actualizarCarrito();
       modal.classList.add("active");
@@ -205,7 +192,7 @@ async function cargarAgenda(fecha) {
           clienteId: c.clienteId,
           servicioId: carrito[0]?.id,
           duracion: carrito[0]?.duracion,
-          simultaneo: simultaneoCheck.checked
+          simultaneo: carrito[0]?.simultaneo
         });
         modal.classList.remove("active");
         cargarAgenda(fechaInput.value);
@@ -228,37 +215,36 @@ async function cargarAgenda(fecha) {
 // --------------------
 guardarCita.onclick = async ()=>{
   if(!horaSeleccionada) return alert("Selecciona una hora");
-  if(carrito.length === 0) return alert("Agrega al menos un servicio");
+  if(carrito.length === 0) return alert("Agrega un servicio");
 
   const inicio = horaAMinutos(horaSeleccionada);
   const duracionTotal = carrito.reduce((acc,s)=>acc+s.duracion,0);
 
+  // Traer todas las citas del día
   const snap = await getDocs(query(collection(db,"citas"), where("fecha","==",fechaInput.value)));
-  const citas = snap.docs.map(d=>d.data());
+  const citas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
 
-  const fin = inicio + duracionTotal;
+  // Reglas de simultaneidad y máximo 2 citas
+  for(const s of carrito){
+    let overlapping = citas.filter(c=>{
+      const cInicio = horaAMinutos(c.hora);
+      const cFin = cInicio + c.duracion;
+      return !(inicio + s.duracion <= cInicio || inicio >= cFin);
+    });
 
-  // --------------------
-  // REGLA SIMULTANEIDAD Y MAX DOS CITAS POR RANGO
-  // --------------------
-  const citasSolapadas = citas.filter(c=>{
-    const cInicio = horaAMinutos(c.hora);
-    const cFin = cInicio + c.duracion;
-    return !(fin <= cInicio || inicio >= cFin);
-  });
-
-  // Verificar si hay servicio no simultáneo primero
-  const hayNoSimultaneo = citasSolapadas.some(c => !c.simultaneo);
-
-  if(hayNoSimultaneo && carrito.some(s=>s.simultaneo)){
-    return alert("No se puede agendar un servicio simultáneo porque ya hay un servicio no simultáneo en este rango de tiempo.");
+    if(overlapping.length > 0){
+      // Si hay alguna cita que NO sea simultánea, no se puede agregar
+      if(overlapping.some(c=>!c.simultaneo)){
+        return alert(`No se puede agendar "${s.nombre}": hay una cita no simultánea en ese horario`);
+      }
+      // Máximo 2 citas aunque sean simultáneas
+      if(overlapping.length >= 2){
+        return alert(`No se puede agendar "${s.nombre}": ya hay 2 citas en este período`);
+      }
+    }
   }
 
-  if(citasSolapadas.length >= 2){
-    return alert("No se pueden agendar más de 2 citas en este rango de tiempo.");
-  }
-
-  // Guardar citas
+  // Guardar todas las citas del carrito
   for(const s of carrito){
     await addDoc(collection(db,"citas"),{
       fecha: fechaInput.value,
@@ -278,7 +264,7 @@ guardarCita.onclick = async ()=>{
 };
 
 // --------------------
-// Modal
+// Modal y botones
 // --------------------
 cancelarModal.onclick = ()=> modal.classList.remove("active");
 btnNuevaCita.onclick = ()=>{
@@ -290,29 +276,6 @@ btnNuevaCita.onclick = ()=>{
 };
 
 // --------------------
-// Selección de fecha hero
-// --------------------
-fechaInput.addEventListener("change", () => {
-  if(fechaInput.value){
-    cargarAgenda(fechaInput.value);
-
-    // actualizar hero
-    const fechaObj = new Date(fechaInput.value);
-    const diaNumero = fechaObj.getDate();
-    const diaSemana = fechaObj.toLocaleDateString("es-ES", { weekday: "long" });
-    const mes = fechaObj.toLocaleDateString("es-ES", { month: "long" });
-
-    const numeroDiaEl = document.getElementById("numeroDia");
-    const diaSemanaEl = document.getElementById("diaSemana");
-    const mesEl = document.getElementById("mes");
-
-    if(numeroDiaEl) numeroDiaEl.textContent = diaNumero;
-    if(diaSemanaEl) diaSemanaEl.textContent = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
-    if(mesEl) mesEl.textContent = mes.charAt(0).toUpperCase() + mes.slice(1);
-  }
-});
-
-// --------------------
 // INIT
 // --------------------
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -322,7 +285,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   cargarAgenda(fechaInput.value);
 });
 
-// --------------------
 // Actualizar en tiempo real
-// --------------------
 onSnapshot(collection(db,"citas"), ()=> cargarAgenda(fechaInput.value));
+
+// --------------------
+// Cambiar fecha
+// --------------------
+fechaInput.addEventListener("change", ()=> cargarAgenda(fechaInput.value));
