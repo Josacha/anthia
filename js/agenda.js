@@ -8,10 +8,13 @@ import {
   query,
   where,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// ----------------------
 // ELEMENTOS DEL DOM
+// ----------------------
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
 
@@ -24,22 +27,30 @@ const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
 const simultaneoCheck = document.getElementById("simultaneo");
 
+// ----------------------
 // CARRITO DE SERVICIOS
+// ----------------------
 let carrito = [];
 let horaSeleccionada = null;
 
+// ----------------------
 // HORAS
+// ----------------------
 const HORAS = [
   "08:00","09:00","10:00","11:00","12:00",
   "13:00","14:00","15:00","16:00","17:00","18:00"
 ];
 
+// ----------------------
 // FECHA HOY
+// ----------------------
 function hoyISO() {
   return new Date().toISOString().split("T")[0];
 }
 
+// ----------------------
 // CARGAR SERVICIOS
+// ----------------------
 async function cargarServicios() {
   servicioSelect.innerHTML = "";
   const snap = await getDocs(collection(db,"servicios"));
@@ -54,7 +65,9 @@ async function cargarServicios() {
   });
 }
 
+// ----------------------
 // ACTUALIZAR CARRITO EN MODAL
+// ----------------------
 function actualizarCarrito() {
   const existente = document.getElementById("carritoServicios");
   if (existente) existente.remove();
@@ -90,7 +103,9 @@ function actualizarCarrito() {
   totalDiv.textContent = `Duración total: ${total} min`;
 }
 
+// ----------------------
 // AÑADIR SERVICIO AL CARRITO
+// ----------------------
 servicioSelect.addEventListener("change", ()=>{
   const opt = servicioSelect.selectedOptions[0];
   if(opt){
@@ -103,13 +118,21 @@ servicioSelect.addEventListener("change", ()=>{
   }
 });
 
+// ----------------------
 // CARGAR AGENDA
+// ----------------------
 async function cargarAgenda(fecha) {
   tbody.innerHTML = "";
 
   const q = query(collection(db,"citas"), where("fecha","==",fecha));
   const snap = await getDocs(q);
   const citas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+
+  // Convertir citas a minutos para comparación exacta
+  function horaAMinutos(h) {
+    const [hh, mm] = h.split(":").map(Number);
+    return hh*60 + mm;
+  }
 
   HORAS.forEach(hora=>{
     let ocupado = false;
@@ -118,11 +141,10 @@ async function cargarAgenda(fecha) {
     citas.forEach(c=>{
       const serviciosCita = Array.isArray(c.servicios) ? c.servicios : [];
       const duracionTotal = serviciosCita.reduce((acc,s)=>acc + (s.duracion || 0),0);
-      const bloques = Math.ceil(duracionTotal / 60);
-      const inicioIndex = HORAS.indexOf(c.hora);
-      const rangoHoras = HORAS.slice(inicioIndex, inicioIndex + bloques);
 
-      if(rangoHoras.includes(hora)){
+      const inicioMin = horaAMinutos(c.hora);
+      const horaMin = horaAMinutos(hora);
+      if(horaMin >= inicioMin && horaMin < inicioMin + duracionTotal){
         ocupado = true;
         cita = c;
       }
@@ -207,23 +229,40 @@ async function cargarAgenda(fecha) {
   });
 }
 
+// ----------------------
 // NUEVA CITA
+// ----------------------
 guardarCita.onclick = async ()=>{
   if(!horaSeleccionada) return alert("Selecciona una hora");
 
-  // Verificar máximo 2 citas simultáneas si hay simultaneidad
+  // Verificar simultaneidad exacta por minutos
   const snap = await getDocs(query(collection(db,"citas"), where("fecha","==",fechaInput.value)));
-  const citas = snap.docs.map(d=>d.data());
-  const totalSimultaneas = citas.filter(c=>c.hora===horaSeleccionada && c.simultaneo).length;
-  if(simultaneoCheck.checked && totalSimultaneas>=2){
-    return alert("Ya hay 2 citas simultáneas en esta hora");
+  const citas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+
+  function horaAMinutos(h) {
+    const [hh, mm] = h.split(":").map(Number);
+    return hh*60 + mm;
+  }
+  const inicioMin = horaAMinutos(horaSeleccionada);
+  const duracionTotal = carrito.reduce((acc,s)=>acc + s.duracion,0);
+
+  for(const c of citas){
+    const cInicio = horaAMinutos(c.hora);
+    const cDuracion = c.servicios?.reduce((acc,s)=>acc+s.duracion,0) || 0;
+    const cFin = cInicio + cDuracion;
+
+    const solapa = !(inicioMin + duracionTotal <= cInicio || inicioMin >= cFin);
+
+    if(solapa && !simultaneoCheck.checked && !c.simultaneo){
+      return alert(`No se puede agendar: se solapa con ${c.clienteNombre} a las ${c.hora}`);
+    }
   }
 
   await addDoc(collection(db,"citas"),{
     fecha: fechaInput.value,
     hora: horaSeleccionada,
     clienteNombre: clienteNombre.value,
-    servicios: carrito.length ? carrito : [],
+    servicios: carrito,
     simultaneo: simultaneoCheck.checked
   });
 
@@ -234,7 +273,9 @@ guardarCita.onclick = async ()=>{
   cargarAgenda(fechaInput.value);
 };
 
+// ----------------------
 // CANCELAR MODAL
+// ----------------------
 cancelarModal.onclick = ()=> modal.classList.remove("active");
 btnNuevaCita.onclick = ()=>{
   horaSeleccionada = null;
@@ -244,7 +285,9 @@ btnNuevaCita.onclick = ()=>{
   modal.classList.add("active");
 };
 
+// ----------------------
 // INIT
+// ----------------------
 document.addEventListener("DOMContentLoaded", async ()=>{
   fechaInput.value = hoyISO();
   await cargarServicios();
@@ -252,3 +295,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 });
 
 fechaInput.addEventListener("change", ()=> cargarAgenda(fechaInput.value));
+
+// ----------------------
+// OPCIONAL: actualizar agenda en tiempo real
+// ----------------------
+onSnapshot(collection(db,"citas"), snapshot => {
+  cargarAgenda(fechaInput.value);
+});
