@@ -1,9 +1,9 @@
 import { db } from "./firebase.js";
 import { collection, getDocs, query, where, addDoc, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ----------------------
+// =======================
 // ELEMENTOS DEL DOM
-// ----------------------
+// =======================
 const formReserva = document.getElementById("formReserva");
 const correoInput = document.getElementById("correo");
 const telefonoInput = document.getElementById("telefono");
@@ -15,25 +15,28 @@ const fechaInput = document.getElementById("fecha");
 const horaSelect = document.getElementById("hora");
 const carritoDiv = document.getElementById("carritoServicios");
 
-// ----------------------
-// HORAS DISPONIBLES
-// ----------------------
-const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+// HORAS DE RESERVA (intervalos de 30 min para mayor precisión)
+const HORAS = [
+  "08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30",
+  "12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30",
+  "16:00","16:30","17:00","17:30","18:00"
+];
 
 let carrito = [];
-let duracionTotal = 0;
+let duracionTotal = 0; // en minutos
 
-// ----------------------
+// =======================
 // AUTOCOMPLETAR CLIENTE
-// ----------------------
+// =======================
 async function autocompletarCliente(valor) {
-  if (!valor) return;
-
+  if (!valor) return; // si no hay valor, no hace nada
   const clientesRef = collection(db, "clientes");
-
+  
+  // buscar por correo
   let q = query(clientesRef, where("correo", "==", valor));
   let snapshot = await getDocs(q);
 
+  // si no encuentra, buscar por teléfono
   if (snapshot.empty) {
     q = query(clientesRef, where("telefono", "==", valor));
     snapshot = await getDocs(q);
@@ -56,9 +59,9 @@ async function autocompletarCliente(valor) {
 correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
 telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
 
-// ----------------------
+// =======================
 // CARGAR SERVICIOS
-// ----------------------
+// =======================
 async function cargarServicios() {
   servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
   const serviciosRef = collection(db, "servicios");
@@ -68,17 +71,17 @@ async function cargarServicios() {
     const data = docSnap.data();
     const option = document.createElement("option");
     option.value = docSnap.id;
-    option.dataset.duracion = data.duracion || 1; // duración en horas
-    option.textContent = `${data.nombre} - ₡${data.precio} (${data.duracion}h)`;
+    option.dataset.duracion = data.duracion || 60; // duración en minutos
+    option.textContent = `${data.nombre} - ₡${data.precio} (${data.duracion} min)`;
     servicioSelect.appendChild(option);
   });
 }
 
 document.addEventListener("DOMContentLoaded", cargarServicios);
 
-// ----------------------
+// =======================
 // CARRITO DE SERVICIOS
-// ----------------------
+// =======================
 servicioSelect.addEventListener("change", () => {
   const selected = servicioSelect.selectedOptions[0];
   if (!selected || selected.value === "") return;
@@ -96,7 +99,10 @@ function renderCarrito() {
   carritoDiv.innerHTML = `<h3>Carrito de servicios</h3>`;
   carrito.forEach((s, i) => {
     const div = document.createElement("div");
-    div.innerHTML = `<span>${s.nombre}</span> <button data-index="${i}">Eliminar</button>`;
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.marginBottom = "5px";
+    div.innerHTML = `<span>${s.nombre} (${s.duracion} min)</span> <button data-index="${i}">Eliminar</button>`;
     carritoDiv.appendChild(div);
 
     div.querySelector("button").addEventListener("click", () => {
@@ -109,42 +115,56 @@ function renderCarrito() {
 
   if (carrito.length > 0) {
     const total = document.createElement("p");
-    total.textContent = `Duración total: ${duracionTotal}h`;
+    total.textContent = `Duración total: ${duracionTotal} min`;
     carritoDiv.appendChild(total);
   }
 }
 
-// ----------------------
-// HORAS DISPONIBLES
-// ----------------------
+// =======================
+// CARGAR HORAS DISPONIBLES
+// =======================
 async function cargarHorasDisponibles() {
   horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
   const fecha = fechaInput.value;
   if (!fecha || carrito.length === 0) return;
 
+  // Traer citas existentes
   const citasRef = collection(db, "citas");
   const qCitas = query(citasRef, where("fecha", "==", fecha));
   const snapshotCitas = await getDocs(qCitas);
-  const citas = snapshotCitas.docs.map(d => ({ hora: d.data().hora, duracion: d.data().duracion || 1 }));
+  const citas = snapshotCitas.docs.map(d => {
+    return { hora: d.data().hora, duracion: d.data().duracion || 60 };
+  });
 
+  // Traer bloqueos existentes
   const bloqueosRef = collection(db, "bloqueos");
   const qBloqueos = query(bloqueosRef, where("fecha", "==", fecha));
   const snapshotBloqueos = await getDocs(qBloqueos);
-  const bloqueos = snapshotBloqueos.docs.map(d => ({ hora: d.data().hora, duracion: d.data().duracion || 1 }));
+  const bloqueos = snapshotBloqueos.docs.map(d => {
+    return { hora: d.data().hora, duracion: d.data().duracion || 60 };
+  });
 
   HORAS.forEach((hora, index) => {
     let disponible = true;
-    for (let i = 0; i < duracionTotal; i++) {
-      const idx = index + i;
-      if (idx >= HORAS.length) { disponible = false; break; }
-      const horaCheck = HORAS[idx];
+
+    // calcular rango de tiempo requerido por la cita en minutos
+    let minutosNecesarios = duracionTotal;
+    let i = index;
+
+    while (minutosNecesarios > 0 && i < HORAS.length) {
+      const horaCheck = HORAS[i];
+
       if (citas.some(c => c.hora === horaCheck) || bloqueos.some(b => b.hora === horaCheck)) {
         disponible = false;
         break;
       }
+
+      // cada bloque HORAS representa 30 min
+      minutosNecesarios -= 30;
+      i++;
     }
 
-    if (disponible) {
+    if (disponible && minutosNecesarios <= 0) {
       const option = document.createElement("option");
       option.value = hora;
       option.textContent = hora;
@@ -155,19 +175,16 @@ async function cargarHorasDisponibles() {
 
 fechaInput.addEventListener("change", cargarHorasDisponibles);
 
-// ----------------------
+// =======================
 // GUARDAR RESERVA
-// ----------------------
+// =======================
 formReserva.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  if (!correoInput.value && !telefonoInput.value) {
-    return alert("Debe ingresar al menos un correo o un teléfono");
-  }
+  if (!horaSelect.value) return alert("Selecciona una hora disponible");
 
   try {
-    // Usar correo si existe, sino telefono como ID
-    const clienteId = correoInput.value || telefonoInput.value;
+    const clienteId = correoInput.value || telefonoInput.value || Timestamp.now().toMillis().toString();
     const clienteRef = doc(db, "clientes", clienteId);
 
     await setDoc(clienteRef, {
@@ -179,11 +196,9 @@ formReserva.addEventListener("submit", async (e) => {
       actualizado: Timestamp.now()
     }, { merge: true });
 
-    // Guardar citas
-    let horaInicio = horaSelect.value;
-    if (!horaInicio) return alert("Debe seleccionar una hora");
-
-    let horaIndex = HORAS.indexOf(horaInicio);
+    // Guardar cada servicio en citas
+    let horaIndex = HORAS.indexOf(horaSelect.value);
+    let minutosRestantes = 0;
 
     for (let s of carrito) {
       await addDoc(collection(db, "citas"), {
@@ -194,7 +209,13 @@ formReserva.addEventListener("submit", async (e) => {
         duracion: s.duracion,
         creado: Timestamp.now()
       });
-      horaIndex += s.duracion;
+
+      // avanzar bloques de 30 min
+      minutosRestantes = s.duracion;
+      while (minutosRestantes > 0) {
+        horaIndex++;
+        minutosRestantes -= 30;
+      }
     }
 
     alert("¡Cita reservada con éxito!");
@@ -206,6 +227,6 @@ formReserva.addEventListener("submit", async (e) => {
 
   } catch (error) {
     console.error(error);
-    alert("Hubo un error al guardar la cita");
+    alert("Hubo un error al guardar la cita. Revisa permisos de Firestore");
   }
 });
