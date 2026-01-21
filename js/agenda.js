@@ -29,8 +29,10 @@ let horaSeleccionada = null;
 // Horas
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
-// Servicio Map
+// Mapa de servicios
 let serviciosMap = {};
+// Mapa de clientes
+let clientesMap = {};
 
 // Función para cargar servicios
 async function cargarServicios() {
@@ -45,6 +47,15 @@ async function cargarServicios() {
     opt.dataset.duracion = s.duracion || 60;
     opt.textContent = `${s.nombre} (${s.duracion || 60} min)`;
     servicioSelect.appendChild(opt);
+  });
+}
+
+// Función para cargar clientes en memoria
+async function cargarClientes() {
+  const snap = await getDocs(collection(db,"clientes"));
+  snap.forEach(d => {
+    const c = d.data();
+    clientesMap[d.id] = c; // clienteId -> datos
   });
 }
 
@@ -124,7 +135,12 @@ async function cargarAgenda(fecha) {
         ocupado = true;
         cita = {
           ...c,
-          nombreServicio: serviciosMap[c.servicioId]?.nombre || "Servicio"
+          nombreServicio: serviciosMap[c.servicioId]?.nombre || "Servicio",
+          clienteNombreCompleto: (() => {
+            const cliente = clientesMap[c.clienteId];
+            if(cliente) return `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}`;
+            return c.clienteId;
+          })()
         };
       }
     });
@@ -139,7 +155,7 @@ async function cargarAgenda(fecha) {
 
     tr.innerHTML = `
       <td>${hora}</td>
-      <td>${cita?.clienteId || "-"}</td>
+      <td>${cita?.clienteNombreCompleto || "-"}</td>
       <td>${cita?.nombreServicio || "-"}</td>
       <td>${ocupado ? "Ocupado" : "Disponible"}</td>
       <td>
@@ -168,14 +184,15 @@ async function cargarAgenda(fecha) {
       const id = btn.dataset.id;
       const c = citas.find(c=>c.id===id);
       horaSeleccionada = c.hora;
-      clienteNombre.value = c.clienteId;
+      const cliente = clientesMap[c.clienteId];
+      clienteNombre.value = cliente ? `${cliente.nombre} ${cliente.apellido1} ${cliente.apellido2}` : c.clienteId;
       carrito = [{id:c.servicioId, nombre:serviciosMap[c.servicioId]?.nombre, duracion:c.duracion, simultaneo:c.simultaneo}];
       actualizarCarrito();
       modal.classList.add("active");
 
       guardarCita.onclick = async ()=>{
         await updateDoc(doc(db,"citas",id),{
-          clienteId: clienteNombre.value,
+          clienteId: c.clienteId, // guardamos id
           servicioId: carrito[0]?.id,
           duracion: carrito[0]?.duracion,
           simultaneo: simultaneoCheck.checked
@@ -202,23 +219,24 @@ guardarCita.onclick = async ()=>{
   const inicio = horaAMinutos(horaSeleccionada);
   const duracionTotal = carrito.reduce((acc,s)=>acc+s.duracion,0);
 
-  // Validar solapamiento exacto
   const snap = await getDocs(query(collection(db,"citas"), where("fecha","==",fechaInput.value)));
   const citas = snap.docs.map(d=>d.data());
+
   for(const c of citas){
     const cInicio = horaAMinutos(c.hora);
     const cFin = cInicio + c.duracion;
     if(!(inicio+duracionTotal <= cInicio || inicio >= cFin)){
       if(!simultaneoCheck.checked && !c.simultaneo){
-        return alert(`No se puede agendar: se solapa con ${c.clienteId} a las ${c.hora}`);
+        return alert(`No se puede agendar: se solapa con ${clientesMap[c.clienteId]?.nombre || c.clienteId} a las ${c.hora}`);
       }
     }
   }
 
+  // Guardar cita
   await addDoc(collection(db,"citas"),{
     fecha: fechaInput.value,
     hora: horaSeleccionada,
-    clienteId: clienteNombre.value,
+    clienteId: clienteNombre.value, // puedes adaptar a correo o id si quieres
     servicioId: carrito[0]?.id,
     duracion: carrito[0]?.duracion,
     simultaneo: simultaneoCheck.checked
@@ -245,6 +263,7 @@ btnNuevaCita.onclick = ()=>{
 document.addEventListener("DOMContentLoaded", async ()=>{
   fechaInput.value = new Date().toISOString().split("T")[0];
   await cargarServicios();
+  await cargarClientes();
   cargarAgenda(fechaInput.value);
 });
 
