@@ -2,24 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Agenda | ANTHIA ESTHETIC CENTER</title>
+  <title>Servicios | ANTHIA ESTHETIC CENTER</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CSS -->
   <link rel="stylesheet" href="../../css/admin.css">
   <link rel="stylesheet" href="../../css/agenda.css">
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ======================
+     SIDEBAR
+====================== -->
 <aside class="sidebar">
   <div class="sidebar-brand">
     <h2>ANTHIA</h2>
-    <span>Agenda</span>
+    <span>Servicios</span>
   </div>
 
   <nav class="sidebar-menu">
     <a href="../admin/dashboard.html">Inicio</a>
-    <a href="servicios.html">✨ Servicios</a>
+    <a href="servicios.html" class="active">✨ Servicios</a>
     <a href="contactos.html">👤 Contactos</a>
     <a href="inventario.html">📦 Inventario</a>
     <a href="bloqueos.html">⛔ Bloqueos</a>
@@ -29,82 +32,64 @@
   <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 </aside>
 
-<!-- MAIN -->
+<!-- ======================
+     MAIN CONTENT
+====================== -->
 <main class="main-content">
 
   <!-- HERO -->
-  <section class="hero-admin">
-    <div class="hero-text">
-      <h1>Agenda</h1>
-      <p>Gestión diaria de citas y horarios</p>
-    </div>
-  </section>
-
-  <!-- AGENDA HERO CON CONTROLES -->
   <div class="agenda-hero">
-    <div class="agenda-fecha">
-      <div class="agenda-dia-numero" id="numeroDia">20</div>
-      <div class="agenda-dia-texto">
-        <div class="agenda-mes" id="mes">Enero</div>
-        <div class="agenda-dia-semana" id="diaSemana">Martes</div>
-      </div>
+    <div>
+      <h2>Gestión de Servicios</h2>
+      <p>Administra los servicios disponibles y sus detalles</p>
     </div>
-
-    <div class="agenda-acciones">
-      <input type="date" id="fechaAgenda" class="agenda-date-picker">
-      
-      <button id="btnNuevaCita" class="btn-nueva-cita">➕ Nueva cita</button>
-    </div>
+    <img src="../../assets/fondo/servicios.jpg" alt="Servicios">
   </div>
 
-  <!-- TABLA -->
-  <table class="tabla" id="tablaAgenda">
-    <thead>
-      <tr>
-        <th>Hora</th>
-        <th>Cliente</th>
-        <th>Servicio</th>
-        <th>Tiempo</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <!-- FORMULARIO Y TABLA -->
+  <div class="agenda-section card">
+
+    <!-- Formulario de servicios -->
+    <form id="formServicios" class="agenda-controls">
+      <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
+      <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
+      <input type="number" id="precioServicio" placeholder="Precio ₡" required>
+      <label>
+        <input type="checkbox" id="simultaneoServicio">
+        Permitir citas simultáneas
+      </label>
+      <button type="submit" class="btn-primary">Agregar servicio</button>
+    </form>
+
+    <hr>
+
+    <!-- Tabla de servicios -->
+    <table id="tablaServicios" class="tabla-premium">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Simultáneo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div>
 
 </main>
 
-<!-- MODAL NUEVA CITA -->
-<div class="modal" id="modalCita">
-  <div class="modal-box">
-    <h3>Nueva cita</h3>
-
-    <input id="clienteNombre" placeholder="Nombre del cliente">
-
-    <div class="servicios-disponibles">
-      <label>Selecciona los tratamientos:</label>
-      <select id="servicioSelect">
-        <!-- Se cargan desde JS -->
-      </select>
-    
-    </div>
-
-    <div class="carrito-servicios">
-      <h4>Servicios seleccionados</h4>
-      <ul id="listaServicios"></ul>
-      <p>Total tiempo: <span id="tiempoTotal">0</span> min</p>
-    </div>
-
-    <div class="acciones">
-      <button id="guardarCita" class="btn-primary">Guardar</button>
-      <button id="cancelarModal" class="btn-secondary">Cancelar</button>
-    </div>
-  </div>
-</div>
-
+<!-- ======================
+     SCRIPTS
+====================== -->
 <script type="module" src="../../js/firebase.js"></script>
 <script type="module" src="../../js/auth.js"></script>
-<script type="module" src="../../js/agenda.js"></script>
+<script type="module">
+  import { initServicios } from "../../js/servicios.js";
+  document.addEventListener("DOMContentLoaded", initServicios);
+</script>
 
 </body>
 </html>
