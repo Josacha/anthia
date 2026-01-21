@@ -7,16 +7,88 @@
   <link rel="stylesheet" href="../../css/admin.css">
   <link rel="stylesheet" href="../../css/forms.css">
   <link rel="stylesheet" href="../../css/tablas.css">
+
+  <style>
+    /* Hero */
+    .hero-servicios {
+      background: linear-gradient(135deg, #163a33, #2a665f);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .hero-servicios h2 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    /* Tabla estilo agenda */
+    #tablaServicios {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #tablaServicios th, #tablaServicios td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #tablaServicios tr:hover {
+      background-color: #f0fdf4;
+    }
+
+    .btn-eliminar {
+      background-color: #e63946;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-eliminar:hover {
+      background-color: #d62839;
+    }
+
+    .form-reserva input, .form-reserva label {
+      display: block;
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background-color: #163a33;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #2a665f;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- CONTENIDO QUE UI-TABS SÍ PUEDE USAR -->
   <template id="vista-servicios">
 
-    <h2>Servicios</h2>
+    <div class="hero-servicios">
+      <h2>Gestión de Servicios</h2>
+    </div>
 
     <form id="formServicios" class="form-reserva">
-
       <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
       <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
       <input type="number" id="precioServicio" placeholder="Precio ₡" required>
@@ -46,7 +118,6 @@
 
   </template>
 
-  <!-- MODO STANDALONE -->
   <script type="module">
     const tpl = document.getElementById('vista-servicios');
 
