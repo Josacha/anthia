@@ -2,126 +2,109 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Servicios | ANTHIA ESTHETIC CENTER</title>
+  <title>Agenda | ANTHIA ESTHETIC CENTER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="../../css/admin.css">
-  <link rel="stylesheet" href="../../css/forms.css">
-  <link rel="stylesheet" href="../../css/tablas.css">
-
-  <style>
-    /* Hero */
-    .hero-servicios {
-      background: linear-gradient(135deg, #163a33, #2a665f);
-      color: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    .hero-servicios h2 {
-      margin: 0;
-      font-size: 1.8rem;
-    }
-
-    /* Tabla estilo Agenda */
-    #tablaServicios {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    #tablaServicios th, #tablaServicios td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    #tablaServicios tr:hover {
-      background-color: #f0fdf4;
-    }
-
-    .btn-eliminar {
-      background-color: #e63946;
-      border: none;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .btn-eliminar:hover {
-      background-color: #d62839;
-    }
-
-    .form-reserva input, .form-reserva label {
-      display: block;
-      margin: 8px 0;
-      font-size: 0.95rem;
-    }
-
-    .btn-primary {
-      background-color: #163a33;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 10px;
-      transition: 0.2s;
-    }
-
-    .btn-primary:hover {
-      background-color: #2a665f;
-    }
-  </style>
+  <link rel="stylesheet" href="../../css/agenda.css">
 </head>
 <body>
 
-  <template id="vista-servicios">
-    <div class="hero-servicios">
-      <h2>Gestión de Servicios</h2>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h2>ANTHIA</h2>
+    <span>Agenda</span>
+  </div>
+
+  <nav class="sidebar-menu">
+    <a href="../admin/dashboard.html">Inicio</a>
+    <a href="servicios.html">✨ Servicios</a>
+    <a href="contactos.html">👤 Contactos</a>
+    <a href="inventario.html">📦 Inventario</a>
+    <a href="bloqueos.html">⛔ Bloqueos</a>
+    <a href="configuracion.html">⚙️ Configuración</a>
+  </nav>
+
+  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- HERO -->
+  <section class="hero-admin">
+    <div class="hero-text">
+      <h1>Agenda</h1>
+      <p>Gestión diaria de citas y horarios</p>
+    </div>
+  </section>
+
+  <!-- AGENDA HERO CON CONTROLES -->
+  <div class="agenda-hero">
+    <div class="agenda-fecha">
+      <div class="agenda-dia-numero" id="numeroDia">20</div>
+      <div class="agenda-dia-texto">
+        <div class="agenda-mes" id="mes">Enero</div>
+        <div class="agenda-dia-semana" id="diaSemana">Martes</div>
+      </div>
     </div>
 
-    <form id="formServicios" class="form-reserva">
-      <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required>
-      <input type="number" id="duracionServicio" placeholder="Duración (min)" required>
-      <input type="number" id="precioServicio" placeholder="Precio ₡" required>
+    <div class="agenda-acciones">
+      <input type="date" id="fechaAgenda" class="agenda-date-picker">
+      
+      <button id="btnNuevaCita" class="btn-nueva-cita">➕ Nueva cita</button>
+    </div>
+  </div>
 
-      <label>
-        <input type="checkbox" id="simultaneoServicio">
-        Permitir citas simultáneas
-      </label>
+  <!-- TABLA -->
+  <table class="tabla" id="tablaAgenda">
+    <thead>
+      <tr>
+        <th>Hora</th>
+        <th>Cliente</th>
+        <th>Servicio</th>
+        <th>Tiempo</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-      <button type="submit" class="btn-primary">Agregar servicio</button>
-    </form>
+</main>
 
-    <hr>
+<!-- MODAL NUEVA CITA -->
+<div class="modal" id="modalCita">
+  <div class="modal-box">
+    <h3>Nueva cita</h3>
 
-    <table id="tablaServicios" class="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Simultáneo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </template>
+    <input id="clienteNombre" placeholder="Nombre del cliente">
 
-  <script type="module">
-    const tpl = document.getElementById('vista-servicios');
-    document.body.appendChild(tpl.content.cloneNode(true));
-    import('../../js/servicios.js').then(m => m.initServicios());
-  </script>
-  <script type="module" src="../../js/firebase.js"></script>
+    <div class="servicios-disponibles">
+      <label>Selecciona los tratamientos:</label>
+      <select id="servicioSelect">
+        <!-- Se cargan desde JS -->
+      </select>
+    
+    </div>
+
+    <div class="carrito-servicios">
+      <h4>Servicios seleccionados</h4>
+      <ul id="listaServicios"></ul>
+      <p>Total tiempo: <span id="tiempoTotal">0</span> min</p>
+    </div>
+
+    <div class="acciones">
+      <button id="guardarCita" class="btn-primary">Guardar</button>
+      <button id="cancelarModal" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../../js/firebase.js"></script>
 <script type="module" src="../../js/auth.js"></script>
+<script type="module" src="../../js/agenda.js"></script>
+
 </body>
 </html>
