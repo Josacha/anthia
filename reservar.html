@@ -11,58 +11,63 @@
 
 <body>
 
-<section class="agenda-container">
+<div class="reserva-layout">
 
-  <!-- IMAGEN -->
-  <div class="hero-imagen">
-    <img src="assets/fondo/reserva-hero.jpg" alt="Agenda">
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="reserva-imagen">
+    <img src="img/servicio.jpg" alt="Servicio">
   </div>
 
-<form id="formReserva">
+  <!-- COLUMNA DERECHA -->
+  <form id="formReserva" class="reserva-form">
 
-  <!-- SERVICIOS -->
-  <label>Servicios</label>
+    <h2>Reservar cita</h2>
 
-  <!-- CARDS VISUALES -->
-  <div id="serviciosCards" class="servicios-cards"></div>
+    <!-- SERVICIOS -->
+    <section>
+      <h3>Servicios</h3>
+      <div id="serviciosCards" class="servicios-cards"></div>
+      <select id="servicio" hidden></select>
+      <div id="carritoServicios"></div>
+    </section>
 
-  <!-- SELECT OCULTO (NO SE TOCA, JS LO USA) -->
-  <select id="servicio" hidden>
-    <option value="">Seleccione un servicio</option>
-  </select>
+    <!-- CALENDARIO -->
+    <section>
+      <h3>Día</h3>
+      <div id="calendarioSemanal" class="calendario"></div>
+      <input type="hidden" id="fecha">
+    </section>
 
-  <!-- CARRITO -->
-  <div id="carritoServicios"></div>
+    <!-- HORA -->
+    <section>
+      <h3>Hora</h3>
+      <select id="hora" class="input"></select>
+    </section>
 
-  <!-- CALENDARIO -->
-  <label>Día</label>
-  <div id="calendarioSemanal"></div>
-  <input type="date" id="fecha" hidden required>
+    <!-- CLIENTE -->
+    <section>
+      <h3>Datos del cliente</h3>
 
-  <!-- HORAS -->
-  <label>Hora</label>
-  <div id="horasDisponibles"></div>
-  <select id="hora" hidden required></select>
+      <div class="grid-2">
+        <input id="correo" class="input" placeholder="Correo electrónico">
+        <input id="telefono" class="input" placeholder="Teléfono">
+      </div>
 
-  <hr>
+      <div class="grid-2">
+        <input id="nombre" class="input" placeholder="Nombre">
+        <input id="apellido1" class="input" placeholder="Primer apellido">
+      </div>
 
-  <h3>Datos del cliente</h3>
+      <input id="apellido2" class="input" placeholder="Segundo apellido">
+    </section>
 
-  <input type="email" id="correo" placeholder="Correo electrónico" required>
-  <input type="tel" id="telefono" placeholder="Teléfono" required>
-  <input type="text" id="nombre" placeholder="Nombre" required>
-  <input type="text" id="apellido1" placeholder="Primer apellido" required>
-  <input type="text" id="apellido2" placeholder="Segundo apellido">
+    <button type="submit" class="btn-primary">
+      Confirmar cita
+    </button>
 
-  <button type="submit">
-    Confirmar cita
-  </button>
+  </form>
+</div>
 
-</form>
-
-  </div>
-
-</section>
 
 </body>
 </html>
