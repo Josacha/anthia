@@ -4,76 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva tu Experiencia | ANTHIA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/estilos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reserva-premium.css">
 </head>
 <body>
 
-    <nav class="navbar-simple">
-        <a href="index.html" class="logo-small">
-            <h1>ANTHIA</h1>
-            <span>ESTHETIC CENTER</span>
-        </a>
-        <a href="index.html" class="btn-back">← Volver al Inicio</a>
-    </nav>
+    <header class="header-premium">
+        <div class="header-container">
+            <div class="logo-group">
+                <h1>ANTHIA</h1>
+                <span>ESTHETIC CENTER</span>
+            </div>
+            <a href="index.html" class="btn-volver">← Volver al Inicio</a>
+        </div>
+    </header>
 
     <main class="reserva-main">
         <div class="reserva-grid">
-            <div class="reserva-visual">
+            <aside class="reserva-visual">
                 <div class="visual-overlay"></div>
-                <div class="visual-text">
-                    <h2>Tu cita con <br>la elegancia</h2>
-                    <p>Selecciona tus servicios y permítenos cuidar cada detalle de tu imagen.</p>
+                <div class="visual-content">
+                    <h2>Nueva Reserva</h2>
+                    <p>Diseña tu momento de bienestar en pocos pasos.</p>
                 </div>
-            </div>
+            </aside>
 
-            <div class="reserva-content">
-                <h2 class="form-title">Nueva Reserva</h2>
-                
+            <section class="reserva-content">
                 <form id="formReserva" class="premium-form">
-                    <section class="form-step">
+                    
+                    <div class="form-step" id="step-1">
                         <span class="step-num">01</span>
                         <label>Selecciona tus servicios</label>
                         <div id="serviciosGrid" class="cards-grid"></div>
                         <div id="carritoServicios"></div>
-                    </section>
+                    </div>
 
-                    <section class="form-step">
+                    <div class="form-step" id="step-2">
                         <span class="step-num">02</span>
                         <label>Selecciona una fecha</label>
                         <div id="calendarioSemanas" class="week-calendar"></div>
                         <input type="date" id="fecha" style="display:none;" required>
-                    </section>
+                    </div>
 
-                    <section class="form-step">
+                    <div class="form-step" id="step-3">
                         <span class="step-num">03</span>
                         <label>Horarios disponibles</label>
-                        <div id="horasVisualGrid" class="hours-grid"></div>
-                    </section>
+                        <div id="horasVisualGrid" class="hours-grid">
+                            </div>
+                    </div>
 
-                    <div class="divider"></div>
+                    <hr class="divider">
 
-                    <section class="form-step">
+                    <div class="form-step" id="step-4">
                         <span class="step-num">04</span>
-                        <label>Detalles de contacto</label>
-                        <input type="text" id="nombre" placeholder="Nombre completo" required class="premium-input">
-                        <div class="input-row">
-                            <input type="email" id="correo" placeholder="Correo electrónico" required class="premium-input">
-                            <input type="tel" id="telefono" placeholder="WhatsApp" required class="premium-input">
+                        <label>Tus Datos de Contacto</label>
+                        <div class="input-container">
+                            <input type="text" id="nombre" placeholder="Nombre completo" required>
+                            <div class="input-row">
+                                <input type="email" id="correo" placeholder="Correo electrónico" required>
+                                <input type="tel" id="telefono" placeholder="WhatsApp" required>
+                            </div>
+                            <div class="input-row">
+                                <input type="text" id="apellido1" placeholder="Primer Apellido" required>
+                                <input type="text" id="apellido2" placeholder="Segundo Apellido">
+                            </div>
                         </div>
-                        <div class="input-row">
-                            <input type="text" id="apellido1" placeholder="Primer Apellido" required class="premium-input">
-                            <input type="text" id="apellido2" placeholder="Segundo Apellido" class="premium-input">
-                        </div>
-                    </section>
+                    </div>
 
-                    <button type="submit" class="btn-confirm">Confirmar Experiencia</button>
+                    <button type="submit" class="btn-confirmar">Confirmar Cita</button>
                 </form>
-            </div>
+            </section>
         </div>
     </main>
 
-    <script type="module" src="js/firebase.js"></script>
-    <script type="module" src="js/reservas.js"></script>
 </body>
 </html>
