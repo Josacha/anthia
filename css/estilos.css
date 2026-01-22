@@ -127,4 +127,69 @@ h1, h2, h3, h4 {
   color: #b5966f;
 }
 
+/* ==============================
+   CALENDARIO SEMANAL PROFESIONAL
+================================ */
+
+.calendario-semanal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.dia-cal {
+  padding: 14px 6px;
+  text-align: center;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  background: #fff;
+  transition: all .25s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,.05);
+}
+
+.dia-cal:hover {
+  background: #f3f7f5;
+  transform: translateY(-3px);
+}
+
+.dia-cal .nombre {
+  font-size: .75rem;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 4px;
+}
+
+.dia-cal .numero {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f4037;
+}
+
+/* Día seleccionado */
+.dia-cal.activo {
+  background: #1f4037;
+  border-color: #1f4037;
+}
+
+.dia-cal.activo .nombre,
+.dia-cal.activo .numero {
+  color: #fff;
+}
+
+/* Domingo bloqueado */
+.dia-cal.bloqueado {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.dia-cal.bloqueado .numero,
+.dia-cal.bloqueado .nombre {
+  color: #aaa;
+}
+
 
