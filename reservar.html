@@ -1,85 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Reservar cita | ANTHIA</title>
-  <link rel="stylesheet" href="css/estilos.css">
-  <link rel="stylesheet" href="css/forms.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva tu Experiencia | ANTHIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/estilos.css">
+    
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">
-    <h1>ANTHIA</h1>
-    <span>Esthetic Center</span>
-    <a href="index.html" class="btn-secondary volver-btn">← Inicio</a>
-  </div>
-</header>
+    <nav class="navbar-simple">
+        <a href="index.html" class="logo-small">
+            <h1>ANTHIA</h1>
+            <span>ESTHETIC CENTER</span>
+        </a>
+        <a href="index.html" class="btn-back">← Volver al Inicio</a>
+    </nav>
 
-<main class="contenedor">
-  <section class="hero-reserva">
-    <div class="hero-imagen">
-      <img src="assets/fondo/reserva-hero.jpg" alt="Salón ANTHIA">
-    </div>
-
-    <div class="hero-formulario">
-      <h2 class="form-title">Reserva tu Experiencia</h2>
-      
-      <form id="formReserva">
-        
-        <section class="form-section">
-          <label>1. Elige tus servicios</label>
-          <div id="serviciosGrid" class="servicios-grid">
+    <main class="reserva-main">
+        <div class="reserva-grid">
+            <div class="reserva-visual">
+                <div class="visual-overlay"></div>
+                <div class="visual-text">
+                    <h2>Tu cita con <br>la elegancia</h2>
+                    <p>Selecciona tus servicios y permítenos cuidar cada detalle de tu imagen.</p>
+                </div>
             </div>
-          <select id="servicio" style="display:none;" required>
-            <option value="">Seleccione un servicio</option>
-          </select>
-          <div id="carritoServicios" class="resumen-lista"></div>
-        </section>
 
-        <section class="form-section">
-          <label>2. Selecciona el día</label>
-          <div id="calendarioSemanas" class="calendario-semanal">
+            <div class="reserva-content">
+                <h2 class="form-title">Nueva Reserva</h2>
+                
+                <form id="formReserva" class="premium-form">
+                    
+                    <section class="form-step">
+                        <span class="step-num">01</span>
+                        <label>Selecciona tus servicios</label>
+                        <div id="serviciosGrid" class="cards-grid">
+                            </div>
+                        <div id="carritoServicios" class="resumen-badge"></div>
+                    </section>
+
+                    <section class="form-step">
+                        <span class="step-num">02</span>
+                        <label>Selecciona una fecha</label>
+                        <div id="calendarioSemanas" class="week-calendar">
+                            </div>
+                    </section>
+
+                    <section class="form-step">
+                        <span class="step-num">03</span>
+                        <label>Horarios disponibles</label>
+                        <div id="horasVisualGrid" class="hours-grid">
+                            </div>
+                    </section>
+
+                    <div class="divider"></div>
+
+                    <section class="form-step">
+                        <span class="step-num">04</span>
+                        <label>Detalles de contacto</label>
+                        <div class="input-group">
+                            <input type="text" id="nombre" placeholder="Nombre completo" required>
+                        </div>
+                        <div class="input-row">
+                            <input type="email" id="correo" placeholder="Correo electrónico" required>
+                            <input type="tel" id="telefono" placeholder="WhatsApp" required>
+                        </div>
+                        <div class="input-row">
+                            <input type="text" id="apellido1" placeholder="Primer Apellido" required>
+                            <input type="text" id="apellido2" placeholder="Segundo Apellido">
+                        </div>
+                    </section>
+
+                    <button type="submit" class="btn-confirm">Confirmar Experiencia</button>
+                </form>
             </div>
-          <input type="date" id="fecha" style="display:none;" required>
-        </section>
+        </div>
+    </main>
 
-        <section class="form-section">
-          <label>3. Hora disponible</label>
-          <div id="horasVisualGrid" class="horas-grid">
-            </div>
-          <select id="hora" style="display:none;" required>
-            <option value="">Seleccione hora</option>
-          </select>
-        </section>
-
-        <hr class="form-divider">
-
-        <section class="form-section">
-          <label>4. Tus Datos</label>
-          <div class="input-row">
-            <input type="email" id="correo" placeholder="Email" required class="premium-input">
-            <input type="tel" id="telefono" placeholder="WhatsApp" required class="premium-input">
-          </div>
-          <input type="text" id="nombre" placeholder="Nombre completo" required class="premium-input">
-          <div class="input-row">
-            <input type="text" id="apellido1" placeholder="Primer Apellido" required class="premium-input">
-            <input type="text" id="apellido2" placeholder="Segundo Apellido">
-          </div>
-        </section>
-
-        <button type="submit" class="btn-reserva-premium">Confirmar Reserva</button>
-      </form>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
-  <p>ANTHIA ESTHETIC CENTER © 2026</p>
-</footer>
-
-<script type="module" src="js/firebase.js"></script>
-<script type="module" src="js/reservas.js"></script>
-
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/reservas.js"></script>
 </body>
 </html>
