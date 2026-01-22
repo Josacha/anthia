@@ -30,11 +30,10 @@ const calendarioDiv = document.getElementById("calendarioSemanal");
 // =====================
 // HORAS DISPONIBLES
 // =====================
-const HORAS = [
-  "08:00","09:00","10:00","11:00",
-  "12:00","13:00","14:00","15:00",
-  "16:00","17:00","18:00"
-];
+const HORA_APERTURA = "08:00";
+const HORA_CIERRE = "18:00";
+const INTERVALO_MINUTOS = 15;
+
 
 let carrito = [];
 let duracionTotal = 0;
@@ -157,14 +156,16 @@ async function cargarHorasDisponibles() {
   const snapshot = await getDocs(collection(db, "citas"));
   const citas = snapshot.docs.map(d => d.data());
 
-  // El nuevo servicio es simultáneo SOLO si TODOS los servicios del carrito lo son
-  const nuevoPermiteSimultaneo = carrito.every(s => s.permiteSimultaneidad !== false);
+  const bloques = generarBloquesHorarios();
 
-  for (const hora of HORAS) {
+  const nuevoPermiteSimultaneo = carrito.every(
+    s => s.permiteSimultaneidad !== false
+  );
+
+  for (const hora of bloques) {
     const inicio = horaAMinutos(hora);
     const fin = inicio + duracionTotal;
 
-    // Citas que se cruzan con este rango
     const citasEnRango = citas.filter(c => {
       if (c.fecha !== fechaInput.value) return false;
       const ci = horaAMinutos(c.hora);
@@ -174,21 +175,28 @@ async function cargarHorasDisponibles() {
 
     let disponible = true;
 
-    // 1️⃣ Si hay una cita NO simultánea → bloqueado
+    // 1️⃣ Si existe UNA NO simultánea → nadie entra
     if (citasEnRango.some(c => c.permiteSimultaneidad === false)) {
       disponible = false;
     }
 
-    // 2️⃣ Si todas permiten simultaneidad → máximo 2
-    if (disponible) {
-      const totalSimultaneas = citasEnRango.length;
+    // 2️⃣ Si el nuevo NO permite simultaneidad
+    //    el campo debe estar TOTALMENTE vacío
+    if (disponible && !nuevoPermiteSimultaneo && citasEnRango.length > 0) {
+      disponible = false;
+    }
 
-      if (totalSimultaneas >= 2) {
+    // 3️⃣ Si el nuevo SÍ permite simultaneidad
+    if (disponible && nuevoPermiteSimultaneo) {
+      // máximo 2
+      if (citasEnRango.length >= 2) {
         disponible = false;
       }
 
-      // Si ya hay 1 o más y el nuevo NO es simultáneo → bloquea
-      if (totalSimultaneas > 0 && !nuevoPermiteSimultaneo) {
+      // todas las existentes deben permitir simultaneidad
+      if (
+        citasEnRango.some(c => c.permiteSimultaneidad === false)
+      ) {
         disponible = false;
       }
     }
