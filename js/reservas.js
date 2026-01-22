@@ -13,7 +13,7 @@ const fechaInput = document.getElementById("fecha");
 const horaSelect = document.getElementById("hora");
 const carritoDiv = document.getElementById("carritoServicios");
 
-// DOM PREMIUM (Contenedores visuales)
+// DOM PREMIUM
 const serviciosGrid = document.getElementById("serviciosGrid");
 const calendarioContenedor = document.getElementById("calendarioSemanas");
 const horasVisualGrid = document.getElementById("horasVisualGrid");
@@ -22,14 +22,20 @@ const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","
 let carrito = [];
 let duracionTotal = 0;
 
-// Convierte minutos (ej: 540) a string "09:00"
+// FUNCIONES DE APOYO
+function horaAMinutos(hora) {
+    if (!hora) return 0;
+    const [h, m] = hora.split(":").map(Number);
+    return h * 60 + m;
+}
+
 function minutosAHora(totalMinutos) {
     const horas = Math.floor(totalMinutos / 60);
     const minutos = totalMinutos % 60;
     return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
 }
 
-// 1. GENERAR CALENDARIO SEMANAL (Sin domingos)
+// 1. GENERAR CALENDARIO SEMANAL
 function generarCalendario() {
     calendarioContenedor.innerHTML = "";
     const hoy = new Date();
@@ -40,8 +46,7 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-
-        if (d.getDay() === 0) continue; // Ignorar domingos
+        if (d.getDay() === 0) continue; 
 
         const diaCard = document.createElement("div");
         diaCard.className = "dia-item";
@@ -64,7 +69,7 @@ function generarCalendario() {
     }
 }
 
-// 2. CARGAR SERVICIOS EN FORMATO CARDS
+// 2. CARGAR SERVICIOS
 async function cargarServicios() {
     servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
     serviciosGrid.innerHTML = "";
@@ -73,8 +78,6 @@ async function cargarServicios() {
 
     snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        
-        // Mantener el select oculto actualizado
         const option = document.createElement("option");
         option.value = docSnap.id;
         option.dataset.duracion = data.duracion || 60;
@@ -82,7 +85,6 @@ async function cargarServicios() {
         option.textContent = data.nombre;
         servicioSelect.appendChild(option);
 
-        // Crear la Card Premium
         const card = document.createElement("div");
         card.className = "service-card";
         card.innerHTML = `
@@ -99,72 +101,55 @@ async function cargarServicios() {
     });
 }
 
-// 3. CARGAR HORAS EN FORMATO BOTONES
+// 3. CARGAR HORAS (Lógica de simultaneidad tramo por tramo)
 async function cargarHorasDisponibles() {
     horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
     horasVisualGrid.innerHTML = "";
     const fecha = fechaInput.value;
-    
     if (!fecha || carrito.length === 0) return;
 
     const citasRef = collection(db, "citas");
     const snapshotCitas = await getDocs(citasRef);
     const citasExistentes = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Recorremos cada hora de apertura (08:00, 09:00...)
     for (const horaApertura of HORAS) {
         let tiempoAnalizado = horaAMinutos(horaApertura);
         let esPosibleAgendarTodoElCarrito = true;
 
-        // Analizamos cada servicio del carrito EN ORDEN
         for (const servicio of carrito) {
             const inicioServ = tiempoAnalizado;
             const finServ = inicioServ + servicio.duracion;
 
-            // Buscamos si hay citas en ESTE tramo específico
             const citasEnTramo = citasExistentes.filter(c => {
                 const cInicio = horaAMinutos(c.hora);
                 const cFin = cInicio + c.duracion;
                 return c.fecha === fecha && !(finServ <= cInicio || inicioServ >= cFin);
             });
 
-            // --- APLICACIÓN DE TUS REGLAS DEL JUEGO ---
-            
             if (citasEnTramo.length > 0) {
-                // REGLA 1: Si ya hay una cita y NO permite simultaneidad, se bloquea todo.
                 const hayCitaBloqueante = citasEnTramo.some(c => c.simultaneo === false);
                 if (hayCitaBloqueante) {
                     esPosibleAgendarTodoElCarrito = false;
                     break;
                 }
-
-                // REGLA 2: Si mi servicio actual NO permite simultaneidad, pero ya hay alguien (aunque sea simultáneo), no puedo entrar porque yo voy a bloquear el salón.
                 if (!servicio.simultaneo && citasEnTramo.length > 0) {
                     esPosibleAgendarTodoElCarrito = false;
                     break;
                 }
-
-                // REGLA 3: Máximo 2 citas simultáneas.
                 if (citasEnTramo.length >= 2) {
                     esPosibleAgendarTodoElCarrito = false;
                     break;
                 }
             }
-            // Si el tramo está vacío, la regla permite agendar cualquier cosa (simultáneo o no).
-
-            // Si este servicio pasó la prueba, el siguiente empieza después de este
             tiempoAnalizado = finServ;
         }
 
-        // Si todos los servicios del carrito pasaron la prueba en sus respectivos tiempos:
         if (esPosibleAgendarTodoElCarrito) {
-            // Llenar select oculto
             const option = document.createElement("option");
             option.value = horaApertura;
             option.textContent = horaApertura;
             horaSelect.appendChild(option);
 
-            // Crear Botón Visual
             const btn = document.createElement("div");
             btn.className = "hora-item";
             btn.textContent = horaApertura;
@@ -177,7 +162,8 @@ async function cargarHorasDisponibles() {
         }
     }
 }
-// LOGICA DE CARRITO (Mantenida de tu código)
+
+// LÓGICA DE CARRITO
 servicioSelect.addEventListener("change", () => {
     const selected = servicioSelect.selectedOptions[0];
     if (!selected || selected.value === "") return;
@@ -187,8 +173,6 @@ servicioSelect.addEventListener("change", () => {
     const simultaneo = selected.dataset.simultaneo === "true";
 
     carrito.push({ id: selected.value, nombre: selected.textContent, duracion, simultaneo });
-    duracionTotal += duracion;
-
     renderCarrito();
     cargarHorasDisponibles();
 });
@@ -202,7 +186,6 @@ function renderCarrito() {
         carritoDiv.appendChild(div);
 
         div.querySelector("button").addEventListener("click", () => {
-            duracionTotal -= s.duracion;
             carrito.splice(i, 1);
             renderCarrito();
             cargarHorasDisponibles();
@@ -210,7 +193,7 @@ function renderCarrito() {
     });
 }
 
-// AUTOCOMPLETAR (Mantenida de tu código)
+// AUTOCOMPLETAR CLIENTE
 async function autocompletarCliente(valor) {
     if (!valor) return;
     const clientesRef = collection(db, "clientes");
@@ -232,7 +215,7 @@ async function autocompletarCliente(valor) {
     }
 }
 
-// INICIO
+// INICIALIZACIÓN Y EVENTOS
 generarCalendario();
 cargarServicios();
 
@@ -240,6 +223,7 @@ fechaInput.addEventListener("change", cargarHorasDisponibles);
 correoInput.addEventListener("blur", () => autocompletarCliente(correoInput.value));
 telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.value));
 
+// FORM SUBMIT
 formReserva.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!fechaInput.value || !horaSelect.value || carrito.length === 0) {
@@ -247,11 +231,9 @@ formReserva.addEventListener("submit", async (e) => {
     }
 
     try {
-        // Generar ID de cliente (limpiando caracteres especiales para Firebase)
         const clienteId = (correoInput.value || telefonoInput.value || "cl_" + Date.now()).replace(/[.#$[\]]/g,'_');
         const clienteRef = doc(db, "clientes", clienteId);
 
-        // 1. Guardar/Actualizar datos del cliente
         await setDoc(clienteRef, {
             nombre: nombreInput.value,
             apellido1: apellido1Input.value,
@@ -261,39 +243,31 @@ formReserva.addEventListener("submit", async (e) => {
             actualizado: Timestamp.now()
         }, { merge: true });
 
-        // 2. Guardar cada servicio del carrito con su hora correspondiente
-        let minutosCorrientes = horaAMinutos(horaSelect.value); // Empezamos en la hora seleccionada (ej: 08:00 -> 480 min)
+        let minutosCorrientes = horaAMinutos(horaSelect.value);
 
         for (const s of carrito) {
-            const horaServicioTexto = minutosAHora(minutosCorrientes); // Convertimos minutos a "08:00", "09:00", etc.
+            const horaServicioTexto = minutosAHora(minutosCorrientes);
 
             await addDoc(collection(db, "citas"), {
                 clienteId: clienteId,
                 servicioId: s.id,
                 fecha: fechaInput.value,
-                hora: horaServicioTexto, // <--- AQUÍ SE GUARDA LA HORA CORRECTA DE CADA TRAMO
+                hora: horaServicioTexto,
                 duracion: Number(s.duracion),
                 simultaneo: Boolean(s.simultaneo),
                 creado: Timestamp.now()
             });
 
-            // Sumamos la duración de este servicio para que el siguiente empiece justo después
             minutosCorrientes += s.duracion;
         }
 
         alert("¡Cita reservada con éxito!");
-        window.location.reload(); // Recarga para limpiar la interfaz premium
+        window.location.reload();
 
     } catch (error) {
-        console.error("Error al guardar la reserva:", error);
-        alert("Hubo un error al procesar tu reserva. Inténtalo de nuevo.");
+        console.error("Error:", error);
+        alert("Error al procesar la reserva.");
     }
-});
-        }
-
-        alert("¡Cita reservada!");
-        window.location.reload();
-    } catch (e) { console.error(e); }
 });
 
 onSnapshot(collection(db, "citas"), () => cargarHorasDisponibles());
