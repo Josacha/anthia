@@ -147,6 +147,9 @@ function renderCarrito() {
 // =====================
 // HORAS DISPONIBLES
 // =====================
+// =====================
+// HORAS DISPONIBLES (CORREGIDO CON SIMULTANEIDAD)
+// =====================
 async function cargarHorasDisponibles() {
   horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
   if (!fechaInput.value || carrito.length === 0) return;
@@ -154,19 +157,41 @@ async function cargarHorasDisponibles() {
   const snapshot = await getDocs(collection(db, "citas"));
   const citas = snapshot.docs.map(d => d.data());
 
+  // El nuevo servicio es simultáneo SOLO si TODOS los servicios del carrito lo son
+  const nuevoPermiteSimultaneo = carrito.every(s => s.permiteSimultaneidad !== false);
+
   for (const hora of HORAS) {
     const inicio = horaAMinutos(hora);
     const fin = inicio + duracionTotal;
 
+    // Citas que se cruzan con este rango
+    const citasEnRango = citas.filter(c => {
+      if (c.fecha !== fechaInput.value) return false;
+      const ci = horaAMinutos(c.hora);
+      const cf = ci + c.duracion;
+      return !(fin <= ci || inicio >= cf);
+    });
+
     let disponible = true;
 
-    citas
-      .filter(c => c.fecha === fechaInput.value)
-      .forEach(c => {
-        const ci = horaAMinutos(c.hora);
-        const cf = ci + c.duracion;
-        if (!(fin <= ci || inicio >= cf)) disponible = false;
-      });
+    // 1️⃣ Si hay una cita NO simultánea → bloqueado
+    if (citasEnRango.some(c => c.permiteSimultaneidad === false)) {
+      disponible = false;
+    }
+
+    // 2️⃣ Si todas permiten simultaneidad → máximo 2
+    if (disponible) {
+      const totalSimultaneas = citasEnRango.length;
+
+      if (totalSimultaneas >= 2) {
+        disponible = false;
+      }
+
+      // Si ya hay 1 o más y el nuevo NO es simultáneo → bloquea
+      if (totalSimultaneas > 0 && !nuevoPermiteSimultaneo) {
+        disponible = false;
+      }
+    }
 
     if (disponible) {
       const opt = document.createElement("option");
@@ -176,6 +201,7 @@ async function cargarHorasDisponibles() {
     }
   }
 }
+
 
 // =====================
 // GUARDAR CITA
@@ -267,6 +293,42 @@ function generarCalendarioSemanal() {
 }
 
 document.addEventListener("DOMContentLoaded", generarCalendarioSemanal);
+
+async function renderServiciosCards() {
+  const contenedor = document.getElementById("serviciosCards");
+  if (!contenedor) return;
+
+  contenedor.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "servicios"));
+
+  snapshot.forEach(docSnap => {
+    const s = docSnap.data();
+
+    const card = document.createElement("div");
+    card.className = "servicio-card";
+    card.innerHTML = `
+      <strong>${s.nombre}</strong>
+      <div>${s.duracion} min</div>
+      <div>₡${s.precio}</div>
+    `;
+
+    card.onclick = () => {
+      servicioSelect.value = docSnap.id;
+      servicioSelect.dispatchEvent(new Event("change"));
+
+      document.querySelectorAll(".servicio-card")
+        .forEach(c => c.classList.remove("activo"));
+
+      card.classList.add("activo");
+    };
+
+    contenedor.appendChild(card);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", renderServiciosCards);
+
 
 // =====================
 // ACTUALIZAR HORAS EN TIEMPO REAL
