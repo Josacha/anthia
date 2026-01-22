@@ -2,12 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda Inteligente | Anthia</title>
+    <title>Agenda Premium | ANTHIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/agenda.css">
 </head>
 <body>
-    <main class="dashboard">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>ANTHIA</h1>
+            <span>Esthetic Center</span>
+        </div>
+        <nav class="menu">
+            <a href="../dashboard.html">🏠 Inicio</a>
+            <a href="agenda.html" class="active">📅 Agenda</a>
+            <a href="servicios.html">✨ Servicios</a>
+            <a href="clientes.html">👤 Clientes</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="configuracion.html">⚙️ Ajustes</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
         <header class="agenda-hero">
             <div class="agenda-fecha">
                 <div class="agenda-dia-numero" id="numeroDia">--</div>
@@ -33,7 +53,8 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    </tbody>
             </table>
         </div>
     </main>
@@ -46,7 +67,7 @@
             </div>
             <div class="modal-body">
                 <label>ID o Nombre del Cliente</label>
-                <input type="text" id="clienteNombre" placeholder="Ej: ana@mail.com o nombre" class="input-premium">
+                <input type="text" id="clienteNombre" placeholder="Ej: nombre@mail.com" class="input-premium">
 
                 <label>Añadir Tratamiento</label>
                 <select id="servicioSelect" class="input-premium"></select>
@@ -59,9 +80,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer acciones">
+            <div class="modal-footer">
                 <button id="cancelarModal" class="btn-secundario-lux">Cancelar</button>
-                <button id="guardarCita" class="btn-primario-lux">Confirmar Reserva</button>
+                <button id="guardarCita" class="btn-primario-lux">Confirmar Cita</button>
             </div>
         </div>
     </div>
