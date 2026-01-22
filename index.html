@@ -1,72 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>ANTHIA ESTHETIC CENTER</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/estilos.css">
-  <link rel="stylesheet" href="css/cliente.css">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTHIA | Esthetic Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo">
-      <h1>ANTHIA</h1>
-      <span>Esthetic Center</span>
-    </div>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>ANTHIA</h1>
+            <span>ESTHETIC CENTER</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#nosotros">Experiencia</a></li>
+            <li><a href="reservar.html" class="btn-nav">Reservar Cita</a></li>
+        </ul>
+    </nav>
 
-    <a href="reservar.html" class="btn-primary">Reservar cita</a>
-  </header>
+    <section class="hero-premium">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="subtitle">Bienvenido a la elegancia</span>
+            <h2>Realza tu belleza <br> <span class="italic">natural</span></h2>
+            <p>Un santuario de bienestar diseñado para quienes buscan resultados excepcionales y una experiencia inigualable.</p>
+            <div class="hero-btns">
+                <a href="reservar.html" class="btn-gold">Agendar Experiencia</a>
+                <a href="#servicios" class="btn-outline">Ver Catálogo</a>
+            </div>
+        </div>
+    </section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <h2>Realza tu belleza natural</h2>
-      <p>Experiencias estéticas diseñadas para tu bienestar, elegancia y confianza.</p>
-      <a href="reservar.html" class="btn-secondary">Agenda tu cita</a>
-    </div>
-  </section>
-
-  <!-- SERVICIOS -->
-  <section class="servicios">
-    <h3>Nuestros Servicios</h3>
-
-    <div class="servicios-grid">
-      <div class="servicio-card">
-        <h4>Cabello</h4>
-        <p>Corte, color, tratamientos y más.</p>
-      </div>
-
-      <div class="servicio-card">
-        <h4>Uñas</h4>
-        <p>Manicure, pedicure y diseño.</p>
-      </div>
-
-      <div class="servicio-card">
-        <h4>Faciales</h4>
-        <p>Cuidado de la piel y relajación.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta">
-    <h3>Agenda tu cita fácilmente</h3>
-    <p>Selecciona el servicio, elige tu horario y listo.</p>
-    <a href="reservar.html" class="btn-primary">Reservar ahora</a>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p>© 2026 ANTHIA ESTHETIC CENTER</p>
-  </footer>
+    <section id="servicios" class="services-luxury">
+        <div class="section-title">
+            <span>Nuestras Especialidades</span>
+            <h3>Servicios Exclusivos</h3>
+        </div>
+        <div class="services-container">
+            <div class="s-card">
+                <div class="s-img" style="background-image: url('https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80');"></div>
+                <h4>Cuidado Capilar</h4>
+                <p>Tratamientos de alta gama y estilismo personalizado.</p>
+            </div>
+            <div class="s-card">
+                <div class="s-img" style="background-image: url('https://images.unsplash.com/photo-1610443663931-930263889163?auto=format&fit=crop&w=800&q=80');"></div>
+                <h4>Diseño de Uñas</h4>
+                <p>Manicura rusa y arte minimalista de larga duración.</p>
+            </div>
+            <div class="s-card">
+                <div class="s-img" style="background-image: url('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&w=800&q=80');"></div>
+                <h4>Faciales Avanzados</h4>
+                <p>Tecnología estética para una piel radiante y rejuvenecida.</p>
+            </div>
+        </div>
+    </section>
 
 </body>
 </html>
-
