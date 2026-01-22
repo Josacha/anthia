@@ -24,7 +24,7 @@ const servicioSelect = document.getElementById("servicio");
 const fechaInput = document.getElementById("fecha"); // INPUT REAL (OCULTO)
 const horaSelect = document.getElementById("hora");
 const carritoDiv = document.getElementById("carritoServicios");
-const calendarioDiv = document.getElementById("calendarioSemanal") || null;
+const calendarioDiv = document.getElementById("calendarioSemanal");
 
 
 // =====================
