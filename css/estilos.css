@@ -566,4 +566,238 @@ label {
   }
 }
 
+/* PALETA DE COLORES */
+:root {
+  --gold: #c8a97e;
+  --gold-dark: #b5966f;
+  --dark: #1a1a1a;
+  --light-gray: #f8f8f8;
+  --border: #ececec;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fafafa;
+  margin: 0;
+  color: var(--dark);
+}
+
+.contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* HERO LAYOUT */
+.hero-reserva {
+  display: flex;
+  gap: 50px;
+  padding: 60px 0;
+  align-items: flex-start;
+}
+
+.hero-imagen {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+}
+
+.hero-imagen img {
+  width: 100%;
+  border-radius: 25px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+/* FORMULARIO CONTAINER */
+.hero-formulario {
+  flex: 1.2;
+  background: var(--white);
+  padding: 45px;
+  border-radius: 30px;
+  box-shadow: 0 10px 60px rgba(0,0,0,0.04);
+}
+
+.form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 15px;
+  color: #666;
+}
+
+/* SERVICIOS GRID */
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+}
+
+.service-card {
+  border: 1.5px solid var(--border);
+  padding: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  background: var(--white);
+}
+
+.service-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(200, 169, 126, 0.1);
+}
+
+.service-card.selected {
+  border-color: var(--gold);
+  background: #fffbf5;
+}
+
+.service-card h4 {
+  font-size: 0.95rem;
+  margin: 0 0 8px 0;
+}
+
+.service-card span {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* CALENDARIO SEMANAL */
+.calendario-semanal {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.dia-item {
+  padding: 18px 5px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: var(--light-gray);
+}
+
+.dia-item.selected {
+  background: var(--dark);
+  color: var(--white);
+  border-color: var(--dark);
+}
+
+.dia-item .num {
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: block;
+}
+
+.dia-item .mes {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* HORAS GRID */
+.horas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.hora-item {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.hora-item.selected {
+  background: var(--gold);
+  color: white;
+  border-color: var(--gold);
+}
+
+/* INPUTS DATOS */
+.premium-input, 
+.hero-formulario input[type="text"],
+.hero-formulario input[type="email"],
+.hero-formulario input[type="tel"] {
+  width: 100%;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 15px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  background: var(--light-gray);
+  outline: none;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+.premium-input:focus {
+  border-color: var(--gold);
+  background: var(--white);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-divider {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 40px 0;
+}
+
+/* BOTÓN FINAL */
+.btn-reserva-premium {
+  width: 100%;
+  padding: 22px;
+  background: var(--dark);
+  color: var(--white);
+  border: none;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn-reserva-premium:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .hero-reserva { flex-direction: column; }
+  .hero-imagen { position: relative; width: 100%; }
+  .calendario-semanal { grid-template-columns: repeat(3, 1fr); }
+  .input-row { grid-template-columns: 1fr; }
+}
+
 
