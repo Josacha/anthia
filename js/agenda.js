@@ -1,26 +1,39 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, getDocs, query, where, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    collection, addDoc, getDocs, query, where, deleteDoc, doc, limit 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const fechaInput = document.getElementById("fechaAgenda");
 const tbody = document.querySelector("#tablaAgenda tbody");
 const modal = document.getElementById("modalCita");
 const servicioSelect = document.getElementById("servicioSelect");
-const clienteNombre = document.getElementById("clienteNombre");
+
+// Inputs de nombre completo
+const inputNombre = document.getElementById("clienteNombre");
+const inputApe1 = document.getElementById("clienteApellido1");
+const inputApe2 = document.getElementById("clienteApellido2");
 
 let carrito = [];
 let horaSeleccionada = null;
 let serviciosMap = {};
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
-// Actualizar textos del Hero
-function actualizarUIFecha(fechaStr) {
-    const fecha = new Date(fechaStr + "T00:00:00");
-    document.getElementById("numeroDia").textContent = fecha.getDate();
-    document.getElementById("mes").textContent = fecha.toLocaleDateString('es-ES', { month: 'long' });
-    document.getElementById("diaSemana").textContent = fecha.toLocaleDateString('es-ES', { weekday: 'long' });
+/**
+ * VALIDACIÓN CLAVE: Verifica si el horario ya está ocupado
+ * Igual a la lógica del sistema de reserva
+ */
+async function verificarDisponibilidad(fecha, hora) {
+    const q = query(
+        collection(db, "citas"), 
+        where("fecha", "==", fecha), 
+        where("hora", "==", hora),
+        limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty; // true si está disponible
 }
 
-// Cargar Servicios
+// 1. Cargar Servicios para el Select
 async function cargarServicios() {
     const snap = await getDocs(collection(db, "servicios"));
     servicioSelect.innerHTML = '<option value="">+ Añadir servicio</option>';
@@ -33,83 +46,167 @@ async function cargarServicios() {
     });
 }
 
-// Cargar Tabla
+// 2. Cargar Tabla de Agenda
 async function cargarAgenda(fecha) {
-    actualizarUIFecha(fecha);
-    tbody.innerHTML = "";
-    const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fecha)));
-    const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    tbody.innerHTML = "<tr><td colspan='6'>Cargando agenda...</td></tr>";
+    
+    try {
+        const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fecha)));
+        const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        tbody.innerHTML = "";
+        HORAS.forEach(hora => {
+            const cita = citas.find(c => c.hora === hora);
+            const tr = document.createElement("tr");
 
-    HORAS.forEach(hora => {
-        const cita = citas.find(c => c.hora === hora);
-        const tr = document.createElement("tr");
-
-        if (!cita) {
-            tr.innerHTML = `
-                <td>${hora}</td>
-                <td colspan="3" class="libre">Disponible</td>
-                <td>Libre</td>
-                <td><button onclick="abrirModal('${hora}')" style="cursor:pointer; background:none; border:none;">➕</button></td>
-            `;
-        } else {
-            tr.innerHTML = `
-                <td>${hora}</td>
-                <td><b>${cita.clienteId}</b></td>
-                <td>${serviciosMap[cita.servicioId]?.nombre || 'Servicio'}</td>
-                <td>${cita.duracion} min</td>
-                <td class="ocupado">Ocupado</td>
-                <td><button class="btn-delete" data-id="${cita.id}">🗑️</button></td>
-            `;
-        }
-        tbody.appendChild(tr);
-    });
+            if (!cita) {
+                tr.innerHTML = `
+                    <td>${hora}</td>
+                    <td colspan="3" class="libre" onclick="abrirModal('${hora}')">Disponible</td>
+                    <td><span class="badge-libre">Libre</span></td>
+                    <td><button onclick="abrirModal('${hora}')" class="btn-add">➕</button></td>
+                `;
+            } else {
+                tr.innerHTML = `
+                    <td>${hora}</td>
+                    <td><b>${cita.clienteNombreCompleto || 'Sin nombre'}</b></td>
+                    <td>${serviciosMap[cita.servicioId]?.nombre || 'Servicio'}</td>
+                    <td>${cita.duracion} min</td>
+                    <td class="ocupado">Ocupado</td>
+                    <td><button class="btn-delete" onclick="eliminarCita('${cita.id}')">🗑️</button></td>
+                `;
+            }
+            tbody.appendChild(tr);
+        });
+        actualizarHeroFecha(fecha);
+    } catch (error) {
+        console.error("Error al cargar agenda:", error);
+    }
 }
 
-// Manejo de Modal
+// 3. Guardar Cita con Validaciones de Reserva
+document.getElementById("guardarCita").onclick = async () => {
+    // A. Validar campos vacíos
+    if(!inputNombre.value.trim() || !inputApe1.value.trim() || carrito.length === 0) {
+        alert("Por favor complete el nombre, al menos el primer apellido y seleccione un servicio.");
+        return;
+    }
+
+    const fecha = fechaInput.value;
+    const nombreCompleto = `${inputNombre.value} ${inputApe1.value} ${inputApe2.value}`.trim();
+
+    // B. Bloquear botón para evitar doble clic
+    const btnGuardar = document.getElementById("guardarCita");
+    btnGuardar.disabled = true;
+    btnGuardar.textContent = "Validando...";
+
+    // C. Validación de Disponibilidad (Crucial para evitar duplicados)
+    const estaDisponible = await verificarDisponibilidad(fecha, horaSeleccionada);
+    
+    if (!estaDisponible) {
+        alert("Lo sentimos, este horario acaba de ser ocupado. Por favor elija otro.");
+        btnGuardar.disabled = false;
+        btnGuardar.textContent = "Confirmar Reserva";
+        cerrarModal();
+        cargarAgenda(fecha);
+        return;
+    }
+
+    // D. Proceso de Guardado
+    try {
+        // En la agenda administrativa, guardamos los servicios seleccionados
+        for (const s of carrito) {
+            await addDoc(collection(db, "citas"), {
+                fecha: fecha,
+                hora: horaSeleccionada,
+                clienteNombreCompleto: nombreCompleto,
+                servicioId: s.id,
+                duracion: s.duracion,
+                creadoEn: new Date(),
+                origen: "Panel Administrativo"
+            });
+        }
+        
+        alert("Cita agendada correctamente.");
+        cerrarModal();
+        cargarAgenda(fecha);
+    } catch (e) {
+        alert("Error al guardar la cita: " + e.message);
+    } finally {
+        btnGuardar.disabled = false;
+        btnGuardar.textContent = "Confirmar Reserva";
+    }
+};
+
+// --- Funciones de Soporte ---
+
 window.abrirModal = (hora) => {
     horaSeleccionada = hora;
-    document.getElementById("infoHoraSeleccionada").textContent = `Horario seleccionado: ${hora}`;
+    document.getElementById("infoHoraSeleccionada").textContent = `Horario: ${hora}`;
     modal.classList.add("active");
 };
 
-document.getElementById("cancelarModal").onclick = () => modal.classList.remove("active");
-
-document.getElementById("guardarCita").onclick = async () => {
-    if(!clienteNombre.value || carrito.length === 0) return alert("Completa los datos");
-    
-    for (const s of carrito) {
-        await addDoc(collection(db, "citas"), {
-            fecha: fechaInput.value,
-            hora: horaSeleccionada,
-            clienteId: clienteNombre.value,
-            servicioId: s.id,
-            duracion: s.duracion
-        });
-    }
+function cerrarModal() {
     modal.classList.remove("active");
-    cargarAgenda(fechaInput.value);
+    inputNombre.value = "";
+    inputApe1.value = "";
+    inputApe2.value = "";
+    carrito = [];
+    actualizarCarritoUI();
+}
+
+window.eliminarCita = async (id) => {
+    if(confirm("¿Está seguro de que desea eliminar esta cita?")) {
+        await deleteDoc(doc(db, "citas", id));
+        cargarAgenda(fechaInput.value);
+    }
 };
 
-// Carrito
 servicioSelect.onchange = () => {
     const id = servicioSelect.value;
     if(id) {
+        // Evitar duplicar el mismo servicio en la misma cita
+        if(carrito.find(s => s.id === id)) return; 
+        
         carrito.push({ id, ...serviciosMap[id] });
         actualizarCarritoUI();
+        servicioSelect.value = "";
     }
 };
 
 function actualizarCarritoUI() {
     const lista = document.getElementById("listaServicios");
-    lista.innerHTML = carrito.map(s => `<li>${s.nombre} <span>${s.duracion} min</span></li>`).join("");
+    lista.innerHTML = carrito.map((s, index) => `
+        <li>
+            ${s.nombre} <span>${s.duracion} min</span>
+            <small onclick="quitarServicio(${index})" style="color:red; cursor:pointer; margin-left:10px;">✕</small>
+        </li>
+    `).join("");
     document.getElementById("tiempoTotal").textContent = carrito.reduce((acc, s) => acc + s.duracion, 0);
 }
 
-// Init
+window.quitarServicio = (index) => {
+    carrito.splice(index, 1);
+    actualizarCarritoUI();
+};
+
+function actualizarHeroFecha(fechaStr) {
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    const fecha = new Date(fechaStr + "T00:00:00");
+    document.getElementById("numeroDia").textContent = fecha.getDate();
+    document.getElementById("mes").textContent = meses[fecha.getMonth()];
+    document.getElementById("diaSemana").textContent = dias[fecha.getDay()];
+}
+
+// Inicialización al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
     const hoy = new Date().toISOString().split("T")[0];
     fechaInput.value = hoy;
     cargarServicios();
     cargarAgenda(hoy);
+    
     fechaInput.onchange = () => cargarAgenda(fechaInput.value);
+    document.getElementById("cancelarModal").onclick = cerrarModal;
 });
