@@ -214,3 +214,28 @@ body {
     .nav-links { display: none; }
     .hero-content h2 { font-size: 40px; }
 }
+
+/* Ajuste de tipografía para los párrafos de salón */
+.services-luxury p {
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+}
+
+/* Efecto de hover más dinámico para las fotos de salón */
+.s-card:hover .s-img {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+.cta-final p {
+    color: var(--text-muted);
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 11px;
+}
+
+/* Color de acento para enlaces de salón */
+.nav-links a:hover {
+    color: var(--gold);
+}
