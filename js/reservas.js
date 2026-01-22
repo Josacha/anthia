@@ -289,6 +289,7 @@ formReserva.addEventListener("submit", async (e) => {
         alert("Hubo un error al procesar tu reserva. Inténtalo de nuevo.");
     }
 });
+        }
 
         alert("¡Cita reservada!");
         window.location.reload();
