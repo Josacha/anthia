@@ -21,19 +21,17 @@ const nombreInput = document.getElementById("nombre");
 const apellido1Input = document.getElementById("apellido1");
 const apellido2Input = document.getElementById("apellido2");
 const servicioSelect = document.getElementById("servicio");
-const fechaInput = document.getElementById("fecha"); // INPUT REAL (OCULTO)
+const fechaInput = document.getElementById("fecha");
 const horaSelect = document.getElementById("hora");
 const carritoDiv = document.getElementById("carritoServicios");
 const calendarioDiv = document.getElementById("calendarioSemanal");
 
-
 // =====================
-// HORAS DISPONIBLES
+// HORARIO
 // =====================
 const HORA_APERTURA = "08:00";
 const HORA_CIERRE = "18:00";
 const INTERVALO_MINUTOS = 15;
-
 
 let carrito = [];
 let duracionTotal = 0;
@@ -50,14 +48,11 @@ function fechaISO(date) {
   return date.toISOString().split("T")[0];
 }
 
-
 // =====================
-// bloques
+// BLOQUES HORARIOS
 // =====================
-
 function generarBloquesHorarios() {
   const bloques = [];
-
   let inicio = horaAMinutos(HORA_APERTURA);
   const fin = horaAMinutos(HORA_CIERRE);
 
@@ -70,7 +65,6 @@ function generarBloquesHorarios() {
 
   return bloques;
 }
-
 
 // =====================
 // AUTOCOMPLETAR CLIENTE
@@ -105,8 +99,8 @@ telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.
 // =====================
 async function cargarServicios() {
   servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
-
   const snapshot = await getDocs(collection(db, "servicios"));
+
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
     const option = document.createElement("option");
@@ -120,7 +114,7 @@ async function cargarServicios() {
 document.addEventListener("DOMContentLoaded", cargarServicios);
 
 // =====================
-// CARRITO DE SERVICIOS
+// CARRITO
 // =====================
 servicioSelect.addEventListener("change", () => {
   const selected = servicioSelect.selectedOptions[0];
@@ -166,10 +160,7 @@ function renderCarrito() {
 }
 
 // =====================
-// HORAS DISPONIBLES
-// =====================
-// =====================
-// HORAS DISPONIBLES (CORREGIDO CON SIMULTANEIDAD)
+// HORAS DISPONIBLES (FIX REAL)
 // =====================
 async function cargarHorasDisponibles() {
   horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
@@ -177,7 +168,6 @@ async function cargarHorasDisponibles() {
 
   const snapshot = await getDocs(collection(db, "citas"));
   const citas = snapshot.docs.map(d => d.data());
-
   const bloques = generarBloquesHorarios();
 
   const nuevoPermiteSimultaneo = carrito.every(
@@ -188,39 +178,33 @@ async function cargarHorasDisponibles() {
     const inicio = horaAMinutos(hora);
     const fin = inicio + duracionTotal;
 
+    // 🔥 BLOQUEO CORRECTO POR INTERVALOS
     const citasEnRango = citas.filter(c => {
       if (c.fecha !== fechaInput.value) return false;
+
       const ci = horaAMinutos(c.hora);
       const cf = ci + c.duracion;
-      return !(fin <= ci || inicio >= cf);
+
+      for (let m = ci; m < cf; m += INTERVALO_MINUTOS) {
+        if (m >= inicio && m < fin) {
+          return true;
+        }
+      }
+      return false;
     });
 
     let disponible = true;
 
-    // 1️⃣ Si existe UNA NO simultánea → nadie entra
     if (citasEnRango.some(c => c.permiteSimultaneidad === false)) {
       disponible = false;
     }
 
-    // 2️⃣ Si el nuevo NO permite simultaneidad
-    //    el campo debe estar TOTALMENTE vacío
     if (disponible && !nuevoPermiteSimultaneo && citasEnRango.length > 0) {
       disponible = false;
     }
 
-    // 3️⃣ Si el nuevo SÍ permite simultaneidad
     if (disponible && nuevoPermiteSimultaneo) {
-      // máximo 2
-      if (citasEnRango.length >= 2) {
-        disponible = false;
-      }
-
-      // todas las existentes deben permitir simultaneidad
-      if (
-        citasEnRango.some(c => c.permiteSimultaneidad === false)
-      ) {
-        disponible = false;
-      }
+      if (citasEnRango.length >= 2) disponible = false;
     }
 
     if (disponible) {
@@ -231,7 +215,6 @@ async function cargarHorasDisponibles() {
     }
   }
 }
-
 
 // =====================
 // GUARDAR CITA
@@ -278,7 +261,7 @@ formReserva.addEventListener("submit", async e => {
 });
 
 // =====================
-// CALENDARIO SEMANAL (LO ÚNICO NUEVO)
+// CALENDARIO SEMANAL
 // =====================
 function generarCalendarioSemanal() {
   if (!calendarioDiv) return;
@@ -308,7 +291,6 @@ function generarCalendarioSemanal() {
         div.onclick = () => {
           document.querySelectorAll(".dia-cal")
             .forEach(d => d.classList.remove("activo"));
-
           div.classList.add("activo");
           fechaInput.value = fechaISO(fecha);
           cargarHorasDisponibles();
@@ -324,43 +306,7 @@ function generarCalendarioSemanal() {
 
 document.addEventListener("DOMContentLoaded", generarCalendarioSemanal);
 
-async function renderServiciosCards() {
-  const contenedor = document.getElementById("serviciosCards");
-  if (!contenedor) return;
-
-  contenedor.innerHTML = "";
-
-  const snapshot = await getDocs(collection(db, "servicios"));
-
-  snapshot.forEach(docSnap => {
-    const s = docSnap.data();
-
-    const card = document.createElement("div");
-    card.className = "servicio-card";
-    card.innerHTML = `
-      <strong>${s.nombre}</strong>
-      <div>${s.duracion} min</div>
-      <div>₡${s.precio}</div>
-    `;
-
-    card.onclick = () => {
-      servicioSelect.value = docSnap.id;
-      servicioSelect.dispatchEvent(new Event("change"));
-
-      document.querySelectorAll(".servicio-card")
-        .forEach(c => c.classList.remove("activo"));
-
-      card.classList.add("activo");
-    };
-
-    contenedor.appendChild(card);
-  });
-}
-
-document.addEventListener("DOMContentLoaded", renderServiciosCards);
-
-
 // =====================
-// ACTUALIZAR HORAS EN TIEMPO REAL
+// ACTUALIZACIÓN EN TIEMPO REAL
 // =====================
 onSnapshot(collection(db, "citas"), () => cargarHorasDisponibles());
