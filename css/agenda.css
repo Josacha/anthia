@@ -1,719 +1,116 @@
-/* ===============================
-   CONTENEDOR PRINCIPAL
-=============================== */
-.contenedor-admin {
-  margin-left: 240px;
-  padding: 30px;
-  background: #f6f7fb;
-  min-height: 100vh;
+/* --- RESET Y CONTENEDOR --- */
+.main-content {
+    margin-left: 250px; /* Alineado con tu sidebar */
+    padding: 60px;
+    background-color: #fcfcfc;
+    min-height: 100vh;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .contenedor-admin {
-    margin-left: 0;
-    padding: 15px;
-  }
-}
-
-/* ===============================
-   HEADER AGENDA
-=============================== */
-.agenda-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.agenda-header h2 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.agenda-header input[type="date"] {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 0.95rem;
-}
-
-/* ===============================
-   CARD CONTENEDORA
-=============================== */
-.card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.05);
-}
-
-/* ===============================
-   TABLA AGENDA
-=============================== */
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  overflow: hidden;
-  border-radius: 14px;
-}
-
-.tabla thead {
-  background: #111827;
-  color: white;
-}
-
-.tabla th {
-  padding: 14px;
-  text-align: center;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.tabla td {
-  padding: 14px;
-  text-align: center;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #eee;
-}
-
-/* ===============================
-   ESTADOS
-=============================== */
-.tabla td.libre {
-  background: #ecfdf3;
-  color: #047857;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.tabla td.ocupado {
-  background: #fef2f2;
-  color: #991b1b;
-  font-weight: 600;
-}
-
-.tabla td.simultaneo {
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-weight: 600;
-}
-
-/* Hover */
-.tabla td.libre:hover {
-  background: #d1fae5;
-}
-
-/* ===============================
-   MODAL
-=============================== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal-box {
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 18px;
-  width: 90%;
-  max-width: 420px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.2);
-  animation: pop .2s ease;
-}
-
-@keyframes pop {
-  from { transform: scale(.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-box h3 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: #111827;
-}
-
-.modal-box input,
-.modal-box select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-/* ===============================
-   BOTONES
-=============================== */
-.acciones {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primario {
-  background: #111827;
-  color: white;
-}
-
-.btn-secundario {
-  background: #e5e7eb;
-  color: #111827;
-}
-
-.btn-primario:hover {
-  background: #1f2937;
-}
-
-/* HERO AGENDA */
-.hero-agenda {
-  background:
-    linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)),
-    url("../assets/fondo/dash2.jpg") center / cover no-repeat;
-}
-
-/* CONTENEDOR */
-.agenda-section {
-  margin-top: 30px;
-  background: #fff;
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: 0 15px 30px rgba(0,0,0,.05);
-}
-
-/* HEADER */
-.agenda-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.agenda-header h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-}
-
-/* ESTADOS */
-.tabla td.libre {
-  background: #e8f7ef;
-  color: #1b7f4a;
-  font-weight: 600;
-  border-radius: 8px;
-}
-
-.tabla td.ocupado {
-  background: #fdecea;
-  color: #b42318;
-  font-weight: 600;
-  border-radius: 8px;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .agenda-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-}
-
-.hero-agenda {
-  background:
-    linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)),
-    url("../assets/fondo/dash2.jpg") center/cover no-repeat;
-}
-
-.agenda-section {
-  margin-top: 30px;
-  background: #fff;
-  padding: 25px;
-  border-radius: 24px;
-  box-shadow: 0 15px 30px rgba(0,0,0,.05);
-}
-
-.tabla td.libre {
-  background: #e8f7ef;
-  color: #1b7f4a;
-  font-weight: 600;
-}
-
-.tabla td.ocupado {
-  background: #fdecea;
-  color: #b42318;
-  font-weight: 600;
-}
-
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal-box {
-  background: #fff;
-  padding: 25px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 420px;
-}
-
-.modal-box input,
-.modal-box select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-}
-
-.acciones {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-.agenda-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 25px 0;
-  align-items: center;
-}
-
-.vista-toggle button {
-  margin-right: 6px;
-}
-
-.tabla td.libre {
-  background: #e6f7ee;
-  color: #1b7f4a;
-  font-weight: 600;
-}
-
-.tabla td.ocupado {
-  background: #fdecea;
-  color: #b42318;
-  font-weight: 600;
-}
-
-.tabla td.bloqueado {
-  background: #f0f0f0;
-  color: #777;
-  font-weight: 600;
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal.active {
-  display: flex;
-}
-
-.modal-box {
-  background: #fff;
-  border-radius: 20px;
-  padding: 25px;
-  width: 90%;
-  max-width: 420px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.15);
-}
-
-.modal-box h3 {
-  margin-bottom: 15px;
-}
-
-.modal-box input,
-.modal-box select {
-  width: 100%;
-  margin: 10px 0;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-}
-
-.acciones {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-/* ===============================
-   AGENDA PREMIUM
-================================ */
-
+/* --- HERO DE AGENDA (Banner de Fecha) --- */
+/* Eliminamos el gradiente verde por uno más sutil o negro sólido */
 .agenda-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #1f4037, #99f2c8);
-  padding: 25px 30px;
-  border-radius: 20px;
-  color: #fff;
-  margin-bottom: 25px;
-  box-shadow: 0 15px 35px rgba(0,0,0,.15);
-}
-
-.agenda-fecha {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1a1a; /* Negro Anthia */
+    padding: 40px;
+    border-radius: 4px; /* Menos redondeado = más premium */
+    color: #fff;
+    margin-bottom: 40px;
 }
 
 .agenda-dia-numero {
-  font-size: 64px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.agenda-dia-texto {
-  display: flex;
-  flex-direction: column;
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
 }
 
 .agenda-mes {
-  font-size: 14px;
-  letter-spacing: 2px;
-  opacity: .9;
+    color: var(--gold, #c5a059);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 12px;
 }
 
 .agenda-dia-semana {
-  font-size: 20px;
-  font-weight: 600;
+    font-size: 22px;
+    font-weight: 300;
+    opacity: 0.8;
 }
 
-/* ACCIONES */
-.agenda-acciones {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.agenda-date-picker {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 500;
-}
-
-.btn-nueva-cita {
-  background: #fff;
-  color: #1f4037;
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .25s ease;
-}
-
-.btn-nueva-cita:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,.25);
-}
-
-/* TABLA PREMIUM */
+/* --- TABLA PREMIUM --- */
 .tabla-premium {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
-}
-
-.tabla-premium thead {
-  background: #f4f7f6;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Crea el efecto de filas flotantes */
 }
 
 .tabla-premium th {
-  padding: 14px;
-  text-align: left;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: #666;
+    padding: 15px 25px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #999;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-premium tbody tr {
+    background: #fff;
+    transition: 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.tabla-premium tbody tr:hover {
+    transform: scale(1.01);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
 
 .tabla-premium td {
-  padding: 14px;
-  border-bottom: 1px solid #eee;
+    padding: 20px 25px;
+    font-size: 14px;
+    color: #333;
 }
 
-.tabla-premium tr:hover {
-  background: #f9fdfc;
-}
-
-/* ESTADOS */
+/* --- ESTADOS ESTILIZADOS --- */
 td.libre {
-  color: #1b7f4a;
-  font-weight: 600;
+    color: #27ae60;
+    font-weight: 600;
 }
 
 td.ocupado {
-  color: #b42318;
-  font-weight: 600;
+    color: #1a1a1a;
+    font-weight: 400;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .agenda-hero {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-
-  .agenda-acciones {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .agenda-date-picker,
-  .btn-nueva-cita {
-    width: 100%;
-  }
-}
-
-/* ===============================
-   CONTROLES AGENDA – PREMIUM
-================================ */
-
-.agenda-controls {
-  display: flex;
-  align-items: flex-end;
-  gap: 18px;
-  background: #ffffff;
-  padding: 18px 22px;
-  border-radius: 20px;
-  box-shadow: 0 12px 30px rgba(0,0,0,.08);
-  margin: 30px 0;
-  flex-wrap: wrap;
-}
-
-/* FECHA */
-.agenda-fecha-control {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.agenda-fecha-control label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-}
-
-.agenda-fecha-control input {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  font-size: 14px;
-  background: #f9fafb;
-}
-
-/* TOGGLE VISTA */
-.agenda-vistas {
-  display: flex;
-  background: #f3f4f6;
-  padding: 4px;
-  border-radius: 14px;
-}
-
-.vista-btn {
-  border: none;
-  background: transparent;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #374151;
-  cursor: pointer;
-  transition: all .25s ease;
-}
-
-.vista-btn.active {
-  background: #111827;
-  color: #ffffff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.15);
-}
-
-.vista-btn:not(.active):hover {
-  background: #e5e7eb;
-}
-
-/* BOTÓN NUEVA CITA */
+/* --- BOTONES DE ACCIÓN --- */
 .btn-nueva-cita {
-  margin-left: auto;
-  background: linear-gradient(135deg, #1f4037, #99f2c8);
-  color: #ffffff;
-  padding: 14px 22px;
-  border-radius: 16px;
-  border: none;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all .3s ease;
-  box-shadow: 0 12px 25px rgba(0,0,0,.18);
+    background: #c5a059; /* Dorado Anthia */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 0;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 .btn-nueva-cita:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 35px rgba(0,0,0,.25);
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .agenda-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .agenda-vistas {
-    justify-content: center;
-  }
-
-  .btn-nueva-cita {
-    width: 100%;
-    margin-left: 0;
-  }
+    background: #1a1a1a;
 }
 
 .accion-btn {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: none;
-  margin: 0 2px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: 0.2s;
+    background: none;
+    border: 1px solid #eee;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-.accion-btn.editar {
-  background-color: #fbbf24;
-  color: #fff;
+.accion-btn:hover {
+    border-color: #c5a059;
+    color: #c5a059;
 }
-
-.accion-btn.editar:hover {
-  background-color: #f59e0b;
-}
-
-.accion-btn.eliminar {
-  background-color: #ef4444;
-  color: #fff;
-}
-
-.accion-btn.eliminar:hover {
-  background-color: #dc2626;
-}
-
-.tabla td.acciones {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-}
-
-/* AGENDA HERO */
-.agenda-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #1f4037, #99f2c8);
-  padding: 25px 30px;
-  border-radius: 20px;
-  color: #fff;
-  margin-bottom: 25px;
-  box-shadow: 0 15px 35px rgba(0,0,0,.15);
-}
-
-.agenda-fecha {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.agenda-dia-numero {
-  font-size: 64px;
-  font-weight: 800;
-}
-
-.agenda-dia-texto {
-  display: flex;
-  flex-direction: column;
-}
-
-.agenda-mes { font-size: 14px; letter-spacing: 2px; opacity: .9; }
-.agenda-dia-semana { font-size: 20px; font-weight: 600; }
-
-.agenda-acciones {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.agenda-date-picker {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 500;
-}
-
-.btn-nueva-cita { background: #fff; color: #1f4037; padding: 12px 18px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; transition: all .25s ease; }
-.btn-nueva-cita:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,.25); }
-
-/* MODAL Y CARRITO */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
-.modal.active { display: flex; }
-
-.modal-box { background: #fff; border-radius: 20px; padding: 25px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,.15); }
-
-.servicios-disponibles { display: flex; gap: 8px; margin-bottom: 15px; }
-.servicios-disponibles select { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #ddd; }
-.btn-primario { background: #1f4037; color: #fff; padding: 10px 14px; border-radius: 12px; border: none; cursor: pointer; }
-
-.carrito-servicios { border-top: 1px solid #eee; padding-top: 12px; margin-bottom: 12px; }
-.carrito-servicios ul { list-style: none; padding-left: 0; max-height: 120px; overflow-y: auto; }
-.carrito-servicios li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
-.carrito-servicios li span.remove { cursor: pointer; color: #b42318; font-weight: 700; }
-
-/* ACCIONES */
-.acciones { display: flex; gap: 10px; margin-top: 15px; }
-.btn-primary { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; background: #1f4037; color: #fff; }
-.btn-primary:hover { background: #14532d; }
-.btn-secondary { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #1f4037; font-weight: 600; cursor: pointer; background: #f3f4f6; color: #1f4037; }
-
-
