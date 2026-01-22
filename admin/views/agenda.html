@@ -22,9 +22,7 @@
             <a href="inventario.html">📦 Inventario</a>
             <a href="configuracion.html">⚙️ Ajustes</a>
         </nav>
-        <div class="sidebar-footer">
-            <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
-        </div>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
     </aside>
 
     <main class="main-content">
@@ -36,8 +34,15 @@
                     <div class="agenda-dia-semana" id="diaSemana">---</div>
                 </div>
             </div>
+
             <div class="agenda-acciones">
-                <input type="date" id="fechaAgenda" class="agenda-date-picker">
+                <div class="calendar-wrapper">
+                    <label class="calendar-label">Consultar Fecha</label>
+                    <div class="calendar-input-container">
+                        <input type="date" id="fechaAgenda" class="agenda-date-picker">
+                        <span class="calendar-icon">📅</span>
+                    </div>
+                </div>
                 <button id="btnNuevaCita" class="btn-nueva-cita">+ Nueva Cita</button>
             </div>
         </header>
@@ -53,8 +58,7 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </main>
@@ -66,10 +70,10 @@
                 <p id="infoHoraSeleccionada">Seleccione horario</p>
             </div>
             <div class="modal-body">
-                <label>ID o Nombre del Cliente</label>
-                <input type="text" id="clienteNombre" placeholder="Ej: nombre@mail.com" class="input-premium">
+                <label>ID o Email del Cliente</label>
+                <input type="text" id="clienteNombre" placeholder="ejemplo@correo.com" class="input-premium">
 
-                <label>Añadir Tratamiento</label>
+                <label>Añadir Servicio</label>
                 <select id="servicioSelect" class="input-premium"></select>
 
                 <div class="carrito-container">
@@ -82,7 +86,7 @@
             </div>
             <div class="modal-footer">
                 <button id="cancelarModal" class="btn-secundario-lux">Cancelar</button>
-                <button id="guardarCita" class="btn-primario-lux">Confirmar Cita</button>
+                <button id="guardarCita" class="btn-primario-lux">Confirmar Reserva</button>
             </div>
         </div>
     </div>
