@@ -192,4 +192,196 @@ h1, h2, h3, h4 {
   color: #aaa;
 }
 
+/* RESET */
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f6f7f9;
+}
+
+/* CONTENEDOR */
+.agenda-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+/* IMAGEN */
+.hero-imagen {
+  max-height: 450px;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.hero-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* FORMULARIO */
+.hero-formulario {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+.hero-formulario h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+/* LABEL */
+label {
+  font-weight: 600;
+  display: block;
+  margin: 15px 0 8px;
+}
+
+/* SERVICIOS */
+.servicios-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.servicio-card {
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid #e5e5e5;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.servicio-card h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.servicio-card span {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.servicio-card:hover {
+  border-color: #1f4037;
+  transform: translateY(-2px);
+}
+
+.servicio-card.activo {
+  background: #1f4037;
+  color: white;
+  border-color: #1f4037;
+}
+
+/* CARRITO */
+.carrito-servicios {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* CALENDARIO */
+.calendario-semanal {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.dia-card {
+  padding: 12px 5px;
+  border-radius: 14px;
+  background: #f0f0f0;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.dia-card.activo {
+  background: #1f4037;
+  color: white;
+}
+
+.dia-card.bloqueado {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* HORAS */
+.horas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.hora-card {
+  padding: 10px;
+  border-radius: 12px;
+  background: #f1f1f1;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.hora-card:hover {
+  background: #dfeee9;
+}
+
+.hora-card.activa {
+  background: #1f4037;
+  color: white;
+}
+
+/* FORMULARIO DATOS */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.form-grid input {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+/* BOTÓN */
+.btn-primary {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: #1f4037;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #163a33;
+}
+
+/* DESKTOP */
+@media (min-width: 900px) {
+  .agenda-container {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
 
