@@ -1,803 +1,175 @@
- * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Variables de lujo */
+:root {
+    --gold: #c5a059;
+    --dark: #1a1a1a;
+    --white: #ffffff;
+    --bg-soft: #faf9f8;
+    --border: #e8e4e1;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  color: #333;
-  background-color: #faf9f8;
+    background-color: var(--bg-soft);
+    font-family: 'Montserrat', sans-serif;
+    color: var(--dark);
 }
 
-a {
-  text-decoration: none;
+/* NAVBAR */
+.navbar-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
 }
 
-h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
+.logo-small h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--dark);
+    margin: 0;
 }
 
-/* BOTONES */
-.btn-primary,
-.btn-secondary {
-  display: inline-block;
-  padding: 14px 28px;   /* ← más aire */
-  border-radius: 30px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  line-height: 1.2;     /* ← evita que el texto se pegue */
-  cursor: pointer;
-  transition: all 0.3s ease;
+.logo-small span {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: block;
 }
 
-/* Botón principal */
-.btn-primary {
-  background-color: #c8a97e;
-  color: #ffffff;
+.btn-back {
+    text-decoration: none;
+    color: var(--dark);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Botón secundario */
-.btn-secondary {
-  border: 1.5px solid #c8a97e;
-  color: #c8a97e;
-  background-color: transparent;
+/* LAYOUT */
+.reserva-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    min-height: calc(100vh - 80px);
 }
 
-/* Hover elegante */
-.btn-primary:hover {
-  background-color: #b5966f;
+/* COLUMNA VISUAL */
+.reserva-visual {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
+    display: flex;
+    align-items: flex-end;
+    padding: 60px;
+    color: var(--white);
 }
 
-.btn-secondary:hover {
-  background-color: #c8a97e;
-  color: #ffffff;
+.visual-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
 }
 
-
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-}
-
-.logo h1 {
-  font-size: 28px;
-  letter-spacing: 2px;
-}
-
-.logo span {
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: #888;
-}
-
-/* FOOTER */
-.footer {
-  background-color: #f3efe9;   /* color claro elegante */
-  padding: 25px 40px;
-  text-align: center;
-  color: #555;                  /* color del texto */
-  border-top: 1px solid #e0dcd5;
-  margin-top: 40px;
-  font-family: 'Poppins', sans-serif;
-}
-
-.footer-contenido {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.footer p {
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.footer a {
-  color: #c8a97e;               /* mismo color de botones */
-  text-decoration: none;
-  margin: 0 8px;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.footer a:hover {
-  color: #b5966f;               /* hover elegante */
-}
-
-.footer {
-  background-color: #f3efe9;
-  padding: 25px 40px;
-  text-align: center;
-  color: #555;
-  border-top: 1px solid #e0dcd5;
-  margin-top: 40px;
-  font-family: 'Poppins', sans-serif;
-}
-
-.footer a {
-  color: #c8a97e;
-  text-decoration: none;
-  margin: 0 8px;
-}
-
-.footer a:hover {
-  color: #b5966f;
-}
-
-/* ==============================
-   CALENDARIO SEMANAL PROFESIONAL
-================================ */
-
-.calendario-semanal {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.dia-cal {
-  padding: 14px 6px;
-  text-align: center;
-  border-radius: 14px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  background: #fff;
-  transition: all .25s ease;
-  box-shadow: 0 3px 10px rgba(0,0,0,.05);
-}
-
-.dia-cal:hover {
-  background: #f3f7f5;
-  transform: translateY(-3px);
-}
-
-.dia-cal .nombre {
-  font-size: .75rem;
-  text-transform: uppercase;
-  color: #777;
-  margin-bottom: 4px;
-}
-
-.dia-cal .numero {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f4037;
-}
-
-/* Día seleccionado */
-.dia-cal.activo {
-  background: #1f4037;
-  border-color: #1f4037;
-}
-
-.dia-cal.activo .nombre,
-.dia-cal.activo .numero {
-  color: #fff;
-}
-
-/* Domingo bloqueado */
-.dia-cal.bloqueado {
-  background: #eee;
-  color: #aaa;
-  cursor: not-allowed;
-  border-style: dashed;
-  box-shadow: none;
-}
-
-.dia-cal.bloqueado .numero,
-.dia-cal.bloqueado .nombre {
-  color: #aaa;
-}
-
-/* RESET */
-* {
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  margin: 0;
-  background: #f6f7f9;
-}
-
-/* CONTENEDOR */
-.agenda-container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 30px;
-}
-
-/* IMAGEN */
-.hero-imagen {
-  max-height: 450px;
-  overflow: hidden;
-  border-radius: 20px;
-}
-
-.hero-imagen img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.visual-text { position: relative; z-index: 2; }
+.visual-text h2 { font-family: 'Playfair Display', serif; font-size: 42px; margin-bottom: 15px; }
+.visual-text p { font-weight: 200; opacity: 0.8; }
 
 /* FORMULARIO */
-.hero-formulario {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-}
-
-.hero-formulario h2 {
-  margin-top: 0;
-  text-align: center;
-}
-
-/* LABEL */
-label {
-  font-weight: 600;
-  display: block;
-  margin: 15px 0 8px;
-}
-
-/* SERVICIOS */
-.servicios-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.servicio-card {
-  padding: 14px;
-  border-radius: 14px;
-  border: 2px solid #e5e5e5;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.servicio-card h4 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.servicio-card span {
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-.servicio-card:hover {
-  border-color: #1f4037;
-  transform: translateY(-2px);
-}
-
-.servicio-card.activo {
-  background: #1f4037;
-  color: white;
-  border-color: #1f4037;
-}
-
-/* CARRITO */
-.carrito-servicios {
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-
-/* CALENDARIO */
-.calendario-semanal {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-}
-
-.dia-card {
-  padding: 12px 5px;
-  border-radius: 14px;
-  background: #f0f0f0;
-  text-align: center;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.dia-card.activo {
-  background: #1f4037;
-  color: white;
-}
-
-.dia-card.bloqueado {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* HORAS */
-.horas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 10px;
-}
-
-.hora-card {
-  padding: 10px;
-  border-radius: 12px;
-  background: #f1f1f1;
-  text-align: center;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.hora-card:hover {
-  background: #dfeee9;
-}
-
-.hora-card.activa {
-  background: #1f4037;
-  color: white;
-}
-
-/* FORMULARIO DATOS */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.form-grid input {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-}
-
-/* BOTÓN */
-.btn-primary {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: #1f4037;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #163a33;
-}
-
-/* DESKTOP */
-@media (min-width: 900px) {
-  .agenda-container {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.hero-imagen img {
-  width: 100%;
-  max-height: 420px;
-  object-fit: cover;
-  border-radius: 20px;
-}
-
-/* SERVICIOS */
-.servicios-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 15px;
-}
-
-.servicio-card {
-  border: 1px solid #ddd;
-  border-radius: 14px;
-  padding: 14px;
-  cursor: pointer;
-  transition: .2s;
-  background: #fff;
-}
-
-.servicio-card:hover {
-  transform: scale(1.03);
-}
-
-.servicio-card.activo {
-  border-color: #1f3d33;
-  background: #f0f7f4;
-}
-
-/* HORAS */
-.horas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
-}
-
-.hora-btn {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background: #fff;
-  cursor: pointer;
-}
-
-.hora-btn.activa {
-  background: #1f3d33;
-  color: #fff;
-  border-color: #1f3d33;
-}
-/* ====== LAYOUT GENERAL ====== */
-.reserva-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  max-width: 1200px;
-  margin: auto;
-  padding: 40px;
-}
-
-/* ====== IMAGEN ====== */
-.reserva-imagen img {
-  width: 100%;
-  height: 100%;
-  max-height: 550px;
-  object-fit: cover;
-  border-radius: 20px;
-}
-
-/* ====== FORM ====== */
-.reserva-form {
-  background: #fff;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
-}
-
-.reserva-form h2 {
-  margin-bottom: 20px;
-}
-
-.reserva-form section {
-  margin-bottom: 25px;
-}
-
-.reserva-form h3 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-}
-
-/* ====== INPUTS ====== */
-.input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-/* ====== BOTÓN ====== */
-.btn-primary {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  background: #111;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #333;
-}
-
-/* ====== SERVICIOS CARDS ====== */
-.servicios-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(140px,1fr));
-  gap: 12px;
-}
-
-.servicio-card {
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  text-align: center;
-  transition: .2s;
-}
-
-.servicio-card.activo {
-  background: #111;
-  color: white;
-  border-color: #111;
-}
-
-/* ====== CALENDARIO ====== */
-.calendario {
-  display: grid;
-  grid-template-columns: repeat(7,1fr);
-  gap: 8px;
-}
-
-.dia-cal {
-  padding: 10px;
-  text-align: center;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-
-.dia-cal.activo {
-  background: #111;
-  color: white;
-}
-
-.dia-cal.bloqueado {
-  opacity: .3;
-  pointer-events: none;
-}
-
-/* ====== RESPONSIVE ====== */
-@media (max-width: 900px) {
-  .reserva-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .reserva-imagen img {
-    max-height: 300px;
-  }
-}
-
-/* PALETA DE COLORES */
-:root {
-  --gold: #c8a97e;
-  --gold-dark: #b5966f;
-  --dark: #1a1a1a;
-  --light-gray: #f8f8f8;
-  --border: #ececec;
-  --white: #ffffff;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #fafafa;
-  margin: 0;
-  color: var(--dark);
-}
-
-.contenedor {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* HERO LAYOUT */
-.hero-reserva {
-  display: flex;
-  gap: 50px;
-  padding: 60px 0;
-  align-items: flex-start;
-}
-
-.hero-imagen {
-  flex: 1;
-  position: sticky;
-  top: 20px;
-}
-
-.hero-imagen img {
-  width: 100%;
-  border-radius: 25px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-}
-
-/* FORMULARIO CONTAINER */
-.hero-formulario {
-  flex: 1.2;
-  background: var(--white);
-  padding: 45px;
-  border-radius: 30px;
-  box-shadow: 0 10px 60px rgba(0,0,0,0.04);
+.reserva-content {
+    padding: 60px 10%;
+    background: var(--white);
 }
 
 .form-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
-  margin-bottom: 35px;
-  text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 40px;
 }
 
-.form-section {
-  margin-bottom: 40px;
+.form-step {
+    margin-bottom: 50px;
+    position: relative;
 }
 
-label {
-  display: block;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin-bottom: 15px;
-  color: #666;
+.step-num {
+    position: absolute;
+    left: -40px;
+    top: 0;
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: bold;
 }
 
-/* SERVICIOS GRID */
-.servicios-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 15px;
+.form-step label {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #888;
 }
 
-.service-card {
-  border: 1.5px solid var(--border);
-  padding: 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-  background: var(--white);
+/* GRIDS INYECTADOS POR JS */
+.cards-grid, .week-calendar, .hours-grid {
+    display: grid;
+    gap: 12px;
 }
 
-.service-card:hover {
-  border-color: var(--gold);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(200, 169, 126, 0.1);
+.cards-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.week-calendar { grid-template-columns: repeat(6, 1fr); }
+.hours-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+
+/* INPUTS */
+.input-group, .input-row { margin-bottom: 15px; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+input[type="text"], input[type="email"], input[type="tel"] {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-soft);
+    font-family: 'Montserrat', sans-serif;
+    transition: 0.3s;
 }
 
-.service-card.selected {
-  border-color: var(--gold);
-  background: #fffbf5;
-}
-
-.service-card h4 {
-  font-size: 0.95rem;
-  margin: 0 0 8px 0;
-}
-
-.service-card span {
-  color: var(--gold);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-/* CALENDARIO SEMANAL */
-.calendario-semanal {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-}
-
-.dia-item {
-  padding: 18px 5px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.2s ease;
-  background: var(--light-gray);
-}
-
-.dia-item.selected {
-  background: var(--dark);
-  color: var(--white);
-  border-color: var(--dark);
-}
-
-.dia-item .num {
-  font-size: 1.4rem;
-  font-weight: 700;
-  display: block;
-}
-
-.dia-item .mes {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-/* HORAS GRID */
-.horas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 12px;
-}
-
-.hora-item {
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: 0.2s;
-}
-
-.hora-item.selected {
-  background: var(--gold);
-  color: white;
-  border-color: var(--gold);
-}
-
-/* INPUTS DATOS */
-.premium-input, 
-.hero-formulario input[type="text"],
-.hero-formulario input[type="email"],
-.hero-formulario input[type="tel"] {
-  width: 100%;
-  padding: 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 15px;
-  margin-bottom: 15px;
-  font-size: 1rem;
-  background: var(--light-gray);
-  outline: none;
-  transition: 0.3s;
-  box-sizing: border-box;
-}
-
-.premium-input:focus {
-  border-color: var(--gold);
-  background: var(--white);
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.form-divider {
-  border: none;
-  border-top: 1px solid #f0f0f0;
-  margin: 40px 0;
+input:focus {
+    outline: none;
+    border-bottom-color: var(--gold);
+    background: var(--white);
 }
 
 /* BOTÓN FINAL */
-.btn-reserva-premium {
-  width: 100%;
-  padding: 22px;
-  background: var(--dark);
-  color: var(--white);
-  border: none;
-  border-radius: 20px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: 0.3s;
+.btn-confirm {
+    width: 100%;
+    padding: 20px;
+    background: var(--dark);
+    color: var(--white);
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.4s;
+    margin-top: 30px;
 }
 
-.btn-reserva-premium:hover {
-  background: #333;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+.btn-confirm:hover {
+    background: var(--gold);
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
 }
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .hero-reserva { flex-direction: column; }
-  .hero-imagen { position: relative; width: 100%; }
-  .calendario-semanal { grid-template-columns: repeat(3, 1fr); }
-  .input-row { grid-template-columns: 1fr; }
+    .reserva-grid { grid-template-columns: 1fr; }
+    .reserva-visual { display: none; }
+    .reserva-content { padding: 40px 5%; }
 }
-
-
