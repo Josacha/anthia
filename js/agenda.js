@@ -8,14 +8,15 @@ const tbody = document.querySelector("#tablaAgenda tbody");
 const modal = document.getElementById("modalCita");
 const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
+const listaSugerencias = document.getElementById("listaSugerencias");
 
 let carrito = [];
 let horaSeleccionada = null;
+let clienteSeleccionadoId = null;
 let serviciosMap = {};
 let clientesMap = {};
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
-// Utilería de Tiempo
 const hAMin = (h) => { const [hh, mm] = h.split(":").map(Number); return hh * 60 + mm; };
 const minAH = (min) => `${Math.floor(min/60).toString().padStart(2,'0')}:${(min%60).toString().padStart(2,'0')}`;
 
@@ -39,6 +40,32 @@ async function cargarDatos() {
     cSnap.forEach(d => { clientesMap[d.id] = d.data(); });
 }
 
+// BÚSQUEDA PREDICTIVA
+clienteNombre.addEventListener("input", (e) => {
+    const busqueda = e.target.value.toLowerCase();
+    listaSugerencias.innerHTML = "";
+    if (busqueda.length < 2) { listaSugerencias.style.display = "none"; return; }
+
+    const sugerencias = Object.entries(clientesMap).filter(([id, c]) => 
+        `${c.nombre} ${c.apellido1}`.toLowerCase().includes(busqueda) || (c.correo || "").toLowerCase().includes(busqueda)
+    );
+
+    if (sugerencias.length > 0) {
+        sugerencias.forEach(([id, c]) => {
+            const div = document.createElement("div");
+            div.className = "sugerencia-item";
+            div.innerHTML = `<b>${c.nombre} ${c.apellido1}</b><span>${c.correo || ''}</span>`;
+            div.onclick = () => {
+                clienteNombre.value = `${c.nombre} ${c.apellido1}`;
+                clienteSeleccionadoId = id;
+                listaSugerencias.style.display = "none";
+            };
+            listaSugerencias.appendChild(div);
+        });
+        listaSugerencias.style.display = "block";
+    }
+});
+
 async function cargarAgenda(fecha) {
     actualizarHero(fecha);
     const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fecha)));
@@ -61,7 +88,7 @@ async function cargarAgenda(fecha) {
                 const row = i === 0 ? tr : document.createElement("tr");
                 const cli = clientesMap[c.clienteId];
                 const nombreStr = cli ? `${cli.nombre} ${cli.apellido1 || ''}` : c.clienteId;
-                row.innerHTML = `<td>${hora}</td><td><b>${nombreStr}</b></td><td>${serviciosMap[c.servicioId]?.nombre || 'Servicio'}</td><td>${c.simultaneo ? '✨' : '🔒'}</td><td><button onclick="window.eliminar('${c.id}')">🗑️</button></td>`;
+                row.innerHTML = `<td>${hora}</td><td><b>${nombreStr}</b></td><td>${serviciosMap[c.servicioId]?.nombre || 'Servicio'}</td><td>${c.simultaneo ? '✨' : '🔒'}</td><td><button class="btn-eliminar" onclick="window.eliminar('${c.id}')">🗑️</button></td>`;
                 if (i > 0) tbody.appendChild(row);
             });
         }
@@ -70,8 +97,7 @@ async function cargarAgenda(fecha) {
 }
 
 window.abrirModal = (hora) => {
-    horaSeleccionada = hora;
-    carrito = [];
+    horaSeleccionada = hora; carrito = [];
     document.getElementById("infoHoraSeleccionada").textContent = `Horario: ${hora}`;
     actualizarCarritoUI();
     modal.classList.add("active");
@@ -79,7 +105,7 @@ window.abrirModal = (hora) => {
 
 function actualizarCarritoUI() {
     const lista = document.getElementById("listaServicios");
-    lista.innerHTML = carrito.map((s, i) => `<li>${s.nombre} (${s.duracion} min) <b onclick="window.quitar(${i})" style="color:red;cursor:pointer">✕</b></li>`).join("");
+    lista.innerHTML = carrito.map((s, i) => `<li>${s.nombre} <b onclick="window.quitar(${i})" style="color:red;cursor:pointer">✕</b></li>`).join("");
     const duracion = carrito.reduce((a, b) => a + b.duracion, 0);
     document.getElementById("displayInicio").textContent = horaSeleccionada || "--:--";
     if(horaSeleccionada) document.getElementById("displayFin").textContent = minAH(hAMin(horaSeleccionada) + duracion);
@@ -97,38 +123,22 @@ servicioSelect.onchange = () => {
 
 document.getElementById("guardarCita").onclick = async () => {
     if(!horaSeleccionada || carrito.length === 0) return alert("Faltan datos");
-    const inicio = hAMin(horaSeleccionada);
-    
-    // Reglas de Simultaneidad
-    const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fechaInput.value)));
-    const citasDia = snap.docs.map(d => d.data());
-
-    for (const s of carrito) {
-        const choques = citasDia.filter(c => {
-            const cI = hAMin(c.hora);
-            const cF = cI + c.duracion;
-            return !(inicio + s.duracion <= cI || inicio >= cF);
-        });
-        if (choques.length > 0) {
-            if (choques.some(c => !c.simultaneo) || !s.simultaneo) return alert("Conflicto con cita exclusiva.");
-            if (choques.length >= 2) return alert("Máximo 2 simultáneos.");
-        }
-    }
-
     for (const s of carrito) {
         await addDoc(collection(db, "citas"), {
             fecha: fechaInput.value,
             hora: horaSeleccionada,
-            clienteId: clienteNombre.value,
+            clienteId: clienteSeleccionadoId || clienteNombre.value,
             servicioId: s.id,
             duracion: s.duracion,
             simultaneo: s.simultaneo || false
         });
     }
     modal.classList.remove("active");
+    clienteSeleccionadoId = null;
+    clienteNombre.value = "";
 };
 
-window.eliminar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "citas", id)); };
+window.eliminar = async (id) => { if(confirm("¿Eliminar cita?")) await deleteDoc(doc(db, "citas", id)); };
 
 document.addEventListener("DOMContentLoaded", async () => {
     fechaInput.value = new Date().toISOString().split("T")[0];
@@ -136,6 +146,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     cargarAgenda(fechaInput.value);
     fechaInput.onchange = () => cargarAgenda(fechaInput.value);
     document.getElementById("cancelarModal").onclick = () => modal.classList.remove("active");
-    document.getElementById("btnNuevaCita").onclick = () => window.abrirModal("08:00");
     onSnapshot(collection(db, "citas"), () => cargarAgenda(fechaInput.value));
 });
