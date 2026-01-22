@@ -22,9 +22,11 @@ const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","
 let carrito = [];
 let duracionTotal = 0;
 
-function horaAMinutos(hora){
-    const [h,m] = hora.split(":").map(Number);
-    return h*60 + m;
+// Convierte minutos (ej: 540) a string "09:00"
+function minutosAHora(totalMinutos) {
+    const horas = Math.floor(totalMinutos / 60);
+    const minutos = totalMinutos % 60;
+    return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
 }
 
 // 1. GENERAR CALENDARIO SEMANAL (Sin domingos)
@@ -240,12 +242,16 @@ telefonoInput.addEventListener("blur", () => autocompletarCliente(telefonoInput.
 
 formReserva.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!fechaInput.value || !horaSelect.value || carrito.length === 0) return alert("Faltan datos.");
+    if (!fechaInput.value || !horaSelect.value || carrito.length === 0) {
+        return alert("Por favor, seleccione fecha, hora y servicios.");
+    }
 
     try {
+        // Generar ID de cliente (limpiando caracteres especiales para Firebase)
         const clienteId = (correoInput.value || telefonoInput.value || "cl_" + Date.now()).replace(/[.#$[\]]/g,'_');
         const clienteRef = doc(db, "clientes", clienteId);
 
+        // 1. Guardar/Actualizar datos del cliente
         await setDoc(clienteRef, {
             nombre: nombreInput.value,
             apellido1: apellido1Input.value,
@@ -255,17 +261,34 @@ formReserva.addEventListener("submit", async (e) => {
             actualizado: Timestamp.now()
         }, { merge: true });
 
+        // 2. Guardar cada servicio del carrito con su hora correspondiente
+        let minutosCorrientes = horaAMinutos(horaSelect.value); // Empezamos en la hora seleccionada (ej: 08:00 -> 480 min)
+
         for (const s of carrito) {
+            const horaServicioTexto = minutosAHora(minutosCorrientes); // Convertimos minutos a "08:00", "09:00", etc.
+
             await addDoc(collection(db, "citas"), {
-                clienteId,
+                clienteId: clienteId,
                 servicioId: s.id,
                 fecha: fechaInput.value,
-                hora: horaSelect.value,
-                duracion: s.duracion,
-                simultaneo: s.simultaneo,
+                hora: horaServicioTexto, // <--- AQUÍ SE GUARDA LA HORA CORRECTA DE CADA TRAMO
+                duracion: Number(s.duracion),
+                simultaneo: Boolean(s.simultaneo),
                 creado: Timestamp.now()
             });
+
+            // Sumamos la duración de este servicio para que el siguiente empiece justo después
+            minutosCorrientes += s.duracion;
         }
+
+        alert("¡Cita reservada con éxito!");
+        window.location.reload(); // Recarga para limpiar la interfaz premium
+
+    } catch (error) {
+        console.error("Error al guardar la reserva:", error);
+        alert("Hubo un error al procesar tu reserva. Inténtalo de nuevo.");
+    }
+});
 
         alert("¡Cita reservada!");
         window.location.reload();
