@@ -50,6 +50,28 @@ function fechaISO(date) {
   return date.toISOString().split("T")[0];
 }
 
+
+// =====================
+// bloques
+// =====================
+
+function generarBloquesHorarios() {
+  const bloques = [];
+
+  let inicio = horaAMinutos(HORA_APERTURA);
+  const fin = horaAMinutos(HORA_CIERRE);
+
+  while (inicio + duracionTotal <= fin) {
+    const h = Math.floor(inicio / 60).toString().padStart(2, "0");
+    const m = (inicio % 60).toString().padStart(2, "0");
+    bloques.push(`${h}:${m}`);
+    inicio += INTERVALO_MINUTOS;
+  }
+
+  return bloques;
+}
+
+
 // =====================
 // AUTOCOMPLETAR CLIENTE
 // =====================
