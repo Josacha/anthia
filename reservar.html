@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva tu Experiencia | ANTHIA</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/estilos.css">
-    
+    <link rel="stylesheet" href="css/reserva-premium.css">
 </head>
 <body>
 
@@ -32,27 +31,24 @@
                 <h2 class="form-title">Nueva Reserva</h2>
                 
                 <form id="formReserva" class="premium-form">
-                    
                     <section class="form-step">
                         <span class="step-num">01</span>
                         <label>Selecciona tus servicios</label>
-                        <div id="serviciosGrid" class="cards-grid">
-                            </div>
-                        <div id="carritoServicios" class="resumen-badge"></div>
+                        <div id="serviciosGrid" class="cards-grid"></div>
+                        <div id="carritoServicios"></div>
                     </section>
 
                     <section class="form-step">
                         <span class="step-num">02</span>
                         <label>Selecciona una fecha</label>
-                        <div id="calendarioSemanas" class="week-calendar">
-                            </div>
+                        <div id="calendarioSemanas" class="week-calendar"></div>
+                        <input type="date" id="fecha" style="display:none;" required>
                     </section>
 
                     <section class="form-step">
                         <span class="step-num">03</span>
                         <label>Horarios disponibles</label>
-                        <div id="horasVisualGrid" class="hours-grid">
-                            </div>
+                        <div id="horasVisualGrid" class="hours-grid"></div>
                     </section>
 
                     <div class="divider"></div>
@@ -60,16 +56,14 @@
                     <section class="form-step">
                         <span class="step-num">04</span>
                         <label>Detalles de contacto</label>
-                        <div class="input-group">
-                            <input type="text" id="nombre" placeholder="Nombre completo" required>
+                        <input type="text" id="nombre" placeholder="Nombre completo" required class="premium-input">
+                        <div class="input-row">
+                            <input type="email" id="correo" placeholder="Correo electrónico" required class="premium-input">
+                            <input type="tel" id="telefono" placeholder="WhatsApp" required class="premium-input">
                         </div>
                         <div class="input-row">
-                            <input type="email" id="correo" placeholder="Correo electrónico" required>
-                            <input type="tel" id="telefono" placeholder="WhatsApp" required>
-                        </div>
-                        <div class="input-row">
-                            <input type="text" id="apellido1" placeholder="Primer Apellido" required>
-                            <input type="text" id="apellido2" placeholder="Segundo Apellido">
+                            <input type="text" id="apellido1" placeholder="Primer Apellido" required class="premium-input">
+                            <input type="text" id="apellido2" placeholder="Segundo Apellido" class="premium-input">
                         </div>
                     </section>
 
