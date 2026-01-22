@@ -1,101 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Servicios | ANTHIA ESTHETIC CENTER</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="../../css/admin.css">
-  <link rel="stylesheet" href="../../css/agenda.css">
+    <meta charset="UTF-8">
+    <title>Servicios | ANTHIA ESTHETIC CENTER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/agenda.css">
+    <link rel="stylesheet" href="../../css/servicios.css">
 </head>
 <body>
 
-<!-- ======================
-     SIDEBAR
-====================== -->
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <h2>ANTHIA</h2>
-    <span>Servicios</span>
-  </div>
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>ANTHIA</h1>
+            <span>Esthetic Center</span>
+        </div>
+        <nav class="menu">
+            <a href="../dashboard.html">🏠 Inicio</a>
+            <a href="agenda.html">📅 Agenda</a>
+            <a href="servicios.html" class="active">✨ Servicios</a>
+            <a href="contactos.html">👤 Clientes</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="configuracion.html">⚙️ Ajustes</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+    </aside>
 
-  <nav class="sidebar-menu">
-    <a href="../dashboard.html">Inicio</a>
-    <a href="agenda.html" class="active">✨ Agendas</a>
-    <a href="contactos.html">👤 Contactos</a>
-    <a href="inventario.html">📦 Inventario</a>
-    <a href="bloqueos.html">⛔ Bloqueos</a>
-    <a href="configuracion.html">⚙️ Configuración</a>
-  </nav>
+    <main class="main-content">
+        <header class="agenda-hero">
+            <div>
+                <h1 class="agenda-dia-numero" style="font-size: 40px;">Servicios</h1>
+                <p class="agenda-mes">Configuración de tratamientos</p>
+            </div>
+        </header>
 
-  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
-</aside>
+        <div class="tabla-container">
+            <div class="card-servicios">
+                <form id="formServicios" class="form-grid">
+                    <div class="input-group">
+                        <label>Nombre del Tratamiento</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Limpieza Facial Profunda" class="input-premium" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Duración (Minutos)</label>
+                        <input type="number" id="duracionServicio" placeholder="60" class="input-premium" required>
+                    </div>
 
-<!-- ======================
-     MAIN CONTENT
-====================== -->
-<main class="main-content">
+                    <div class="input-group">
+                        <label>Precio (₡)</label>
+                        <input type="number" id="precioServicio" placeholder="25000" class="input-premium" required>
+                    </div>
 
-  <!-- HERO -->
-  <div class="agenda-hero">
-    <div>
-      <h2>Gestión de Servicios</h2>
-      <p>Administra los servicios disponibles y sus detalles</p>
-    
+                    <div class="input-group checkbox-group">
+                        <label class="switch-container">
+                            <input type="checkbox" id="simultaneoServicio">
+                            <span class="slider"></span>
+                        </label>
+                        <span>¿Permitir simultáneo? ✨</span>
+                    </div>
 
- <!-- FORMULARIO Y TABLA -->
-<div class="agenda-section card" style="max-width: 900px; margin: 20px auto; padding: 25px;">
+                    <button type="submit" class="btn-primario-lux">Guardar Servicio</button>
+                </form>
+            </div>
 
-  <!-- Formulario de servicios mejorado -->
-  <form id="formServicios" class="agenda-controls" style="flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-    <input type="text" id="nombreServicio" placeholder="Nombre del servicio" required
-           style="flex: 2; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
+            <table id="tablaServicios" class="tabla-premium">
+                <thead>
+                    <tr>
+                        <th>Tratamiento</th>
+                        <th>Duración</th>
+                        <th>Precio</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
 
-    <input type="number" id="duracionServicio" placeholder="Duración (min)" required
-           style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
-
-    <input type="number" id="precioServicio" placeholder="Precio ₡" required
-           style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 0.95rem;">
-
-    <label style="flex-basis: 100%; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
-      <input type="checkbox" id="simultaneoServicio">
-      Permitir citas simultáneas
-    </label>
-
-    <button type="submit" class="btn-primary" style="flex: 1; min-width: 150px;">Agregar servicio</button>
-  </form>
-
-  <hr style="margin: 25px 0; border-color: #e5e7eb;">
-
-  <!-- Tabla de servicios -->
-  <table id="tablaServicios" class="tabla-premium">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Duración</th>
-        <th>Precio</th>
-        <th>Simultáneo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-</div>
-
-
-</main>
-
-<!-- ======================
-     SCRIPTS
-====================== -->
-<script type="module" src="../../js/firebase.js"></script>
-<script type="module" src="../../js/auth.js"></script>
-<script type="module">
-  import { initServicios } from "../../js/servicios.js";
-  document.addEventListener("DOMContentLoaded", initServicios);
-</script>
-
+    <script type="module" src="../../js/auth.js"></script>
+    <script type="module">
+        import { initServicios } from "../../js/servicios.js";
+        document.addEventListener("DOMContentLoaded", initServicios);
+    </script>
 </body>
 </html>
