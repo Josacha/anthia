@@ -102,43 +102,79 @@ async function cargarHorasDisponibles() {
     horaSelect.innerHTML = '<option value="">Seleccione hora</option>';
     horasVisualGrid.innerHTML = "";
     const fecha = fechaInput.value;
+    
     if (!fecha || carrito.length === 0) return;
 
     const citasRef = collection(db, "citas");
     const snapshotCitas = await getDocs(citasRef);
-    const citas = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
+    const citasExistentes = snapshotCitas.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    for (const hora of HORAS) {
-        const inicio = horaAMinutos(hora);
-        const fin = inicio + duracionTotal;
-        const citasSolapadas = citas.filter(c => c.fecha === fecha && !(fin <= horaAMinutos(c.hora) || inicio >= horaAMinutos(c.hora) + c.duracion));
+    // Recorremos cada hora de apertura (08:00, 09:00...)
+    for (const horaApertura of HORAS) {
+        let tiempoAnalizado = horaAMinutos(horaApertura);
+        let esPosibleAgendarTodoElCarrito = true;
 
-        let disponible = true;
-        if (citasSolapadas.length > 0) {
-            const primera = citasSolapadas[0];
-            if (!primera.simultaneo && carrito.some(s => s.simultaneo)) disponible = false;
-            if (citasSolapadas.length >= 2) disponible = false;
+        // Analizamos cada servicio del carrito EN ORDEN
+        for (const servicio of carrito) {
+            const inicioServ = tiempoAnalizado;
+            const finServ = inicioServ + servicio.duracion;
+
+            // Buscamos si hay citas en ESTE tramo específico
+            const citasEnTramo = citasExistentes.filter(c => {
+                const cInicio = horaAMinutos(c.hora);
+                const cFin = cInicio + c.duracion;
+                return c.fecha === fecha && !(finServ <= cInicio || inicioServ >= cFin);
+            });
+
+            // --- APLICACIÓN DE TUS REGLAS DEL JUEGO ---
+            
+            if (citasEnTramo.length > 0) {
+                // REGLA 1: Si ya hay una cita y NO permite simultaneidad, se bloquea todo.
+                const hayCitaBloqueante = citasEnTramo.some(c => c.simultaneo === false);
+                if (hayCitaBloqueante) {
+                    esPosibleAgendarTodoElCarrito = false;
+                    break;
+                }
+
+                // REGLA 2: Si mi servicio actual NO permite simultaneidad, pero ya hay alguien (aunque sea simultáneo), no puedo entrar porque yo voy a bloquear el salón.
+                if (!servicio.simultaneo && citasEnTramo.length > 0) {
+                    esPosibleAgendarTodoElCarrito = false;
+                    break;
+                }
+
+                // REGLA 3: Máximo 2 citas simultáneas.
+                if (citasEnTramo.length >= 2) {
+                    esPosibleAgendarTodoElCarrito = false;
+                    break;
+                }
+            }
+            // Si el tramo está vacío, la regla permite agendar cualquier cosa (simultáneo o no).
+
+            // Si este servicio pasó la prueba, el siguiente empieza después de este
+            tiempoAnalizado = finServ;
         }
 
-        if (disponible) {
+        // Si todos los servicios del carrito pasaron la prueba en sus respectivos tiempos:
+        if (esPosibleAgendarTodoElCarrito) {
+            // Llenar select oculto
             const option = document.createElement("option");
-            option.value = hora;
-            option.textContent = hora;
+            option.value = horaApertura;
+            option.textContent = horaApertura;
             horaSelect.appendChild(option);
 
+            // Crear Botón Visual
             const btn = document.createElement("div");
             btn.className = "hora-item";
-            btn.textContent = hora;
+            btn.textContent = horaApertura;
             btn.onclick = () => {
                 document.querySelectorAll(".hora-item").forEach(el => el.classList.remove("selected"));
                 btn.classList.add("selected");
-                horaSelect.value = hora;
+                horaSelect.value = horaApertura;
             };
             horasVisualGrid.appendChild(btn);
         }
     }
 }
-
 // LOGICA DE CARRITO (Mantenida de tu código)
 servicioSelect.addEventListener("change", () => {
     const selected = servicioSelect.selectedOptions[0];
