@@ -4,147 +4,141 @@
   <meta charset="UTF-8">
   <title>Reservar cita | ANTHIA</title>
 
+  <!-- Estilos generales -->
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/forms.css">
 
+  <!-- ESTILOS CALENDARIO SEMANAL -->
   <style>
-    .hero-reserva {
-      display: flex;
-      gap: 40px;
-      padding: 60px 40px;
-      background: linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)),
-      url('assets/fondo/reserva-hero.jpg') center/cover no-repeat;
-      border-radius: 20px;
-      flex-wrap: wrap;
-    }
-
-    .hero-imagen img {
-      max-width: 480px;
-      border-radius: 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.1);
-    }
-
-    .hero-formulario {
-      flex: 1;
-      max-width: 500px;
-    }
-
-    .servicios-grid {
+    .calendario-semanal {
       display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-      gap: 14px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin: 15px 0 25px;
     }
 
-    .servicio-card {
-      border: 1px solid #e0e0e0;
-      border-radius: 14px;
-      padding: 14px;
-      cursor: pointer;
-      background: #fff;
-      transition: .25s;
-    }
-
-    .servicio-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    }
-
-    .servicio-card.active {
-      border-color: #1f4037;
-      background: #f8fdfb;
-    }
-
-    .servicio-card h4 {
-      margin: 0 0 6px;
-    }
-
-    .meta {
-      font-size: .9rem;
-      color: #666;
-    }
-
-    #carritoServicios {
-      margin: 20px 0;
-      padding: 15px;
+    .dia-calendario {
+      padding: 12px 5px;
       border-radius: 12px;
-      background: #f9f9f9;
+      background: #f5f5f5;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
     }
 
-    #horariosRecomendados {
-      margin-top: 8px;
-      font-size: .9rem;
-      color: #1f4037;
+    .dia-calendario small {
+      display: block;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .dia-calendario:hover {
+      background: #dfeee9;
+    }
+
+    .dia-calendario.activo {
+      background: #1f4037;
+      color: white;
+    }
+
+    .dia-calendario.inactivo {
+      background: #eee;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 700px) {
+      .calendario-semanal {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="header">
   <div class="logo">
     <h1>ANTHIA</h1>
     <span>Esthetic Center</span>
-    <a href="index.html" class="btn-secondary">← Volver</a>
+    <a href="index.html" class="btn-secondary volver-btn">← Volver al inicio</a>
   </div>
 </header>
 
 <main class="contenedor">
-<section class="hero-reserva">
 
-  <div class="hero-imagen">
-    <img src="assets/fondo/reserva-hero.jpg" alt="ANTHIA">
-  </div>
+  <!-- HERO + FORMULARIO -->
+  <section class="hero-reserva">
 
-  <div class="hero-formulario">
-    <h2>Reserva tu cita</h2>
+    <!-- Imagen -->
+    <div class="hero-imagen">
+      <img src="assets/fondo/reserva-hero.jpg" alt="Salón ANTHIA">
+    </div>
 
-    <form id="formReserva">
+    <!-- FORMULARIO -->
+    <div class="hero-formulario">
+      <h2>Reserva tu cita</h2>
 
-      <label>Servicios</label>
-      <div id="serviciosGrid"></div>
+      <form id="formReserva" class="form-reserva">
 
-      <!-- select oculto (NO SE TOCA) -->
-      <select id="servicio" hidden></select>
+        <!-- SERVICIO -->
+        <label for="servicio">Servicio</label>
+        <select id="servicio" required>
+          <option value="">Seleccione un servicio</option>
+        </select>
 
-      <div id="carritoServicios"></div>
+        <!-- CARRITO -->
+        <div id="carritoServicios"></div>
 
-     <!-- FECHA -->
-<label>Fecha</label>
+        <!-- CALENDARIO SEMANAL -->
+        <label>Seleccione el día</label>
+        <div id="calendarioSemanal" class="calendario-semanal"></div>
 
-<!-- Calendario visual -->
-<div id="calendarioSemanal" class="calendario-semanal"></div>
+        <!-- INPUT REAL (OCULTO) -->
+        <input type="date" id="fecha" hidden required>
 
-<!-- Input real (oculto) que usa el JS -->
-<input type="date" id="fecha" required hidden>
+        <!-- HORA -->
+        <label for="hora">Hora</label>
+        <select id="hora" required>
+          <option value="">Seleccione una hora</option>
+        </select>
 
+        <hr>
 
-      <label>Hora</label>
-      <select id="hora" required>
-        <option value="">Seleccione hora</option>
-      </select>
+        <h3>Datos del cliente</h3>
 
-      <div id="horariosRecomendados"></div>
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" required>
 
-      <hr>
+        <label for="telefono">Número de teléfono</label>
+        <input type="tel" id="telefono" required>
 
-      <h3>Datos del cliente</h3>
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" required>
 
-      <input id="correo" type="email" placeholder="Correo" required>
-      <input id="telefono" type="tel" placeholder="Teléfono" required>
-      <input id="nombre" placeholder="Nombre" required>
-      <input id="apellido1" placeholder="Primer apellido" required>
-      <input id="apellido2" placeholder="Segundo apellido">
+        <label for="apellido1">Primer apellido</label>
+        <input type="text" id="apellido1" required>
 
-      <button class="btn-primary" type="submit">Reservar cita</button>
+        <label for="apellido2">Segundo apellido</label>
+        <input type="text" id="apellido2">
 
-    </form>
-  </div>
-
-</section>
+        <button type="submit" class="btn-primary">Reservar cita</button>
+      </form>
+    </div>
+  </section>
 </main>
 
+<!-- FOOTER -->
+<footer class="footer">
+  <p>ANTHIA ESTHETIC CENTER © 2026</p>
+</footer>
+
+<!-- SCRIPTS -->
 <script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/autocompletar.js"></script>
 <script type="module" src="js/reservas.js"></script>
+
 </body>
 </html>
