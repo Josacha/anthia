@@ -2,143 +2,73 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reservar cita | ANTHIA</title>
+  <title>Agenda | Reservar cita</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Estilos generales -->
-  <link rel="stylesheet" href="css/estilos.css">
-  <link rel="stylesheet" href="css/forms.css">
-
-  <!-- ESTILOS CALENDARIO SEMANAL -->
-  <style>
-    .calendario-semanal {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin: 15px 0 25px;
-    }
-
-    .dia-calendario {
-      padding: 12px 5px;
-      border-radius: 12px;
-      background: #f5f5f5;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-weight: 600;
-    }
-
-    .dia-calendario small {
-      display: block;
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-
-    .dia-calendario:hover {
-      background: #dfeee9;
-    }
-
-    .dia-calendario.activo {
-      background: #1f4037;
-      color: white;
-    }
-
-    .dia-calendario.inactivo {
-      background: #eee;
-      color: #999;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 700px) {
-      .calendario-semanal {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-  </style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/agenda-mejorada.css">
 </head>
 
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="logo">
-    <h1>ANTHIA</h1>
-    <span>Esthetic Center</span>
-    <a href="index.html" class="btn-secondary volver-btn">← Volver al inicio</a>
+<section class="agenda-container">
+
+  <!-- IMAGEN -->
+  <div class="hero-imagen">
+    <img src="img/agenda.jpg" alt="Agenda">
   </div>
-</header>
 
-<main class="contenedor">
+  <!-- FORMULARIO -->
+  <div class="hero-formulario">
+    <h2>Reserva tu cita</h2>
 
-  <!-- HERO + FORMULARIO -->
-  <section class="hero-reserva">
+    <form id="formReserva">
 
-    <!-- Imagen -->
-    <div class="hero-imagen">
-      <img src="assets/fondo/reserva-hero.jpg" alt="Salón ANTHIA">
-    </div>
+      <!-- SERVICIOS -->
+      <label>Servicios</label>
 
-    <!-- FORMULARIO -->
-    <div class="hero-formulario">
-      <h2>Reserva tu cita</h2>
+      <div id="serviciosCards" class="servicios-cards"></div>
 
-      <form id="formReserva" class="form-reserva">
+      <!-- SELECT OCULTO (TU JS USA ESTE) -->
+      <select id="servicio" hidden>
+        <option value="">Seleccione un servicio</option>
+      </select>
 
-        <!-- SERVICIO -->
-        <label for="servicio">Servicio</label>
-        <select id="servicio" required>
-          <option value="">Seleccione un servicio</option>
-        </select>
+      <!-- CARRITO -->
+      <div id="carritoServicios" class="carrito-servicios"></div>
 
-        <!-- CARRITO -->
-        <div id="carritoServicios"></div>
+      <!-- CALENDARIO SEMANAL -->
+      <label>Día</label>
+      <div id="calendarioSemanal" class="calendario-semanal"></div>
+      <input type="date" id="fecha" hidden required>
 
-        <!-- CALENDARIO SEMANAL -->
-        <label>Seleccione el día</label>
-        <div id="calendarioSemanal" class="calendario-semanal"></div>
+      <!-- HORAS -->
+      <label>Hora</label>
+      <div id="horasDisponibles" class="horas-grid"></div>
 
-        <!-- INPUT REAL (OCULTO) -->
-        <input type="date" id="fecha" hidden required>
+      <!-- SELECT OCULTO PARA HORA -->
+      <select id="hora" hidden required></select>
 
-        <!-- HORA -->
-        <label for="hora">Hora</label>
-        <select id="hora" required>
-          <option value="">Seleccione una hora</option>
-        </select>
+      <hr>
 
-        <hr>
+      <h3>Datos del cliente</h3>
 
-        <h3>Datos del cliente</h3>
+      <div class="form-grid">
+        <input type="email" id="correo" placeholder="Correo electrónico" required>
+        <input type="tel" id="telefono" placeholder="Teléfono" required>
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="text" id="apellido1" placeholder="Primer apellido" required>
+        <input type="text" id="apellido2" placeholder="Segundo apellido">
+      </div>
 
-        <label for="correo">Correo electrónico</label>
-        <input type="email" id="correo" required>
+      <button type="submit" class="btn-primary">
+        Confirmar cita
+      </button>
 
-        <label for="telefono">Número de teléfono</label>
-        <input type="tel" id="telefono" required>
+    </form>
+  </div>
 
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" required>
-
-        <label for="apellido1">Primer apellido</label>
-        <input type="text" id="apellido1" required>
-
-        <label for="apellido2">Segundo apellido</label>
-        <input type="text" id="apellido2">
-
-        <button type="submit" class="btn-primary">Reservar cita</button>
-      </form>
-    </div>
-  </section>
-</main>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <p>ANTHIA ESTHETIC CENTER © 2026</p>
-</footer>
-
-<!-- SCRIPTS -->
-<script type="module" src="js/firebase.js"></script>
-<script type="module" src="js/autocompletar.js"></script>
-<script type="module" src="js/reservas.js"></script>
+</section>
 
 </body>
 </html>
