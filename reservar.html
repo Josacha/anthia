@@ -2,201 +2,83 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reservar cita | ANTHIA </title>
-
-  <!-- Estilos generales -->
+  <title>Reservar cita | ANTHIA</title>
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/forms.css">
-
-  <style>
-    /* Hero con imagen y formulario */
-    .hero-reserva {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      padding: 60px 40px;
-      gap: 40px;
-      background: linear-gradient(
-          rgba(255,255,255,0.85), 
-          rgba(255,255,255,0.85)
-        ),
-        url('assets/fondo/reserva-hero.jpg') center/cover no-repeat;
-      border-radius: 20px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-
-    .hero-imagen img {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    }
-
-    .hero-formulario {
-      flex: 1;
-      max-width: 480px;
-    }
-
-    /* Carrito de servicios */
-    #carritoServicios {
-      margin: 20px 0;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: #f9f9f9;
-    }
-
-    #carritoServicios h3 {
-      margin-bottom: 12px;
-      font-size: 1.1rem;
-      color: #1f4037;
-    }
-
-    #carritoServicios div {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      align-items: center;
-    }
-
-    #carritoServicios div button {
-      background: #ff4d4f;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      padding: 2px 8px;
-      font-size: 0.9rem;
-    }
-
-    #carritoServicios p {
-      font-weight: 600;
-      margin-top: 10px;
-      text-align: right;
-      color: #1f4037;
-    }
-
-    /* Títulos dentro del hero */
-    .hero-formulario h2,
-    .hero-formulario h3 {
-      font-family: 'Playfair Display', serif;
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .contenedor {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px){
-      .hero-reserva {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .hero-imagen img {
-        max-width: 100%;
-      }
-
-      .hero-formulario {
-        max-width: 100%;
-      }
-    }
-  </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo">
     <h1>ANTHIA</h1>
     <span>Esthetic Center</span>
-    <a href="index.html" class="btn-secondary volver-btn">← Volver al inicio</a>
+    <a href="index.html" class="btn-secondary volver-btn">← Inicio</a>
   </div>
 </header>
 
 <main class="contenedor">
-
-  <!-- HERO + FORMULARIO -->
   <section class="hero-reserva">
-    <!-- Imagen decorativa -->
     <div class="hero-imagen">
       <img src="assets/fondo/reserva-hero.jpg" alt="Salón ANTHIA">
     </div>
 
-    <!-- Formulario -->
     <div class="hero-formulario">
-      <h2>Reserva tu cita</h2>
-      <form id="formReserva" class="form-reserva">
+      <h2 class="form-title">Reserva tu Experiencia</h2>
+      
+      <form id="formReserva">
+        
+        <section class="form-section">
+          <label>1. Elige tus servicios</label>
+          <div id="serviciosGrid" class="servicios-grid">
+            </div>
+          <select id="servicio" style="display:none;" required>
+            <option value="">Seleccione un servicio</option>
+          </select>
+          <div id="carritoServicios" class="resumen-lista"></div>
+        </section>
 
-        <!-- SERVICIO -->
-        <label for="servicio">Servicio</label>
-        <select id="servicio" required>
-          <option value="">Seleccione un servicio</option>
-        </select>
+        <section class="form-section">
+          <label>2. Selecciona el día</label>
+          <div id="calendarioSemanas" class="calendario-semanal">
+            </div>
+          <input type="date" id="fecha" style="display:none;" required>
+        </section>
 
-        <!-- Carrito de servicios -->
-        <div id="carritoServicios"></div>
+        <section class="form-section">
+          <label>3. Hora disponible</label>
+          <div id="horasVisualGrid" class="horas-grid">
+            </div>
+          <select id="hora" style="display:none;" required>
+            <option value="">Seleccione hora</option>
+          </select>
+        </section>
 
-        <!-- FECHA -->
-        <label for="fecha">Fecha</label>
-        <input type="date" id="fecha" required>
+        <hr class="form-divider">
 
-        <!-- HORA -->
-        <label for="hora">Hora</label>
-        <select id="hora" required>
-          <option value="">Seleccione una hora</option>
-        </select>
+        <section class="form-section">
+          <label>4. Tus Datos</label>
+          <div class="input-row">
+            <input type="email" id="correo" placeholder="Email" required class="premium-input">
+            <input type="tel" id="telefono" placeholder="WhatsApp" required class="premium-input">
+          </div>
+          <input type="text" id="nombre" placeholder="Nombre completo" required class="premium-input">
+          <div class="input-row">
+            <input type="text" id="apellido1" placeholder="Primer Apellido" required class="premium-input">
+            <input type="text" id="apellido2" placeholder="Segundo Apellido">
+          </div>
+        </section>
 
-        <hr>
-
-        <h3>Datos del cliente</h3>
-
-        <!-- CORREO -->
-        <label for="correo">Correo electrónico</label>
-        <input type="email" id="correo" placeholder="Correo electrónico" required>
-
-        <!-- TELÉFONO -->
-        <label for="telefono">Número de teléfono</label>
-        <input type="tel" id="telefono" placeholder="Número de teléfono" required>
-
-        <!-- NOMBRE Y APELLIDOS -->
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" placeholder="Nombre" required>
-
-        <label for="apellido1">Primer apellido</label>
-        <input type="text" id="apellido1" placeholder="Primer apellido" required>
-
-        <label for="apellido2">Segundo apellido (opcional)</label>
-        <input type="text" id="apellido2" placeholder="Segundo apellido (opcional)">
-
-        <button type="submit" class="btn-primary">Reservar cita</button>
+        <button type="submit" class="btn-reserva-premium">Confirmar Reserva</button>
       </form>
     </div>
   </section>
-
 </main>
 
-<!-- FOOTER -->
 <footer class="footer">
-  <div class="footer-contenido">
-    <p>ANTHIA ESTHETIC CENTER © 2026 | Todos los derechos reservados</p>
-    <p>
-      <a href="#">Facebook</a> | 
-      <a href="#">Instagram</a> | 
-      <a href="#">WhatsApp</a>
-    </p>
-  </div>
+  <p>ANTHIA ESTHETIC CENTER © 2026</p>
 </footer>
 
-<!-- SCRIPTS -->
 <script type="module" src="js/firebase.js"></script>
-<script type="module" src="js/autocompletar.js"></script>
 <script type="module" src="js/reservas.js"></script>
 
 </body>
