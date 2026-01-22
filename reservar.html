@@ -18,54 +18,48 @@
     <img src="assets/fondo/reserva-hero.jpg" alt="Agenda">
   </div>
 
-  <!-- FORMULARIO -->
-  <div class="hero-formulario">
-    <h2>Reserva tu cita</h2>
+<form id="formReserva">
 
-    <form id="formReserva">
+  <!-- SERVICIOS -->
+  <label>Servicios</label>
 
-      <!-- SERVICIOS -->
-      <label>Servicios</label>
+  <!-- CARDS VISUALES -->
+  <div id="serviciosCards" class="servicios-cards"></div>
 
-      <div id="serviciosCards" class="servicios-cards"></div>
+  <!-- SELECT OCULTO (NO SE TOCA, JS LO USA) -->
+  <select id="servicio" hidden>
+    <option value="">Seleccione un servicio</option>
+  </select>
 
-      <!-- SELECT OCULTO (TU JS USA ESTE) -->
-      <select id="servicio" hidden>
-        <option value="">Seleccione un servicio</option>
-      </select>
+  <!-- CARRITO -->
+  <div id="carritoServicios"></div>
 
-      <!-- CARRITO -->
-      <div id="carritoServicios" class="carrito-servicios"></div>
+  <!-- CALENDARIO -->
+  <label>Día</label>
+  <div id="calendarioSemanal"></div>
+  <input type="date" id="fecha" hidden required>
 
-      <!-- CALENDARIO SEMANAL -->
-      <label>Día</label>
-      <div id="calendarioSemanal" class="calendario-semanal"></div>
-      <input type="date" id="fecha" hidden required>
+  <!-- HORAS -->
+  <label>Hora</label>
+  <div id="horasDisponibles"></div>
+  <select id="hora" hidden required></select>
 
-      <!-- HORAS -->
-      <label>Hora</label>
-      <div id="horasDisponibles" class="horas-grid"></div>
+  <hr>
 
-      <!-- SELECT OCULTO PARA HORA -->
-      <select id="hora" hidden required></select>
+  <h3>Datos del cliente</h3>
 
-      <hr>
+  <input type="email" id="correo" placeholder="Correo electrónico" required>
+  <input type="tel" id="telefono" placeholder="Teléfono" required>
+  <input type="text" id="nombre" placeholder="Nombre" required>
+  <input type="text" id="apellido1" placeholder="Primer apellido" required>
+  <input type="text" id="apellido2" placeholder="Segundo apellido">
 
-      <h3>Datos del cliente</h3>
+  <button type="submit">
+    Confirmar cita
+  </button>
 
-      <div class="form-grid">
-        <input type="email" id="correo" placeholder="Correo electrónico" required>
-        <input type="tel" id="telefono" placeholder="Teléfono" required>
-        <input type="text" id="nombre" placeholder="Nombre" required>
-        <input type="text" id="apellido1" placeholder="Primer apellido" required>
-        <input type="text" id="apellido2" placeholder="Segundo apellido">
-      </div>
+</form>
 
-      <button type="submit" class="btn-primary">
-        Confirmar cita
-      </button>
-
-    </form>
   </div>
 
 </section>
