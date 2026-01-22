@@ -43,7 +43,7 @@
                         <span class="calendar-icon">📅</span>
                     </div>
                 </div>
-               
+                <button id="btnNuevaCita" class="btn-nueva-cita">+ Nueva Cita</button>
             </div>
         </header>
 
@@ -70,10 +70,13 @@
                 <p id="infoHoraSeleccionada">Seleccione horario</p>
             </div>
             <div class="modal-body">
-                <label>ID o Email del Cliente</label>
-                <input type="text" id="clienteNombre" placeholder="ejemplo@correo.com" class="input-premium">
+                <label>Cliente (Nombre o Email)</label>
+                <div style="position: relative;">
+                    <input type="text" id="clienteNombre" placeholder="Escribe para buscar..." class="input-premium" autocomplete="off">
+                    <div id="listaSugerencias" class="sugerencias-dropdown"></div>
+                </div>
 
-                <label>Añadir Servicio</label>
+                <label>Añadir Tratamiento</label>
                 <select id="servicioSelect" class="input-premium"></select>
 
                 <div class="carrito-container">
@@ -86,7 +89,7 @@
             </div>
             <div class="modal-footer">
                 <button id="cancelarModal" class="btn-secundario-lux">Cancelar</button>
-                <button id="guardarCita" class="btn-primario-lux">Confirmar Reserva</button>
+                <button id="guardarCita" class="btn-primario-lux">Confirmar Cita</button>
             </div>
         </div>
     </div>
