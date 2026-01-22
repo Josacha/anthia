@@ -55,3 +55,94 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
 
 /* RESUMEN (CARRITO) */
 .resumen-badge { background: var(--gray-soft); padding: 25px; border-radius: 4px; margin-top: 20px; }
+
+/* --- MEDIA QUERY PARA MÓVILES --- */
+@media (max-width: 768px) {
+    /* 1. Ajuste del Header */
+    .header-luxury {
+        padding: 20px;
+    }
+    
+    .header-inner {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    /* 2. Layout: De dos columnas a una sola */
+    .booking-layout {
+        flex-direction: column;
+    }
+
+    /* Ocultamos o reducimos la imagen lateral para ahorrar espacio */
+    .booking-visual {
+        width: 100%;
+        height: 200px; /* Altura pequeña para que se vea el formulario rápido */
+    }
+
+    .visual-info h2 {
+        font-size: 28px;
+        text-align: center;
+    }
+
+    /* 3. Ajuste del Contenedor del Formulario */
+    .booking-form-container {
+        width: 100%;
+        padding: 40px 20px;
+        box-sizing: border-box;
+    }
+
+    /* 4. Reposicionamiento de los Indicadores Numéricos (01, 02...) */
+    .step-box {
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    .step-indicator {
+        position: static; /* Ya no flotan a la izquierda */
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+
+    /* 5. Grillas Adaptables */
+    .premium-grid {
+        grid-template-columns: 1fr; /* Una sola columna para que las cards sean grandes */
+        gap: 15px;
+    }
+
+    .dual-fields {
+        grid-template-columns: 1fr; /* Inputs uno debajo del otro */
+        gap: 0;
+    }
+
+    /* 6. Optimización del Calendario y Horas */
+    .calendar-strip {
+        gap: 10px;
+        -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+    }
+
+    .day-item {
+        min-width: 75px;
+        padding: 15px 10px;
+    }
+
+    .hours-flex {
+        justify-content: center;
+    }
+
+    .hour-item {
+        flex: 1 1 30%; /* Tres columnas de horas por fila aprox. */
+        text-align: center;
+        padding: 12px 5px;
+    }
+
+    /* 7. Botón de Confirmación */
+    .btn-submit-lux {
+        padding: 20px;
+        font-size: 14px;
+        position: sticky;
+        bottom: 0; /* Lo mantiene visible al final de la pantalla */
+        z-index: 10;
+    }
+}
