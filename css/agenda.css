@@ -17,47 +17,61 @@ body { font-family: 'Montserrat', sans-serif; background: #fcfcfc; display: flex
 .brand span { color: var(--gold); display: block; text-align: center; font-size: 10px; letter-spacing: 2px; }
 
 .menu { margin-top: 50px; flex-grow: 1; }
-.menu a {
-    display: block; color: #888; text-decoration: none; padding: 15px;
-    font-size: 13px; transition: 0.3s;
-}
+.menu a { display: block; color: #888; text-decoration: none; padding: 15px; font-size: 13px; transition: 0.3s; border-radius: 4px; }
 .menu a.active, .menu a:hover { color: var(--gold); background: rgba(255,255,255,0.05); }
+.btn-logout { background: none; border: 1px solid #333; color: #666; padding: 10px; cursor: pointer; margin-top: 20px; }
 
-/* MAIN CONTENT */
+/* MAIN CONTENT & HERO */
 .main-content { margin-left: var(--sidebar-w); width: calc(100% - var(--sidebar-w)); }
 
 .agenda-hero {
-    background: var(--dark); padding: 60px 40px; color: white;
+    background: var(--dark); 
+    padding: 80px 40px 60px 40px; /* Ajuste de alineación Hero: más aire arriba */
+    color: white;
     display: flex; justify-content: space-between; align-items: center;
 }
 .agenda-dia-numero { font-family: 'Playfair Display', serif; font-size: 70px; line-height: 1; }
 .agenda-mes { color: var(--gold); text-transform: uppercase; letter-spacing: 3px; font-size: 12px; }
 
-/* CALENDARIO PREMIUM */
+/* CALENDARIO & BOTONES */
 .calendar-wrapper { display: flex; flex-direction: column; gap: 5px; }
 .calendar-label { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
 .calendar-input-container { position: relative; }
-.agenda-date-picker {
-    background: #222; border: 1px solid #333; color: white;
-    padding: 10px 35px 10px 15px; cursor: pointer; font-family: inherit;
-}
+.agenda-date-picker { background: #222; border: 1px solid #333; color: white; padding: 10px 35px 10px 15px; cursor: pointer; }
 .calendar-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 
 .btn-nueva-cita {
     background: var(--gold); border: none; padding: 12px 25px; 
     font-weight: 600; text-transform: uppercase; cursor: pointer; font-size: 11px;
+    transition: 0.3s;
 }
+.btn-nueva-cita:hover { background: white; transform: translateY(-2px); }
 
-/* TABLA */
+/* TABLA Y BOTONES DE ACCIÓN */
 .tabla-container { padding: 40px; }
 .tabla-premium { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 .tabla-premium th { padding: 15px; text-align: left; color: #999; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
 .tabla-premium td { padding: 20px 15px; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
-.libre { color: #27ae60; cursor: pointer; font-weight: 600; }
 
-/* MODAL */
+.btn-eliminar {
+    background: none; border: none; cursor: pointer; font-size: 16px; color: #ccc;
+    transition: all 0.2s ease;
+}
+.btn-eliminar:hover { color: #e74c3c; transform: scale(1.2); }
+
+/* SUGERENCIAS DROPDOWN */
+.sugerencias-dropdown {
+    position: absolute; top: 45px; left: 0; right: 0; background: white;
+    border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 3000; max-height: 200px; overflow-y: auto; display: none;
+}
+.sugerencia-item { padding: 12px 15px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f9f9f9; }
+.sugerencia-item:hover { background: #fdf8ef; color: var(--gold); }
+
+/* MODAL & CARRITO */
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
 .modal.active { display: flex; }
 .modal-box { background: white; width: 450px; padding: 40px; }
 .input-premium { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid var(--border); margin-bottom: 20px; outline: none; }
 .info-bloque-tiempo { background: #f9f9f9; padding: 20px; display: flex; justify-content: space-between; margin-top: 20px; }
+.btn-primario-lux { width: 100%; background: var(--dark); color: white; padding: 15px; border: none; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; }
