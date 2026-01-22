@@ -3,79 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva tu Experiencia | ANTHIA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Reserva | ANTHIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
 
-    <header class="header-premium">
-        <div class="header-container">
-            <div class="logo-group">
+    <header class="header-luxury">
+        <div class="header-inner">
+            <div class="brand">
                 <h1>ANTHIA</h1>
-                <span>ESTHETIC CENTER</span>
+                <p>ESTHETIC CENTER</p>
             </div>
-            <a href="index.html" class="btn-volver">← Volver al Inicio</a>
+            <a href="index.html" class="nav-back">← VOLVER AL INICIO</a>
         </div>
     </header>
 
-    <main class="reserva-main">
-        <div class="reserva-grid">
-            <aside class="reserva-visual">
-                <div class="visual-overlay"></div>
-                <div class="visual-content">
-                    <h2>Nueva Reserva</h2>
-                    <p>Diseña tu momento de bienestar en pocos pasos.</p>
+    <main class="booking-layout">
+        <aside class="booking-visual">
+            <div class="visual-overlay"></div>
+            <div class="visual-info">
+                <h2>Diseña tu Momento</h2>
+                <p>Selecciona la combinación perfecta de servicios para resaltar tu esencia única.</p>
+            </div>
+        </aside>
+
+        <section class="booking-form-container">
+            <form id="formReserva" class="modern-form">
+                
+                <div class="step-box">
+                    <span class="step-indicator">01</span>
+                    <label class="step-label">SELECCIONA TUS SERVICIOS</label>
+                    <div id="serviciosGrid" class="premium-grid"></div>
+                    <div id="carritoServicios"></div>
                 </div>
-            </aside>
 
-            <section class="reserva-content">
-                <form id="formReserva" class="premium-form">
-                    
-                    <div class="form-step" id="step-1">
-                        <span class="step-num">01</span>
-                        <label>Selecciona tus servicios</label>
-                        <div id="serviciosGrid" class="cards-grid"></div>
-                        <div id="carritoServicios"></div>
-                    </div>
+                <div class="step-box">
+                    <span class="step-indicator">02</span>
+                    <label class="step-label">SELECCIONA UNA FECHA</label>
+                    <div id="calendarioSemanas" class="calendar-strip"></div>
+                    <input type="date" id="fecha" style="display:none;" required>
+                </div>
 
-                    <div class="form-step" id="step-2">
-                        <span class="step-num">02</span>
-                        <label>Selecciona una fecha</label>
-                        <div id="calendarioSemanas" class="week-calendar"></div>
-                        <input type="date" id="fecha" style="display:none;" required>
-                    </div>
+                <div class="step-box">
+                    <span class="step-indicator">03</span>
+                    <label class="step-label">HORARIOS DISPONIBLES</label>
+                    <div id="horasVisualGrid" class="hours-flex"></div>
+                </div>
 
-                    <div class="form-step" id="step-3">
-                        <span class="step-num">03</span>
-                        <label>Horarios disponibles</label>
-                        <div id="horasVisualGrid" class="hours-grid">
-                            </div>
-                    </div>
-
-                    <hr class="divider">
-
-                    <div class="form-step" id="step-4">
-                        <span class="step-num">04</span>
-                        <label>Tus Datos de Contacto</label>
-                        <div class="input-container">
-                            <input type="text" id="nombre" placeholder="Nombre completo" required>
-                            <div class="input-row">
-                                <input type="email" id="correo" placeholder="Correo electrónico" required>
-                                <input type="tel" id="telefono" placeholder="WhatsApp" required>
-                            </div>
-                            <div class="input-row">
-                                <input type="text" id="apellido1" placeholder="Primer Apellido" required>
-                                <input type="text" id="apellido2" placeholder="Segundo Apellido">
-                            </div>
+                <div class="step-box">
+                    <span class="step-indicator">04</span>
+                    <label class="step-label">TUS DATOS DE CONTACTO</label>
+                    <div class="fields-group">
+                        <input type="text" id="nombre" placeholder="Nombre completo" class="lux-input">
+                        <div class="dual-fields">
+                            <input type="email" id="correo" placeholder="Correo electrónico" class="lux-input">
+                            <input type="tel" id="telefono" placeholder="WhatsApp" class="lux-input">
+                        </div>
+                        <div class="dual-fields">
+                            <input type="text" id="apellido1" placeholder="Primer Apellido" class="lux-input">
+                            <input type="text" id="apellido2" placeholder="Segundo Apellido" class="lux-input">
                         </div>
                     </div>
+                </div>
 
-                    <button type="submit" class="btn-confirmar">Confirmar Cita</button>
-                </form>
-            </section>
-        </div>
+                <button type="submit" class="btn-submit-lux">CONFIRMAR RESERVA</button>
+            </form>
+        </section>
     </main>
 
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/reservas.js"></script>
 </body>
 </html>
