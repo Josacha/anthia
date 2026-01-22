@@ -1,116 +1,103 @@
-/* --- RESET Y CONTENEDOR --- */
-.main-content {
-    margin-left: 250px; /* Alineado con tu sidebar */
+:root {
+    --gold: #c5a059;
+    --dark: #1a1a1a;
+    --border: #eeeeee;
+    --bg: #fcfcfc;
+}
+
+/* Layout */
+.dashboard {
+    margin-left: 250px;
     padding: 60px;
-    background-color: #fcfcfc;
+    background-color: var(--bg);
     min-height: 100vh;
 }
 
-/* --- HERO DE AGENDA (Banner de Fecha) --- */
-/* Eliminamos el gradiente verde por uno más sutil o negro sólido */
+/* Hero Section */
 .agenda-hero {
+    background: var(--dark);
+    padding: 40px;
+    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1a1a1a; /* Negro Anthia */
-    padding: 40px;
-    border-radius: 4px; /* Menos redondeado = más premium */
-    color: #fff;
     margin-bottom: 40px;
 }
 
 .agenda-dia-numero {
     font-family: 'Playfair Display', serif;
-    font-size: 72px;
-    font-weight: 400;
+    font-size: 64px;
     line-height: 1;
 }
 
 .agenda-mes {
-    color: var(--gold, #c5a059);
+    color: var(--gold);
     text-transform: uppercase;
     letter-spacing: 3px;
     font-size: 12px;
 }
 
 .agenda-dia-semana {
-    font-size: 22px;
-    font-weight: 300;
-    opacity: 0.8;
+    font-size: 18px;
+    opacity: 0.7;
 }
 
-/* --- TABLA PREMIUM --- */
-.tabla-premium {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px; /* Crea el efecto de filas flotantes */
-}
+/* Tabla */
+.tabla-container { background: white; padding: 20px; border: 1px solid var(--border); }
+
+.tabla-premium { width: 100%; border-collapse: collapse; }
 
 .tabla-premium th {
-    padding: 15px 25px;
     text-align: left;
+    padding: 15px;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 2px;
     color: #999;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
 }
 
-.tabla-premium tbody tr {
-    background: #fff;
-    transition: 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+.tabla-premium td { padding: 20px 15px; font-size: 14px; border-bottom: 1px solid #f9f9f9; }
+
+.libre { color: #27ae60; font-weight: 600; cursor: pointer; }
+.ocupado { color: var(--dark); font-weight: 400; }
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal.active { display: flex; }
+
+.modal-box {
+    background: white;
+    padding: 40px;
+    width: 400px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
 }
 
-.tabla-premium tbody tr:hover {
-    transform: scale(1.01);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.tabla-premium td {
-    padding: 20px 25px;
-    font-size: 14px;
-    color: #333;
-}
-
-/* --- ESTADOS ESTILIZADOS --- */
-td.libre {
-    color: #27ae60;
-    font-weight: 600;
-}
-
-td.ocupado {
-    color: #1a1a1a;
-    font-weight: 400;
-}
-
-/* --- BOTONES DE ACCIÓN --- */
-.btn-nueva-cita {
-    background: #c5a059; /* Dorado Anthia */
-    color: white;
-    padding: 15px 30px;
-    border-radius: 0;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+.input-premium {
+    width: 100%;
+    padding: 12px 0;
     border: none;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    outline: none;
+}
+
+.btn-primario-lux {
+    background: var(--dark);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     cursor: pointer;
-    transition: 0.3s;
+    width: 100%;
 }
 
-.btn-nueva-cita:hover {
-    background: #1a1a1a;
-}
-
-.accion-btn {
-    background: none;
-    border: 1px solid #eee;
-    padding: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.accion-btn:hover {
-    border-color: #c5a059;
-    color: #c5a059;
-}
+.btn-primario-lux:hover { background: var(--gold); }
