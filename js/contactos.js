@@ -11,30 +11,25 @@ const contenedorTarjetas = document.getElementById("contenedorTarjetas");
 let clientesData = [];
 let serviciosMap = {};
 
-// --- 1. FUNCIÓN DE ELIMINAR (SOLUCIÓN) ---
-// La asignamos explícitamente a window para que el HTML la encuentre
-window.eliminarCliente = async (id, nombre) => {
-    // Confirmación simple del navegador
-    const confirmado = confirm(`¿Estás seguro de eliminar a ${nombre}? Esta acción no se puede deshacer.`);
-    
-    if (confirmado) {
-        try {
-            await deleteDoc(doc(db, "clientes", id));
-            // No hace falta alert, la tabla se actualizará sola por el onSnapshot
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-            alert("Error: No se pudo eliminar el cliente. Revisa los permisos.");
-        }
-    }
-};
-
-// --- CARGA DE SERVICIOS ---
+// --- 1. CARGAR SERVICIOS PARA REFERENCIA DE PRECIOS ---
 async function cargarServicios() {
     const snap = await getDocs(collection(db, "servicios"));
     snap.forEach(d => { serviciosMap[d.id] = d.data(); });
 }
 
-// --- GENERADOR DE CÍRCULOS (LEALTAD) ---
+// --- 2. LÓGICA DE ELIMINAR ---
+window.eliminarCliente = async (id, nombre) => {
+    if (confirm(`¿Eliminar a ${nombre}? Esta acción es permanente.`)) {
+        try {
+            await deleteDoc(doc(db, "clientes", id));
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error de permisos en Firebase. Revisa tus Rules.");
+        }
+    }
+};
+
+// --- 3. DIBUJAR PUNTOS DE LEALTAD ---
 function generarCirculosHTML(cantidadTotal) {
     const progreso = cantidadTotal % 10 === 0 && cantidadTotal > 0 ? 10 : cantidadTotal % 10;
     let html = "";
@@ -49,7 +44,7 @@ function generarCirculosHTML(cantidadTotal) {
     return html;
 }
 
-// --- VER HISTORIAL ---
+// --- 4. VER HISTORIAL Y TARJETAS REGALO ---
 window.verHistorial = async (id, nombre, correo) => {
     document.getElementById("historialNombre").textContent = nombre;
     document.getElementById("historialCorreo").textContent = correo;
@@ -61,25 +56,37 @@ window.verHistorial = async (id, nombre, correo) => {
 
     let totalCitas = 0;
     let gastoTotal = 0;
-    const conteoPorServicio = {};
+    const conteoPorServicio = {}; 
 
     if (!snap.empty) {
         const citas = [];
         snap.forEach(d => citas.push(d.data()));
+        // Ordenar por fecha descendente
         citas.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
 
         citas.forEach(cita => {
             const s = serviciosMap[cita.servicioId] || { nombre: "Servicio", precio: 0 };
             totalCitas++;
-            gastoTotal += Number(s.precio || 0);
+            
+            const precioCita = Number(s.precio || 0);
+            gastoTotal += precioCita;
+            
+            // Contabilizar para lealtad
             conteoPorServicio[cita.servicioId] = (conteoPorServicio[cita.servicioId] || 0) + 1;
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${cita.fecha}</td><td>${c.nombresServicios || s.nombre}</td><td>₡${Number(s.precio || 0).toLocaleString()}</td>`;
+            // Se usa cita.nombresServicios si existe (de la agenda multi-servicio)
+            const nombreMostrar = cita.nombresServicios || s.nombre;
+            
+            tr.innerHTML = `
+                <td>${cita.fecha}</td>
+                <td>${nombreMostrar}</td>
+                <td>₡${precioCita.toLocaleString()}</td>
+            `;
             tbodyHistorial.appendChild(tr);
         });
 
-        // Tarjetas
+        // Generar tarjetas por cada tipo de servicio consumido
         Object.entries(conteoPorServicio).forEach(([sId, cantidad]) => {
             const sInfo = serviciosMap[sId];
             if(!sInfo) return;
@@ -89,7 +96,7 @@ window.verHistorial = async (id, nombre, correo) => {
             div.className = "tarjeta-lealtad";
             
             let msg = "Próximo premio: Cita #5 (50%)";
-            if(progreso >= 5 && progreso < 10) msg = "¡TIENE 50% DE DESCUENTO!";
+            if(progreso >= 5 && progreso < 9) msg = "¡TIENE 50% DE DESCUENTO!";
             if(progreso === 10) msg = "¡ESTA CITA ES GRATIS! 🎁";
 
             div.innerHTML = `
@@ -106,11 +113,10 @@ window.verHistorial = async (id, nombre, correo) => {
     modalHistorial.classList.add("active");
 };
 
-// --- RENDERIZADO DE TABLA ---
+// --- 5. RENDERIZADO DE TABLA PRINCIPAL ---
 function renderFila(id, data) {
     const tr = document.createElement("tr");
     const fullNombre = `${data.nombre} ${data.apellido1}`;
-    // Aquí es donde conectamos con la función window.eliminarCliente
     tr.innerHTML = `
         <td style="font-weight:600;">${fullNombre}</td>
         <td>${data.correo}</td>
@@ -121,28 +127,29 @@ function renderFila(id, data) {
     return tr;
 }
 
-// Buscador
+// --- 6. BUSCADOR ---
 document.getElementById("busquedaCliente").addEventListener("input", (e) => {
     const term = e.target.value.toLowerCase();
     tbody.innerHTML = "";
-    clientesData.filter(c => `${c.nombre} ${c.apellido1}`.toLowerCase().includes(term))
-                .forEach(c => tbody.appendChild(renderFila(c.id, c)));
+    clientesData
+        .filter(c => `${c.nombre} ${c.apellido1}`.toLowerCase().includes(term) || (c.correo || "").toLowerCase().includes(term))
+        .forEach(c => tbody.appendChild(renderFila(c.id, c)));
 });
 
-// Cerrar Modal
 document.getElementById("cerrarHistorial").onclick = () => modalHistorial.classList.remove("active");
 
-// --- INICIALIZACIÓN ---
+// --- 7. INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", async () => {
     await cargarServicios();
     
-    // Escucha en tiempo real para actualizar (y borrar) la tabla automáticamente
+    // Escucha cambios en Clientes
     onSnapshot(collection(db, "clientes"), (snap) => {
         tbody.innerHTML = ""; 
         clientesData = [];
         snap.forEach(d => {
-            clientesData.push({id: d.id, ...d.data()});
-            tbody.appendChild(renderFila(d.id, d.data()));
+            const data = d.data();
+            clientesData.push({id: d.id, ...data});
+            tbody.appendChild(renderFila(d.id, data));
         });
     });
 });
