@@ -1,45 +1,60 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Contactos | ANTHIA ESTHETIC CENTER</title>
-  <link rel="stylesheet" href="../../css/admin.css">
-  <link rel="stylesheet" href="../../css/tablas.css">
-  <link rel="stylesheet" href="../../css/cliente.css">
+    <meta charset="UTF-8">
+    <title>Clientes | ANTHIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/agenda.css">
+    <link rel="stylesheet" href="../../css/cliente.css">
 </head>
 <body>
 
-  <!-- MAIN CONTENT -->
-  <main id="main-content">
-    <div id="tab-contactos" class="tab-content active">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>ANTHIA</h1>
+            <span>Esthetic Center</span>
+        </div>
+        <nav class="menu">
+            <a href="../dashboard.html">🏠 Inicio</a>
+            <a href="agenda.html">📅 Agenda</a>
+            <a href="servicios.html">✨ Servicios</a>
+            <a href="contactos.html" class="active">👤 Clientes</a>
+            <a href="inventario.html">📦 Inventario</a>
+            <a href="configuracion.html">⚙️ Ajustes</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+    </aside>
 
-      <h2 class="title">Contactos</h2>
+    <main class="main-content">
+        <header class="agenda-hero">
+            <div class="agenda-fecha" style="padding-top: 20px;">
+                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Clientes</h1>
+                <p class="agenda-mes">Base de datos de contactos</p>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="busquedaCliente" placeholder="Buscar por nombre o correo..." class="agenda-date-picker" style="width: 300px; border-radius: 20px;">
+            </div>
+        </header>
 
-      <!-- Tabla de contactos -->
-      <table id="tablaContactos" class="tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Primer Apellido</th>
-            <th>Segundo Apellido</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Las filas se cargan con JS -->
-        </tbody>
-      </table>
+        <div class="tabla-container">
+            <table id="tablaContactos" class="tabla-premium">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Correo Electrónico</th>
+                        <th>Teléfono</th>
+                        <th>Historial</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </main>
 
-    </div>
-  </main>
-
-  <!-- Scripts -->
-  <script type="module" src="../../js/firebase.js"></script>
-  <script type="module" src="../../js/auth.js"></script>
-  <script type="module" src="../../js/ui-tabs.js"></script>
-  <script type="module" src="../../js/contactos.js"></script>
-
+    <script type="module" src="../../js/contactos.js"></script>
 </body>
 </html>
