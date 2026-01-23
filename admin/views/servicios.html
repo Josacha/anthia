@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Servicios | ANTHIA ESTHETIC CENTER</title>
+    <title>Servicios | ANTHIA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/agenda.css">
+
     <link rel="stylesheet" href="../../css/servicios.css">
 </head>
 <body>
@@ -28,9 +28,9 @@
 
     <main class="main-content">
         <header class="agenda-hero">
-            <div>
-                <h1 class="agenda-dia-numero" style="font-size: 40px;">Servicios</h1>
-                <p class="agenda-mes">Configuración de tratamientos</p>
+            <div class="agenda-fecha" style="padding-top: 20px;">
+                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px;">Servicios</h1>
+                <p class="agenda-mes">Catálogo de tratamientos</p>
             </div>
         </header>
 
@@ -38,17 +38,28 @@
             <div class="card-servicios">
                 <form id="formServicios" class="form-grid">
                     <div class="input-group">
-                        <label>Nombre del Tratamiento</label>
-                        <input type="text" id="nombreServicio" placeholder="Ej: Limpieza Facial Profunda" class="input-premium" required>
+                        <label>Categoría</label>
+                        <select id="categoriaServicio" class="input-premium" required>
+                            <option value="Faciales">Faciales</option>
+                            <option value="Masajes">Masajes</option>
+                            <option value="Uñas">Uñas</option>
+                            <option value="Cejas y Pestañas">Cejas y Pestañas</option>
+                            <option value="Corporales">Corporales</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nombre del Servicio</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Hidratación" class="input-premium" required>
                     </div>
                     
                     <div class="input-group">
-                        <label>Duración (Minutos)</label>
+                        <label>Minutos</label>
                         <input type="number" id="duracionServicio" placeholder="60" class="input-premium" required>
                     </div>
 
                     <div class="input-group">
-                        <label>Precio (₡)</label>
+                        <label>Precio</label>
                         <input type="number" id="precioServicio" placeholder="25000" class="input-premium" required>
                     </div>
 
@@ -57,20 +68,21 @@
                             <input type="checkbox" id="simultaneoServicio">
                             <span class="slider"></span>
                         </label>
-                        <span>¿Permitir simultáneo? ✨</span>
+                        <span style="font-size: 10px;">Simultáneo</span>
                     </div>
 
-                    <button type="submit" class="btn-primario-lux">Guardar Servicio</button>
+                    <button type="submit" class="btn-primario-lux">Añadir</button>
                 </form>
             </div>
 
             <table id="tablaServicios" class="tabla-premium">
                 <thead>
                     <tr>
-                        <th>Tratamiento</th>
-                        <th>Duración</th>
+                        <th>Categoría</th>
+                        <th>Servicio</th>
+                        <th>Tiempo</th>
                         <th>Precio</th>
-                        <th>Tipo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -79,7 +91,6 @@
         </div>
     </main>
 
-    <script type="module" src="../../js/auth.js"></script>
     <script type="module">
         import { initServicios } from "../../js/servicios.js";
         document.addEventListener("DOMContentLoaded", initServicios);
