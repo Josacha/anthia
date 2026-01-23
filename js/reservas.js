@@ -12,8 +12,8 @@ let desuscribirCitas = null;
 
 // --- CONFIGURACIÓN EMAILJS (Asegúrate de poner tus IDs reales) ---
 const SERVICE_ID = "service_14jwpyq";
-const TEMPLATE_ID = "TU_TEMPLATE_ID"; // Reemplaza con tu Template ID de EmailJS
-const PUBLIC_KEY = "TU_PUBLIC_KEY";   // Reemplaza con tu Public Key de EmailJS
+const TEMPLATE_ID = "template_itx9f7f"; // Reemplaza con tu Template ID de EmailJS
+const PUBLIC_KEY = "s8xK3KN3XQ4g9Qccg";   // Reemplaza con tu Public Key de EmailJS
 
 // --- UTILIDADES ---
 const hAMin = (h) => { 
