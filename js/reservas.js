@@ -3,25 +3,24 @@ import {
     collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- SELECTORES ---
+// --- SELECTORES DEL DOM ---
 const formReserva = document.getElementById("formReserva");
 const correoInput = document.getElementById("correo");
 const telefonoInput = document.getElementById("telefono");
 const nombreInput = document.getElementById("nombre");
 const apellido1Input = document.getElementById("apellido1");
-const apellido2Input = document.getElementById("apellido2");
 const fechaInput = document.getElementById("fecha");
 const carritoDiv = document.getElementById("carritoServicios");
 const serviciosGrid = document.getElementById("serviciosGrid");
 const calendarioContenedor = document.getElementById("calendarioSemanas");
 const horasVisualGrid = document.getElementById("horasVisualGrid");
 
-// --- CONFIGURACIÓN Y ESTADO ---
+// --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 let carrito = [];
 let horaSeleccionada = "";
 
-// --- UTILIDADES DE TIEMPO ---
+// --- FUNCIONES DE TIEMPO ---
 function horaAMinutos(hora) {
     const [h, m] = hora.split(":").map(Number);
     return h * 60 + m;
@@ -33,7 +32,7 @@ function minutosAHora(totalMinutos) {
     return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
 }
 
-// --- LÓGICA DE CALENDARIO ---
+// --- CALENDARIO SEMANAL ---
 function generarCalendario() {
     calendarioContenedor.innerHTML = "";
     const hoy = new Date();
@@ -44,7 +43,7 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-        if (d.getDay() === 0) continue; // Domingo libre
+        if (d.getDay() === 0) continue; // Salta domingos
 
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
@@ -67,7 +66,7 @@ function generarCalendario() {
     }
 }
 
-// --- LÓGICA DE SERVICIOS ---
+// --- CARGAR SERVICIOS DESDE FIREBASE ---
 async function cargarServicios() {
     serviciosGrid.innerHTML = "";
     const snapshot = await getDocs(collection(db, "servicios"));
@@ -76,6 +75,7 @@ async function cargarServicios() {
         const card = document.createElement("div");
         card.className = "service-card";
         card.innerHTML = `<h4>${data.nombre}</h4><span>₡${data.precio}</span><p>${data.duracion || 60} min</p>`;
+        
         card.onclick = () => {
             const index = carrito.findIndex(s => s.id === docSnap.id);
             if (index > -1) { 
@@ -86,7 +86,7 @@ async function cargarServicios() {
                     id: docSnap.id, 
                     nombre: data.nombre, 
                     duracion: parseInt(data.duracion) || 60, 
-                    simultaneo: !!data.simultaneo 
+                    simultaneo: data.simultaneo === true // Asegura booleano
                 }); 
                 card.classList.add("selected"); 
             }
@@ -97,7 +97,7 @@ async function cargarServicios() {
     });
 }
 
-// --- CARGAR HORAS CON REGLAS ESTRICTAS ---
+// --- LÓGICA DE VALIDACIÓN (REGLA DE ORO) ---
 async function cargarHorasDisponibles() {
     horasVisualGrid.innerHTML = "";
     const fecha = fechaInput.value;
@@ -106,6 +106,7 @@ async function cargarHorasDisponibles() {
         return;
     }
 
+    // Obtenemos solo las citas de la fecha seleccionada
     const q = query(collection(db, "citas"), where("fecha", "==", fecha));
     const snapshotCitas = await getDocs(q);
     const citas = snapshotCitas.docs.map(d => d.data());
@@ -114,12 +115,12 @@ async function cargarHorasDisponibles() {
         let tiempoCorriente = horaAMinutos(hApertura);
         let posible = true;
 
-        // Validar ENCADENAMIENTO del carrito
+        // Validamos cada servicio del carrito (Encadenamiento)
         for (const s of carrito) {
             const inicioR = tiempoCorriente;
             const finR = inicioR + s.duracion;
 
-            // Buscar si hay citas que se solapen con este bloque de tiempo
+            // Buscamos si hay citas que se solapan en este rango de tiempo
             const ocupadas = citas.filter(c => {
                 const cIni = horaAMinutos(c.hora);
                 const cFin = cIni + (c.duracion || 60);
@@ -127,18 +128,17 @@ async function cargarHorasDisponibles() {
             });
 
             if (ocupadas.length > 0) {
-                // REGLA DE ORO: El que ya estaba debe ser simultáneo obligatoriamente
+                // APLICANDO TU REGLA: 
+                // La única forma de entrar es que el que ya ESTABA sea simultáneo.
                 const elExistentePermite = ocupadas.every(c => c.simultaneo === true);
-                const cabinaLlena = ocupadas.length >= 2;
+                const limiteAlcanzado = ocupadas.length >= 2;
 
-                // Si el que ya estaba no permite, o ya hay 2 personas, se bloquea
-                if (!elExistentePermite || cabinaLlena) {
+                if (!elExistentePermite || limiteAlcanzado) {
                     posible = false;
                     break;
                 }
             }
-            // Siguiente servicio del carrito empieza donde termina el actual
-            tiempoCorriente = finR;
+            tiempoCorriente = finR; // Sumar duración para el siguiente servicio del carrito
         }
 
         if (posible) {
@@ -146,6 +146,7 @@ async function cargarHorasDisponibles() {
             btn.className = "hour-item";
             btn.textContent = hApertura;
             if (horaSeleccionada === hApertura) btn.classList.add("selected");
+            
             btn.onclick = () => {
                 document.querySelectorAll(".hour-item").forEach(el => el.classList.remove("selected"));
                 btn.classList.add("selected");
@@ -168,7 +169,7 @@ function renderCarrito() {
         </div>`;
 }
 
-// --- PROCESAR RESERVA ---
+// --- GUARDAR RESERVA ---
 formReserva.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!fechaInput.value || !horaSeleccionada || carrito.length === 0) return alert("Completa los datos");
@@ -176,7 +177,6 @@ formReserva.addEventListener("submit", async (e) => {
     try {
         const idClie = (correoInput.value || telefonoInput.value).replace(/[.#$[\]]/g,'_');
         
-        // Guardar/Actualizar cliente
         await setDoc(doc(db, "clientes", idClie), { 
             nombre: nombreInput.value, 
             apellido1: apellido1Input.value, 
@@ -186,7 +186,6 @@ formReserva.addEventListener("submit", async (e) => {
 
         let t = horaAMinutos(horaSeleccionada);
         
-        // Guardar cada cita del encadenamiento
         for (const s of carrito) {
             await addDoc(collection(db, "citas"), { 
                 clienteId: idClie, 
@@ -195,7 +194,7 @@ formReserva.addEventListener("submit", async (e) => {
                 hora: minutosAHora(t), 
                 duracion: s.duracion, 
                 simultaneo: s.simultaneo, 
-                avisoMostrado: false, // Importante para el monitor de premios
+                avisoMostrado: false,
                 creado: Timestamp.now() 
             });
             t += s.duracion;
@@ -208,6 +207,6 @@ formReserva.addEventListener("submit", async (e) => {
     }
 });
 
-// Inicialización
+// Inicio
 generarCalendario();
 cargarServicios();
