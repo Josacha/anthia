@@ -71,7 +71,7 @@ async function cargarAgenda(fecha) {
     const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fecha)));
     const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     
-    // --- LÓGICA DE PREMIOS AL CARGAR EL DÍA ---
+    // --- LÓGICA DE PREMIOS (AVISO AL CARGAR DÍA) ---
     const clientesAlertados = new Set();
     for (const cita of citas) {
         if (cita.clienteId && !clientesAlertados.has(cita.clienteId)) {
@@ -89,13 +89,14 @@ async function cargarAgenda(fecha) {
             clientesAlertados.add(cita.clienteId);
         }
     }
-    // ------------------------------------------
     
     tbody.innerHTML = "";
+
+    // --- RENDERIZADO DE LA TABLA ---
     HORAS.forEach(hora => {
-        const tr = document.createElement("tr");
         const actualMin = hAMin(hora);
         
+        // Filtramos citas que ocupen este horario
         const ocupantes = citas.filter(c => {
             const inicio = hAMin(c.hora);
             const fin = inicio + (Number(c.duracion) || 60);
@@ -103,25 +104,36 @@ async function cargarAgenda(fecha) {
         });
 
         if (ocupantes.length === 0) {
-            tr.innerHTML = `<td>${hora}</td><td colspan="2" class="libre" onclick="window.abrirModal('${hora}')">Disponible</td><td>-</td><td><button onclick="window.abrirModal('${hora}')">➕</button></td>`;
+            // ESPACIO DISPONIBLE
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${hora}</td>
+                <td colspan="2" class="libre" onclick="window.abrirModal('${hora}')">Disponible</td>
+                <td>-</td>
+                <td><button onclick="window.abrirModal('${hora}')">➕</button></td>
+            `;
             tbody.appendChild(tr);
         } else {
-            ocupantes.forEach((c, i) => {
-                const row = i === 0 ? tr : document.createElement("tr");
+            // ESPACIO OCUPADO (SOPORTA MÚLTIPLES CITAS SIMULTÁNEAS)
+            ocupantes.forEach((c) => {
+                const tr = document.createElement("tr");
                 const cli = clientesMap[c.clienteId];
                 const nombreStr = cli ? `${cli.nombre} ${cli.apellido1 || ''}` : c.clienteId;
                 
-                // REGLA DE ORO: La cita define si hay ✨ o 🔒 [cite: 2026-01-23]
+                // REGLA DE ORO: Refleja si el servicio es ✨ o 🔒 [cite: 2026-01-23]
                 const iconoEstado = c.simultaneo ? '✨' : '🔒';
                 
-                row.innerHTML = `
+                // Si hay dos personas a la misma hora, aplicamos clase visual
+                if (ocupantes.length > 1) tr.style.backgroundColor = "#f9f9f9";
+
+                tr.innerHTML = `
                     <td>${hora}</td>
                     <td><b>${nombreStr}</b></td>
                     <td>${serviciosMap[c.servicioId]?.nombre || 'Servicio'}</td>
                     <td>${iconoEstado}</td>
                     <td><button class="btn-eliminar" onclick="window.eliminar('${c.id}')">🗑️</button></td>
                 `;
-                tbody.appendChild(row);
+                tbody.appendChild(tr);
             });
         }
     });
@@ -168,7 +180,7 @@ document.getElementById("guardarCita").onclick = async () => {
             clienteId: clienteSeleccionadoId || clienteNombre.value,
             servicioId: s.id,
             duracion: Number(s.duracion),
-            simultaneo: s.simultaneo === true // Regla de Oro heredada [cite: 2026-01-23]
+            simultaneo: s.simultaneo === true // Hereda del servicio [cite: 2026-01-23]
         });
         tiempoCorriente += Number(s.duracion);
     }
