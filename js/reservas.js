@@ -10,16 +10,18 @@ let horaSeleccionada = "";
 
 // --- UTILIDADES ---
 const hAMin = (h) => { 
+    if(!h) return 0;
     const [hh, mm] = h.split(":").map(Number); 
     return (hh * 60) + mm; 
 };
+
 const minAH = (min) => {
     const hh = Math.floor(min / 60).toString().padStart(2, '0');
     const mm = (min % 60).toString().padStart(2, '0');
     return `${hh}:${mm}`;
 };
 
-// --- 1. LÓGICA DE HORAS (ENCADENAMIENTO Y REGLA DE ORO) ---
+// --- 1. LÓGICA DE DISPONIBILIDAD (EL MOTOR DE VALIDACIÓN) ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
@@ -33,41 +35,53 @@ async function cargarHorasDisponibles() {
         return;
     }
 
+    // Traer citas existentes para esta fecha
     const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
     const snapshotCitas = await getDocs(q);
-    const citasDelDia = snapshotCitas.docs.map(d => d.data());
+    
+    const citasExistentes = snapshotCitas.docs.map(d => {
+        const data = d.data();
+        const ini = hAMin(data.hora);
+        return {
+            inicio: ini,
+            fin: ini + (Number(data.duracion) || 60),
+            simultaneo: data.simultaneo === true 
+        };
+    });
 
     for (const hApertura of HORAS) {
         let tiempoCorriente = hAMin(hApertura);
-        let esPosibleTodoElRango = true;
+        let esPosibleTodoElCombo = true;
 
+        // Validar cada servicio que el cliente tiene en su carrito
         for (const s of carrito) {
-            const inicioPropuesto = Number(tiempoCorriente);
-            const duracionServicio = Number(s.duracion) || 60;
-            const finPropuesto = inicioPropuesto + duracionServicio;
+            const inicioNuevo = tiempoCorriente;
+            const duracionNuevo = Number(s.duracion) || 60;
+            const finNuevo = inicioNuevo + duracionNuevo;
 
-            const ocupantes = citasDelDia.filter(c => {
-                const cIni = hAMin(c.hora);
-                const cFin = cIni + (Number(c.duracion) || 60);
-                return (inicioPropuesto < cFin && finPropuesto > cIni);
+            // Buscar si hay alguien en la cabina en este rango
+            const ocupantes = citasExistentes.filter(c => {
+                return (inicioNuevo < c.fin && finNuevo > c.inicio);
             });
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO: El que ya está debe permitir simultaneidad
-                const elExistentePermite = ocupantes.every(c => c.simultaneo === true);
-                // El nuevo servicio también debe ser simultáneo
-                const elNuevoPermite = s.simultaneo === true;
-                const cabinaLlena = ocupantes.length >= 2;
+                // APLICACIÓN DE LA REGLA DE ORO [cite: 2026-01-23]
+                // 1. ¿Todos los que ya están permiten simultaneidad?
+                const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
+                // 2. ¿El nuevo servicio que se quiere agendar permite simultaneidad?
+                const nuevoPermite = s.simultaneo === true;
+                // 3. ¿Hay cupo (máximo 2 personas)?
+                const hayCupo = ocupantes.length < 2;
 
-                if (!elExistentePermite || !elNuevoPermite || cabinaLlena) {
-                    esPosibleTodoElRango = false;
+                if (!existentesPermiten || !nuevoPermite || !hayCupo) {
+                    esPosibleTodoElCombo = false;
                     break;
                 }
             }
-            tiempoCorriente = finPropuesto;
+            tiempoCorriente = finNuevo;
         }
 
-        if (esPosibleTodoElRango) {
+        if (esPosibleTodoElCombo) {
             const btn = document.createElement("div");
             btn.className = "hour-item";
             btn.textContent = hApertura;
@@ -86,8 +100,7 @@ async function cargarHorasDisponibles() {
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     if (!serviciosGrid) return;
-    serviciosGrid.innerHTML = "Cargando...";
-
+    
     const snapshot = await getDocs(collection(db, "servicios"));
     serviciosGrid.innerHTML = "";
     
@@ -126,9 +139,9 @@ function renderCarrito() {
     let total = carrito.reduce((sum, s) => sum + s.duracion, 0);
     carritoDiv.innerHTML = `
         <div class="resumen-badge">
-            <p><b>RESUMEN:</b></p>
+            <p><b>RESUMEN DE SELECCIÓN:</b></p>
             ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
-            <div class='resumen-total'><span>Total:</span><span>${total} min</span></div>
+            <div class='resumen-total'><span>Total</span><span>${total} min</span></div>
         </div>`;
 }
 
@@ -147,7 +160,7 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-        if (d.getDay() === 0) continue; // Saltar domingos
+        if (d.getDay() === 0) continue; 
 
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
@@ -168,7 +181,7 @@ function generarCalendario() {
     }
 }
 
-// --- 4. GUARDADO ---
+// --- 4. GUARDADO DE DATOS ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -195,7 +208,7 @@ if (form) {
                     fecha: document.getElementById("fecha").value, 
                     hora: minAH(t), 
                     duracion: s.duracion, 
-                    simultaneo: s.simultaneo, 
+                    simultaneo: s.simultaneo === true, // Heredado del servicio
                     creado: Timestamp.now() 
                 });
                 t += s.duracion;
@@ -204,12 +217,12 @@ if (form) {
             window.location.reload();
         } catch (err) { 
             console.error(err);
-            alert("Error al guardar"); 
+            alert("Error al guardar la reserva"); 
         }
     });
 }
 
-// --- 5. INICIO ---
+// --- INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", () => {
     generarCalendario();
     cargarServicios();
