@@ -1,80 +1,62 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    collection, addDoc, onSnapshot, deleteDoc, doc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-let form, tbody;
+let tbody;
 
-function crearFilaServicio(id, servicio) {
-    const fila = document.createElement("tr");
-
-    fila.innerHTML = `
-        <td style="font-weight: 600;">${servicio.nombre}</td>
-        <td>${servicio.duracion} min</td>
-        <td>₡${Number(servicio.precio).toLocaleString()}</td>
+function renderFila(id, data) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td><span class="badge-cat">${data.categoria}</span></td>
+        <td style="font-weight: 600;">${data.nombre}</td>
+        <td>${data.duracion} min</td>
+        <td>₡${Number(data.precio).toLocaleString()}</td>
         <td>
-            <span class="badge-tipo ${servicio.simultaneo ? 'badge-simultaneo' : 'badge-exclusivo'}">
-                ${servicio.simultaneo ? "✨ Simultáneo" : "🔒 Exclusivo"}
+            <span class="badge-tipo ${data.simultaneo ? 'badge-simultaneo' : 'badge-exclusivo'}">
+                ${data.simultaneo ? '✨' : '🔒'}
             </span>
         </td>
         <td>
-            <button class="btn-eliminar" data-id="${id}" title="Eliminar servicio">🗑️</button>
+            <button class="btn-eliminar" onclick="eliminarServicio('${id}', '${data.nombre}')">🗑️</button>
         </td>
     `;
-
-    fila.querySelector(".btn-eliminar").addEventListener("click", async () => {
-        if (confirm(`¿Eliminar el servicio "${servicio.nombre}"?`)) {
-            try {
-                await deleteDoc(doc(db, "servicios", id));
-            } catch (err) {
-                alert("Error al eliminar: " + err.message);
-            }
-        }
-    });
-
-    return fila;
+    return tr;
 }
 
-async function cargarServicios() {
-    if (!tbody) return;
+window.eliminarServicio = async (id, nombre) => {
+    if (confirm(`¿Eliminar ${nombre}?`)) {
+        await deleteDoc(doc(db, "servicios", id));
+    }
+};
 
-    // Usamos onSnapshot para que la tabla se actualice sola sin recargar
-    onSnapshot(collection(db, "servicios"), (snapshot) => {
+export function initServicios() {
+    const form = document.getElementById("formServicios");
+    tbody = document.querySelector("#tablaServicios tbody");
+
+    // Escucha en tiempo real
+    onSnapshot(collection(db, "servicios"), (snap) => {
         tbody.innerHTML = "";
-        snapshot.forEach(docu => {
-            const fila = crearFilaServicio(docu.id, docu.data());
-            tbody.appendChild(fila);
+        snap.forEach(doc => {
+            tbody.appendChild(renderFila(doc.id, doc.data()));
         });
     });
-}
 
-function initServicios() {
-    form = document.getElementById("formServicios");
-    tbody = document.getElementById("tablaServicios")?.querySelector("tbody");
-
-    if (!form || !tbody) return;
-
-    form.addEventListener("submit", async e => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
-        const nombre = document.getElementById("nombreServicio").value.trim();
-        const duracion = Number(document.getElementById("duracionServicio").value);
-        const precio = Number(document.getElementById("precioServicio").value);
-        const simultaneo = document.getElementById("simultaneoServicio").checked;
+        const nuevoServicio = {
+            categoria: document.getElementById("categoriaServicio").value,
+            nombre: document.getElementById("nombreServicio").value,
+            duracion: Number(document.getElementById("duracionServicio").value),
+            precio: Number(document.getElementById("precioServicio").value),
+            simultaneo: document.getElementById("simultaneoServicio").checked
+        };
 
         try {
-            await addDoc(collection(db, "servicios"), {
-                nombre,
-                duracion,
-                precio,
-                simultaneo,
-                fechaCreacion: new Date()
-            });
+            await addDoc(collection(db, "servicios"), nuevoServicio);
             form.reset();
-        } catch (err) {
-            alert("Error al guardar: " + err.message);
+        } catch (error) {
+            console.error("Error:", error);
         }
     });
-
-    cargarServicios();
 }
-
-export { initServicios };
