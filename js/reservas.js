@@ -3,12 +3,14 @@ import {
     collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp, onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
+// --- UTILIDADES ---
 const hAMin = (h) => { 
     if(!h) return 0;
     const [hh, mm] = h.split(":").map(Number); 
@@ -21,7 +23,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- MOTOR DE DISPONIBILIDAD ---
+// --- MOTOR DE DISPONIBILIDAD (CON CIERRE DE CANAL SEGURO) ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
@@ -29,18 +31,20 @@ async function cargarHorasDisponibles() {
 
     const fechaSeleccionada = fechaInput.value;
 
+    // 1. Si no hay datos suficientes, limpiamos y salimos
     if (!fechaSeleccionada || carrito.length === 0) {
         horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona servicios y fecha.</p>";
         return;
     }
 
-    // RESET: Si cambiamos de fecha, matamos la conexión vieja
+    // 2. Si la fecha es diferente a la última, cerramos la conexión anterior
     if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
+        console.log("Cambiando de fecha, cerrando conexión previa...");
         desuscribirCitas();
         desuscribirCitas = null;
     }
 
-    // Solo creamos una nueva escucha si no existe una para esta fecha
+    // 3. Solo abrimos una conexión si no existe una activa para esta fecha
     if (!desuscribirCitas) {
         const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
         
@@ -56,17 +60,23 @@ async function cargarHorasDisponibles() {
             });
             ultimaFechaConsultada = fechaSeleccionada;
             renderizarBotones(citasExistentes);
+        }, (error) => {
+            console.error("Error de Firebase:", error);
         });
     } else {
-        // Si ya hay una escucha activa, simplemente forzamos el renderizado
-        // Esto ayuda cuando cambias de servicio pero sigues en la misma fecha
-        ultimaFechaConsultada = fechaSeleccionada;
+        // Si el usuario cambió de servicio pero sigue en la misma fecha, 
+        // Firebase no enviará un nuevo snapshot, así que forzamos el renderizado.
+        // Pero para esto necesitamos las citas que ya tenemos. 
+        // Para simplificar, forzamos un reset si el carrito cambia:
+        desuscribirCitas();
+        desuscribirCitas = null;
+        cargarHorasDisponibles();
     }
 }
 
 function renderizarBotones(citasExistentes) {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
-    horasVisualGrid.innerHTML = ""; // LIMPIEZA TOTAL
+    horasVisualGrid.innerHTML = ""; 
 
     HORAS.forEach(hApertura => {
         let tiempoCorriente = hAMin(hApertura);
@@ -108,7 +118,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- RESTO DEL CÓDIGO (SERVICIOS, CALENDARIO, GUARDADO) ---
+// --- RESTO DE FUNCIONES (SERVICIOS, CALENDARIO, GUARDADO) ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     if (!serviciosGrid) return;
@@ -121,8 +131,18 @@ async function cargarServicios() {
         card.innerHTML = `<h4>${data.nombre}</h4><span>₡${data.precio}</span><p>${data.duracion || 60} min</p>`;
         card.onclick = () => {
             const index = carrito.findIndex(s => s.id === docSnap.id);
-            if (index > -1) { carrito.splice(index, 1); card.classList.remove("selected"); } 
-            else { carrito.push({ id: docSnap.id, nombre: data.nombre, duracion: Number(data.duracion) || 60, simultaneo: data.simultaneo === true }); card.classList.add("selected"); }
+            if (index > -1) { 
+                carrito.splice(index, 1); 
+                card.classList.remove("selected"); 
+            } else { 
+                carrito.push({ 
+                    id: docSnap.id, 
+                    nombre: data.nombre, 
+                    duracion: Number(data.duracion) || 60, 
+                    simultaneo: data.simultaneo === true 
+                }); 
+                card.classList.add("selected"); 
+            }
             renderCarrito();
             cargarHorasDisponibles(); 
         };
@@ -136,7 +156,12 @@ function renderCarrito() {
     carritoDiv.innerHTML = "";
     if (carrito.length === 0) return;
     let total = carrito.reduce((sum, s) => sum + s.duracion, 0);
-    carritoDiv.innerHTML = `<div class="resumen-badge"><p><b>RESUMEN:</b></p>${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}<div class='resumen-total'><span>Total</span><span>${total} min</span></div></div>`;
+    carritoDiv.innerHTML = `
+        <div class="resumen-badge">
+            <p><b>RESUMEN:</b></p>
+            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
+            <div class='resumen-total'><span>Total</span><span>${total} min</span></div>
+        </div>`;
 }
 
 function generarCalendario() {
@@ -176,14 +201,32 @@ if (form) {
             const correo = document.getElementById("correo").value;
             const telefono = document.getElementById("telefono").value;
             const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
-            await setDoc(doc(db, "clientes", idClie), { nombre: document.getElementById("nombre").value, apellido1: document.getElementById("apellido1").value, correo: correo, telefono: telefono }, { merge: true });
+            await setDoc(doc(db, "clientes", idClie), { 
+                nombre: document.getElementById("nombre").value, 
+                apellido1: document.getElementById("apellido1").value, 
+                correo: correo, 
+                telefono: telefono 
+            }, { merge: true });
+
             let t = hAMin(horaSeleccionada);
             for (const s of carrito) {
-                await addDoc(collection(db, "citas"), { clienteId: idClie, servicioId: s.id, fecha: document.getElementById("fecha").value, hora: minAH(t), duracion: s.duracion, simultaneo: s.simultaneo === true, creado: Timestamp.now() });
+                await addDoc(collection(db, "citas"), { 
+                    clienteId: idClie, 
+                    servicioId: s.id, 
+                    fecha: document.getElementById("fecha").value, 
+                    hora: minAH(t), 
+                    duracion: s.duracion, 
+                    simultaneo: s.simultaneo === true, 
+                    creado: Timestamp.now() 
+                });
                 t += s.duracion;
             }
-            alert("¡Reserva exitosa!"); window.location.reload();
-        } catch (err) { console.error(err); alert("Error al guardar"); }
+            alert("¡Reserva exitosa!"); 
+            window.location.reload();
+        } catch (err) { 
+            console.error(err); 
+            alert("Error al guardar reserva."); 
+        }
     });
 }
 
