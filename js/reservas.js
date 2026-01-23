@@ -8,7 +8,7 @@ const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
-let desuscribirCitas = null; // Para limpiar la conexión anterior
+let desuscribirCitas = null;
 
 // --- UTILIDADES ---
 const hAMin = (h) => { 
@@ -23,7 +23,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- 1. LÓGICA DE DISPONIBILIDAD (ACTUALIZACIÓN AUTOMÁTICA) ---
+// --- 1. LÓGICA DE DISPONIBILIDAD (MOTOR EN TIEMPO REAL) ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
@@ -31,19 +31,24 @@ async function cargarHorasDisponibles() {
 
     const fechaSeleccionada = fechaInput.value;
 
+    // Si no hay fecha o carrito, mostramos mensaje y salimos
     if (!fechaSeleccionada || carrito.length === 0) {
         horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; grid-column: 1/-1; text-align:center;'>Selecciona servicios y fecha.</p>";
         return;
     }
 
-    // Si cambiamos de fecha, cerramos la escucha del día anterior
+    // Si cambiamos de fecha, cerramos la conexión anterior para no mezclar datos
     if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
         desuscribirCitas();
+        desuscribirCitas = null;
     }
 
-    // Escuchamos la base de datos en tiempo real para la fecha seleccionada
+    // Evitamos duplicar escuchas si ya estamos en la misma fecha
+    if (desuscribirCitas) return;
+
     const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
     
+    // Escucha constante: si borras en la base de datos, esto se activa solo
     desuscribirCitas = onSnapshot(q, (snapshot) => {
         const citasExistentes = snapshot.docs.map(d => {
             const data = d.data();
@@ -57,13 +62,14 @@ async function cargarHorasDisponibles() {
 
         ultimaFechaConsultada = fechaSeleccionada;
         renderizarBotones(citasExistentes);
+    }, (error) => {
+        console.error("Error en tiempo real:", error);
     });
 }
 
-// Función auxiliar para dibujar los botones sin repetir consultas
 function renderizarBotones(citasExistentes) {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
-    horasVisualGrid.innerHTML = "";
+    horasVisualGrid.innerHTML = ""; // Limpieza total antes de redibujar
 
     for (const hApertura of HORAS) {
         let tiempoCorriente = hAMin(hApertura);
@@ -74,12 +80,11 @@ function renderizarBotones(citasExistentes) {
             const duracionNuevo = Number(s.duracion) || 60;
             const finNuevo = inicioNuevo + duracionNuevo;
 
-            const ocupantes = citasExistentes.filter(c => {
-                return (inicioNuevo < c.fin && finNuevo > c.inicio);
-            });
+            // Filtramos ocupantes en este rango
+            const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO [cite: 2026-01-23]
+                // REGLA DE ORO: La simultaneidad depende del primer servicio [cite: 2026-01-23]
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const nuevoPermite = s.simultaneo === true;
                 const hayCupo = ocupantes.length < 2;
@@ -136,7 +141,8 @@ async function cargarServicios() {
                 card.classList.add("selected"); 
             }
             renderCarrito();
-            cargarHorasDisponibles(); // Esto ahora disparará la actualización en tiempo real
+            // Cada vez que cambia el carrito, recalculamos disponibilidad
+            cargarHorasDisponibles(); 
         };
         serviciosGrid.appendChild(card);
     });
