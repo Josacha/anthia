@@ -10,10 +10,13 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// --- CONFIGURACIÓN EMAILJS (Asegúrate de poner tus IDs reales) ---
+// --- CONFIGURACIÓN EMAILJS ---
 const SERVICE_ID = "service_14jwpyq";
-const TEMPLATE_ID = "template_itx9f7f"; // Reemplaza con tu Template ID de EmailJS
-const PUBLIC_KEY = "s8xK3KN3XQ4g9Qccg";   // Reemplaza con tu Public Key de EmailJS
+const TEMPLATE_ID = "template_itx9f7f";
+const PUBLIC_KEY = "s8xK3KN3XQ4g9Qccg";
+
+// Inicializar EmailJS para evitar el error "defined"
+emailjs.init(PUBLIC_KEY);
 
 // --- UTILIDADES ---
 const hAMin = (h) => { 
@@ -216,7 +219,6 @@ if (form) {
             const fecha = document.getElementById("fecha").value;
             const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
             
-            // 1. Guardar/Actualizar Cliente
             await setDoc(doc(db, "clientes", idClie), { 
                 nombre: nombre, 
                 apellido1: document.getElementById("apellido1").value, 
@@ -224,7 +226,6 @@ if (form) {
                 telefono: telefono 
             }, { merge: true });
 
-            // 2. Guardar Citas
             let t = hAMin(horaSeleccionada);
             for (const s of carrito) {
                 await addDoc(collection(db, "citas"), { 
@@ -239,7 +240,7 @@ if (form) {
                 t += s.duracion;
             }
 
-            // 3. ENVIAR CORREO AUTOMÁTICO (Solo esta parte se agregó)
+            // Enviar correo
             const templateParams = {
                 nombre_cliente: nombre,
                 email_cliente: correo,
@@ -249,14 +250,14 @@ if (form) {
                 link_calendario: `https://www.google.com/calendar/render?action=TEMPLATE&text=Cita+Anthia&dates=${fecha.replace(/-/g,'')}T${horaSeleccionada.replace(':','')}00Z`
             };
 
-            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
 
             alert("¡Reserva exitosa! Se ha enviado un correo de confirmación."); 
             window.location.reload();
 
         } catch (err) { 
             console.error(err); 
-            alert("Error al guardar reserva."); 
+            alert("Error al procesar la reserva."); 
             btnSubmit.disabled = false;
             btnSubmit.textContent = "Confirmar Reserva";
         }
