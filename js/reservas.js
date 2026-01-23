@@ -1,6 +1,9 @@
 import { db } from "./firebase.js";
-import { collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// --- SELECTORES ---
 const formReserva = document.getElementById("formReserva");
 const correoInput = document.getElementById("correo");
 const telefonoInput = document.getElementById("telefono");
@@ -13,10 +16,12 @@ const serviciosGrid = document.getElementById("serviciosGrid");
 const calendarioContenedor = document.getElementById("calendarioSemanas");
 const horasVisualGrid = document.getElementById("horasVisualGrid");
 
+// --- CONFIGURACIÓN Y ESTADO ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 let carrito = [];
 let horaSeleccionada = "";
 
+// --- UTILIDADES DE TIEMPO ---
 function horaAMinutos(hora) {
     const [h, m] = hora.split(":").map(Number);
     return h * 60 + m;
@@ -28,6 +33,7 @@ function minutosAHora(totalMinutos) {
     return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
 }
 
+// --- LÓGICA DE CALENDARIO ---
 function generarCalendario() {
     calendarioContenedor.innerHTML = "";
     const hoy = new Date();
@@ -38,7 +44,7 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-        if (d.getDay() === 0) continue; 
+        if (d.getDay() === 0) continue; // Domingo libre
 
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
@@ -54,13 +60,14 @@ function generarCalendario() {
             document.querySelectorAll(".day-item").forEach(el => el.classList.remove("selected"));
             diaCard.classList.add("selected");
             fechaInput.value = isoFecha;
-            cargarHorasDisponibles(); // Carga inmediata al hacer clic
+            cargarHorasDisponibles(); 
         };
         calendarioContenedor.appendChild(diaCard);
         diasContados++;
     }
 }
 
+// --- LÓGICA DE SERVICIOS ---
 async function cargarServicios() {
     serviciosGrid.innerHTML = "";
     const snapshot = await getDocs(collection(db, "servicios"));
@@ -71,8 +78,18 @@ async function cargarServicios() {
         card.innerHTML = `<h4>${data.nombre}</h4><span>₡${data.precio}</span><p>${data.duracion || 60} min</p>`;
         card.onclick = () => {
             const index = carrito.findIndex(s => s.id === docSnap.id);
-            if (index > -1) { carrito.splice(index, 1); card.classList.remove("selected"); }
-            else { carrito.push({ id: docSnap.id, nombre: data.nombre, duracion: parseInt(data.duracion)||60, simultaneo: !!data.simultaneo }); card.classList.add("selected"); }
+            if (index > -1) { 
+                carrito.splice(index, 1); 
+                card.classList.remove("selected"); 
+            } else { 
+                carrito.push({ 
+                    id: docSnap.id, 
+                    nombre: data.nombre, 
+                    duracion: parseInt(data.duracion) || 60, 
+                    simultaneo: !!data.simultaneo 
+                }); 
+                card.classList.add("selected"); 
+            }
             renderCarrito();
             cargarHorasDisponibles();
         };
@@ -80,6 +97,7 @@ async function cargarServicios() {
     });
 }
 
+// --- CARGAR HORAS CON REGLAS ESTRICTAS ---
 async function cargarHorasDisponibles() {
     horasVisualGrid.innerHTML = "";
     const fecha = fechaInput.value;
@@ -88,22 +106,39 @@ async function cargarHorasDisponibles() {
         return;
     }
 
-    const snapshotCitas = await getDocs(collection(db, "citas"));
+    const q = query(collection(db, "citas"), where("fecha", "==", fecha));
+    const snapshotCitas = await getDocs(q);
     const citas = snapshotCitas.docs.map(d => d.data());
 
     for (const hApertura of HORAS) {
-        let tiempo = horaAMinutos(hApertura);
+        let tiempoCorriente = horaAMinutos(hApertura);
         let posible = true;
 
+        // Validar ENCADENAMIENTO del carrito
         for (const s of carrito) {
-            const inicio = tiempo;
-            const fin = inicio + s.duracion;
-            const ocupadas = citas.filter(c => c.fecha === fecha && !(fin <= horaAMinutos(c.hora) || inicio >= (horaAMinutos(c.hora) + (c.duracion||60))));
+            const inicioR = tiempoCorriente;
+            const finR = inicioR + s.duracion;
+
+            // Buscar si hay citas que se solapen con este bloque de tiempo
+            const ocupadas = citas.filter(c => {
+                const cIni = horaAMinutos(c.hora);
+                const cFin = cIni + (c.duracion || 60);
+                return (inicioR < cFin && finR > cIni);
+            });
 
             if (ocupadas.length > 0) {
-                if (ocupadas.some(c => !c.simultaneo) || !s.simultaneo || ocupadas.length >= 2) { posible = false; break; }
+                // REGLA DE ORO: El que ya estaba debe ser simultáneo obligatoriamente
+                const elExistentePermite = ocupadas.every(c => c.simultaneo === true);
+                const cabinaLlena = ocupadas.length >= 2;
+
+                // Si el que ya estaba no permite, o ya hay 2 personas, se bloquea
+                if (!elExistentePermite || cabinaLlena) {
+                    posible = false;
+                    break;
+                }
             }
-            tiempo = fin;
+            // Siguiente servicio del carrito empieza donde termina el actual
+            tiempoCorriente = finR;
         }
 
         if (posible) {
@@ -133,20 +168,46 @@ function renderCarrito() {
         </div>`;
 }
 
-generarCalendario();
-cargarServicios();
-
+// --- PROCESAR RESERVA ---
 formReserva.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!fechaInput.value || !horaSeleccionada || carrito.length === 0) return alert("Completa los datos");
+
     try {
         const idClie = (correoInput.value || telefonoInput.value).replace(/[.#$[\]]/g,'_');
-        await setDoc(doc(db, "clientes", idClie), { nombre: nombreInput.value, apellido1: apellido1Input.value, correo: correoInput.value, telefono: telefonoInput.value }, { merge: true });
+        
+        // Guardar/Actualizar cliente
+        await setDoc(doc(db, "clientes", idClie), { 
+            nombre: nombreInput.value, 
+            apellido1: apellido1Input.value, 
+            correo: correoInput.value, 
+            telefono: telefonoInput.value 
+        }, { merge: true });
+
         let t = horaAMinutos(horaSeleccionada);
+        
+        // Guardar cada cita del encadenamiento
         for (const s of carrito) {
-            await addDoc(collection(db, "citas"), { clienteId: idClie, servicioId: s.id, fecha: fechaInput.value, hora: minutosAHora(t), duracion: s.duracion, simultaneo: s.simultaneo, creado: Timestamp.now() });
+            await addDoc(collection(db, "citas"), { 
+                clienteId: idClie, 
+                servicioId: s.id, 
+                fecha: fechaInput.value, 
+                hora: minutosAHora(t), 
+                duracion: s.duracion, 
+                simultaneo: s.simultaneo, 
+                avisoMostrado: false, // Importante para el monitor de premios
+                creado: Timestamp.now() 
+            });
             t += s.duracion;
         }
-        alert("¡Reserva exitosa!"); window.location.reload();
-    } catch (err) { alert("Error"); }
+        
+        alert("¡Reserva exitosa!"); 
+        window.location.reload();
+    } catch (err) { 
+        alert("Error al procesar la reserva"); 
+    }
 });
+
+// Inicialización
+generarCalendario();
+cargarServicios();
