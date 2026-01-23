@@ -5,7 +5,7 @@
     <title>Servicios | ANTHIA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="../../css/agenda.css">
     <link rel="stylesheet" href="../../css/servicios.css">
 </head>
 <body>
@@ -29,7 +29,7 @@
     <main class="main-content">
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px;">Servicios</h1>
+                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
                 <p class="agenda-mes">Catálogo de tratamientos</p>
             </div>
         </header>
@@ -43,7 +43,7 @@
                             <option value="Faciales">Faciales</option>
                             <option value="Masajes">Masajes</option>
                             <option value="Uñas">Uñas</option>
-                            <option value="Cejas y Pestañas">Cejas y Pestañas</option>
+                            <option value="Cejas">Cejas y Pestañas</option>
                             <option value="Corporales">Corporales</option>
                         </select>
                     </div>
@@ -64,14 +64,14 @@
                     </div>
 
                     <div class="input-group checkbox-group">
-                        <label class="switch-container">
+                         <label class="switch-container">
                             <input type="checkbox" id="simultaneoServicio">
                             <span class="slider"></span>
                         </label>
-                        <span style="font-size: 10px;">Simultáneo</span>
+                        <span style="font-size: 10px; color: #666;">Simultáneo</span>
                     </div>
 
-                    <button type="submit" class="btn-primario-lux">Añadir</button>
+                    <button type="submit" class="btn-primario-lux" style="padding: 10px; font-size: 12px;">Añadir</button>
                 </form>
             </div>
 
@@ -86,14 +86,12 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    </tbody>
             </table>
         </div>
     </main>
 
-    <script type="module">
-        import { initServicios } from "../../js/servicios.js";
-        document.addEventListener("DOMContentLoaded", initServicios);
-    </script>
+    <script type="module" src="../../js/servicios.js"></script>
 </body>
 </html>
