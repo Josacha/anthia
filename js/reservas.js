@@ -1,12 +1,14 @@
 import { db } from "./firebase.js";
 import { 
-    collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp 
+    collection, addDoc, setDoc, doc, getDocs, query, where, Timestamp, onSnapshot 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 let carrito = [];
 let horaSeleccionada = "";
+let ultimaFechaConsultada = "";
+let desuscribirCitas = null; // Para limpiar la conexión anterior
 
 // --- UTILIDADES ---
 const hAMin = (h) => { 
@@ -21,13 +23,12 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- 1. LÓGICA DE DISPONIBILIDAD (EL MOTOR DE VALIDACIÓN) ---
+// --- 1. LÓGICA DE DISPONIBILIDAD (ACTUALIZACIÓN AUTOMÁTICA) ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
     if (!horasVisualGrid || !fechaInput) return;
 
-    horasVisualGrid.innerHTML = "";
     const fechaSeleccionada = fechaInput.value;
 
     if (!fechaSeleccionada || carrito.length === 0) {
@@ -35,42 +36,52 @@ async function cargarHorasDisponibles() {
         return;
     }
 
-    // Traer citas existentes para esta fecha
+    // Si cambiamos de fecha, cerramos la escucha del día anterior
+    if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
+        desuscribirCitas();
+    }
+
+    // Escuchamos la base de datos en tiempo real para la fecha seleccionada
     const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
-    const snapshotCitas = await getDocs(q);
     
-    const citasExistentes = snapshotCitas.docs.map(d => {
-        const data = d.data();
-        const ini = hAMin(data.hora);
-        return {
-            inicio: ini,
-            fin: ini + (Number(data.duracion) || 60),
-            simultaneo: data.simultaneo === true 
-        };
+    desuscribirCitas = onSnapshot(q, (snapshot) => {
+        const citasExistentes = snapshot.docs.map(d => {
+            const data = d.data();
+            const ini = hAMin(data.hora);
+            return {
+                inicio: ini,
+                fin: ini + (Number(data.duracion) || 60),
+                simultaneo: data.simultaneo === true 
+            };
+        });
+
+        ultimaFechaConsultada = fechaSeleccionada;
+        renderizarBotones(citasExistentes);
     });
+}
+
+// Función auxiliar para dibujar los botones sin repetir consultas
+function renderizarBotones(citasExistentes) {
+    const horasVisualGrid = document.getElementById("horasVisualGrid");
+    horasVisualGrid.innerHTML = "";
 
     for (const hApertura of HORAS) {
         let tiempoCorriente = hAMin(hApertura);
         let esPosibleTodoElCombo = true;
 
-        // Validar cada servicio que el cliente tiene en su carrito
         for (const s of carrito) {
             const inicioNuevo = tiempoCorriente;
             const duracionNuevo = Number(s.duracion) || 60;
             const finNuevo = inicioNuevo + duracionNuevo;
 
-            // Buscar si hay alguien en la cabina en este rango
             const ocupantes = citasExistentes.filter(c => {
                 return (inicioNuevo < c.fin && finNuevo > c.inicio);
             });
 
             if (ocupantes.length > 0) {
-                // APLICACIÓN DE LA REGLA DE ORO [cite: 2026-01-23]
-                // 1. ¿Todos los que ya están permiten simultaneidad?
+                // REGLA DE ORO [cite: 2026-01-23]
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
-                // 2. ¿El nuevo servicio que se quiere agendar permite simultaneidad?
                 const nuevoPermite = s.simultaneo === true;
-                // 3. ¿Hay cupo (máximo 2 personas)?
                 const hayCupo = ocupantes.length < 2;
 
                 if (!existentesPermiten || !nuevoPermite || !hayCupo) {
@@ -125,7 +136,7 @@ async function cargarServicios() {
                 card.classList.add("selected"); 
             }
             renderCarrito();
-            cargarHorasDisponibles();
+            cargarHorasDisponibles(); // Esto ahora disparará la actualización en tiempo real
         };
         serviciosGrid.appendChild(card);
     });
@@ -208,7 +219,7 @@ if (form) {
                     fecha: document.getElementById("fecha").value, 
                     hora: minAH(t), 
                     duracion: s.duracion, 
-                    simultaneo: s.simultaneo === true, // Heredado del servicio
+                    simultaneo: s.simultaneo === true, 
                     creado: Timestamp.now() 
                 });
                 t += s.duracion;
