@@ -11,7 +11,7 @@ const clienteNombre = document.getElementById("clienteNombre");
 const servicioSelect = document.getElementById("servicioSelect");
 const listaSugerencias = document.getElementById("listaSugerencias");
 
-// --- ESTADO DE LA APLICACIÓN ---
+// --- ESTADO ---
 let carrito = [];
 let horaSeleccionada = null;
 let clienteSeleccionadoId = null;
@@ -19,28 +19,23 @@ let serviciosMap = {};
 let clientesMap = {};
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 
-// --- UTILIDADES DE TIEMPO (Reglas de negocio) ---
-const hAMin = (h) => { 
-    const [hh, mm] = h.split(":").map(Number); 
-    return hh * 60 + mm; 
-};
+// --- UTILIDADES ---
+const hAMin = (h) => { const [hh, mm] = h.split(":").map(Number); return hh * 60 + mm; };
 const minAH = (min) => {
     const hh = Math.floor(min / 60).toString().padStart(2, '0');
     const mm = (min % 60).toString().padStart(2, '0');
     return `${hh}:${mm}`;
 };
 
-// --- NOTIFICACIONES Y MONITOR DE PREMIOS ---
+// --- MONITOR DE PREMIOS EN TIEMPO REAL ---
 function mostrarAvisoPremio(nombre, tipoPremio) {
     const push = document.getElementById("notificacionPush");
     if (!push) return;
     document.getElementById("pushCliente").textContent = nombre;
-    document.getElementById("pushDetalle").textContent = `¡Llegó a su cita! Aplica: ${tipoPremio}`;
+    document.getElementById("pushDetalle").textContent = `¡Cita actual! Aplica: ${tipoPremio}`;
     push.classList.add("active");
-    setTimeout(() => push.classList.remove("active"), 12000); // 12 seg de visibilidad
+    setTimeout(() => push.classList.remove("active"), 12000);
 }
-
-window.cerrarPush = () => document.getElementById("notificacionPush").classList.remove("active");
 
 function iniciarMonitorDePremios() {
     const hoy = new Date().toISOString().split('T')[0];
@@ -57,27 +52,19 @@ function iniciarMonitorDePremios() {
                     const snapH = await getDocs(qH);
                     const numCita = snapH.size;
                     const ciclo = numCita % 10 === 0 ? 10 : numCita % 10;
-                    
                     const nombreCli = clientesMap[cita.clienteId]?.nombre || "Cliente";
 
                     if (ciclo === 5) mostrarAvisoPremio(nombreCli, "🎁 50% DE DESCUENTO");
                     else if (ciclo === 10) mostrarAvisoPremio(nombreCli, "✨ ¡SERVICIO GRATIS!");
-                    
-                    // Nota: Para marcar como avisado en tiempo real sin recargar, 
-                    // podrías actualizar el doc en Firebase aquí.
                 }
             });
         }, 60000); 
     });
 }
 
-// --- LÓGICA DE DATOS ---
+// --- LÓGICA DE AGENDA ---
 async function cargarDatos() {
-    const [sSnap, cSnap] = await Promise.all([
-        getDocs(collection(db, "servicios")), 
-        getDocs(collection(db, "clientes"))
-    ]);
-    
+    const [sSnap, cSnap] = await Promise.all([getDocs(collection(db, "servicios")), getDocs(collection(db, "clientes"))]);
     servicioSelect.innerHTML = '<option value="">+ Añadir tratamiento</option>';
     sSnap.forEach(d => {
         serviciosMap[d.id] = { id: d.id, ...d.data() };
@@ -89,43 +76,14 @@ async function cargarDatos() {
     cSnap.forEach(d => { clientesMap[d.id] = d.data(); });
 }
 
-// BUSCADOR PREDICTIVO (Igual que tu reserva externa)
-clienteNombre.addEventListener("input", (e) => {
-    const busqueda = e.target.value.toLowerCase();
-    listaSugerencias.innerHTML = "";
-    if (busqueda.length < 2) { listaSugerencias.style.display = "none"; return; }
-
-    const sugerencias = Object.entries(clientesMap).filter(([id, c]) => 
-        `${c.nombre} ${c.apellido1}`.toLowerCase().includes(busqueda) || 
-        (c.correo || "").toLowerCase().includes(busqueda)
-    );
-
-    if (sugerencias.length > 0) {
-        sugerencias.forEach(([id, c]) => {
-            const div = document.createElement("div");
-            div.className = "sugerencia-item";
-            div.innerHTML = `<b>${c.nombre} ${c.apellido1}</b><span>${c.correo || ''}</span>`;
-            div.onclick = () => {
-                clienteNombre.value = `${c.nombre} ${c.apellido1}`;
-                clienteSeleccionadoId = id;
-                listaSugerencias.style.display = "none";
-            };
-            listaSugerencias.appendChild(div);
-        });
-        listaSugerencias.style.display = "block";
-    }
-});
-
 async function cargarAgenda(fecha) {
     actualizarHero(fecha);
     const snap = await getDocs(query(collection(db, "citas"), where("fecha", "==", fecha)));
     const citas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
     tbody.innerHTML = "";
     HORAS.forEach(hora => {
         const tr = document.createElement("tr");
         const actualMin = hAMin(hora);
-        
         const ocupantes = citas.filter(c => {
             const inicio = hAMin(c.hora);
             const fin = inicio + (c.duracion || 60);
@@ -147,109 +105,62 @@ async function cargarAgenda(fecha) {
     });
 }
 
-// --- MANEJO DEL CARRITO Y MODAL ---
-window.abrirModal = (hora) => {
-    horaSeleccionada = hora; carrito = [];
-    document.getElementById("infoHoraSeleccionada").textContent = `Horario: ${hora}`;
-    actualizarCarritoUI();
-    modal.classList.add("active");
-};
-
-function actualizarCarritoUI() {
-    const lista = document.getElementById("listaServicios");
-    lista.innerHTML = carrito.map((s, i) => `<li>${s.nombre} <b onclick="window.quitar(${i})" style="color:red;cursor:pointer;margin-left:10px;">✕</b></li>`).join("");
-    const duracionTotal = carrito.reduce((a, b) => a + b.duracion, 0);
-    document.getElementById("displayInicio").textContent = horaSeleccionada || "--:--";
-    if(horaSeleccionada) document.getElementById("displayFin").textContent = minAH(hAMin(horaSeleccionada) + duracionTotal);
-}
-
-window.quitar = (i) => { carrito.splice(i,1); actualizarCarritoUI(); };
-
-servicioSelect.onchange = () => {
-    if(servicioSelect.value) {
-        const s = serviciosMap[servicioSelect.value];
-        carrito.push({ ...s, duracion: parseInt(s.duracion) || 60 });
-        actualizarCarritoUI();
-        servicioSelect.value = "";
-    }
-};
-
-// --- GUARDAR CON REGLAS DE SIMULTANEIDAD (Igual que reserva externa) ---
+// --- GUARDAR CON REGLA ESTRICTA DE SIMULTANEIDAD ---
 document.getElementById("guardarCita").onclick = async () => {
-    if(!horaSeleccionada || carrito.length === 0 || !clienteNombre.value) return alert("Faltan datos");
-
+    if(!horaSeleccionada || carrito.length === 0) return alert("Faltan datos");
     const fechaAct = fechaInput.value;
-    const snapValidar = await getDocs(query(collection(db, "citas"), where("fecha", "==", fechaAct)));
-    const citasExistentes = snapValidar.docs.map(d => d.data());
+    const snapVal = await getDocs(query(collection(db, "citas"), where("fecha", "==", fechaAct)));
+    const citasExistentes = snapVal.docs.map(d => d.data());
 
     let tiempoCorriente = hAMin(horaSeleccionada);
+    const nuevasCitas = [];
 
-    try {
-        for (const s of carrito) {
-            const inicio = tiempoCorriente;
-            const fin = inicio + s.duracion;
+    for (const s of carrito) {
+        const inicio = tiempoCorriente;
+        const fin = inicio + s.duracion;
 
-            // VALIDAR ESPACIO
-            const ocupadas = citasExistentes.filter(c => {
-                const cIni = hAMin(c.hora);
-                const cFin = cIni + (c.duracion || 60);
-                return !(fin <= cIni || inicio >= cFin);
-            });
+        const ocupadas = citasExistentes.filter(c => {
+            const cIni = hAMin(c.hora);
+            const cFin = cIni + (c.duracion || 60);
+            return (inicio < cFin && fin > cIni);
+        });
 
-            if (ocupadas.length > 0) {
-                const hayBloqueo = ocupadas.some(c => !c.simultaneo) || !s.simultaneo || ocupadas.length >= 2;
-                if (hayBloqueo) {
-                    alert(`El horario para "${s.nombre}" está ocupado o no permite más personas simultáneas.`);
-                    return;
-                }
+        if (ocupadas.length > 0) {
+            // REGLA: El primero que estaba DEBE ser simultáneo
+            const elPrimeroEsSimultaneo = ocupadas.every(c => c.simultaneo === true);
+            const miServicioEsSimultaneo = (s.simultaneo === true);
+
+            if (!elPrimeroEsSimultaneo || !miServicioEsSimultaneo || ocupadas.length >= 2) {
+                alert(`Conflicto en "${s.nombre}": El horario no permite simultaneidad.`);
+                return;
             }
-
-            // GUARDAR CITA
-            await addDoc(collection(db, "citas"), {
-                fecha: fechaAct,
-                hora: minAH(inicio),
-                clienteId: clienteSeleccionadoId || clienteNombre.value,
-                servicioId: s.id,
-                duracion: s.duracion,
-                simultaneo: !!s.simultaneo,
-                avisoMostrado: false,
-                creado: Timestamp.now()
-            });
-
-            tiempoCorriente = fin; // Encadenamiento
         }
-
-        modal.classList.remove("active");
-        alert("Cita agendada con éxito.");
-        // Limpiar
-        clienteSeleccionadoId = null;
-        clienteNombre.value = "";
-        carrito = [];
-    } catch (e) {
-        alert("Error al guardar la cita.");
+        
+        nuevasCitas.push({
+            fecha: fechaAct,
+            hora: minAH(inicio),
+            clienteId: clienteSeleccionadoId || clienteNombre.value,
+            servicioId: s.id,
+            duracion: s.duracion,
+            simultaneo: !!s.simultaneo,
+            avisoMostrado: false,
+            creado: Timestamp.now()
+        });
+        tiempoCorriente = fin;
     }
+
+    for (const c of nuevasCitas) { await addDoc(collection(db, "citas"), c); }
+    modal.classList.remove("active");
+    alert("Cita guardada.");
+    carrito = [];
 };
 
 // --- INICIALIZACIÓN ---
-function actualizarHero(fechaStr) {
-    const f = new Date(fechaStr + "T00:00:00");
-    document.getElementById("numeroDia").textContent = f.getDate();
-    document.getElementById("mes").textContent = f.toLocaleDateString('es-ES', { month: 'long' });
-    document.getElementById("diaSemana").textContent = f.toLocaleDateString('es-ES', { weekday: 'long' });
-}
-
-window.eliminar = async (id) => { if(confirm("¿Eliminar cita?")) await deleteDoc(doc(db, "citas", id)); };
-
 document.addEventListener("DOMContentLoaded", async () => {
     fechaInput.value = new Date().toISOString().split("T")[0];
     await cargarDatos();
     cargarAgenda(fechaInput.value);
-    
-    iniciarMonitorDePremios(); // Activar notificaciones automáticas
-
+    iniciarMonitorDePremios();
     fechaInput.onchange = () => cargarAgenda(fechaInput.value);
-    document.getElementById("cancelarModal").onclick = () => modal.classList.remove("active");
-    
-    // Escuchar cambios globales en citas para refrescar tabla
     onSnapshot(collection(db, "citas"), () => cargarAgenda(fechaInput.value));
 });
