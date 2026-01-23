@@ -10,6 +10,11 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
+// --- CONFIGURACIÓN EMAILJS (Asegúrate de poner tus IDs reales) ---
+const SERVICE_ID = "service_14jwpyq";
+const TEMPLATE_ID = "TU_TEMPLATE_ID"; // Reemplaza con tu Template ID de EmailJS
+const PUBLIC_KEY = "TU_PUBLIC_KEY";   // Reemplaza con tu Public Key de EmailJS
+
 // --- UTILIDADES ---
 const hAMin = (h) => { 
     if(!h) return 0;
@@ -36,7 +41,6 @@ async function cargarHorasDisponibles() {
         return;
     }
 
-    // Cerramos escucha anterior si cambiamos de fecha
     if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
         desuscribirCitas();
         desuscribirCitas = null;
@@ -59,7 +63,6 @@ async function cargarHorasDisponibles() {
             renderizarBotones(citasExistentes);
         });
     } else {
-        // Forzar recarga si cambia el carrito pero la fecha es la misma
         desuscribirCitas();
         desuscribirCitas = null;
         cargarHorasDisponibles();
@@ -151,7 +154,7 @@ function renderCarrito() {
     carritoDiv.innerHTML = `<div class="resumen-badge"><p><b>RESUMEN:</b></p>${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}<div class='resumen-total'><span>Total</span><span>${total} min</span></div></div>`;
 }
 
-// --- CALENDARIO (CORREGIDO PARA EVITAR SALTO DE DÍA) ---
+// --- CALENDARIO ---
 function generarCalendario() {
     const calendarioContenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
@@ -172,7 +175,6 @@ function generarCalendario() {
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
 
-        // Obtención manual de fecha local (Evita el error de zona horaria)
         const anio = d.getFullYear();
         const mes = String(d.getMonth() + 1).padStart(2, '0');
         const dia = String(d.getDate()).padStart(2, '0');
@@ -196,29 +198,39 @@ function generarCalendario() {
     }
 }
 
+// --- FORMULARIO Y ENVÍO DE CORREO ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!horaSeleccionada || carrito.length === 0) return alert("Selecciona servicios y hora");
+        
+        const btnSubmit = form.querySelector("button[type='submit']");
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = "Procesando...";
+
         try {
+            const nombre = document.getElementById("nombre").value;
             const correo = document.getElementById("correo").value;
             const telefono = document.getElementById("telefono").value;
+            const fecha = document.getElementById("fecha").value;
             const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
             
+            // 1. Guardar/Actualizar Cliente
             await setDoc(doc(db, "clientes", idClie), { 
-                nombre: document.getElementById("nombre").value, 
+                nombre: nombre, 
                 apellido1: document.getElementById("apellido1").value, 
                 correo: correo, 
                 telefono: telefono 
             }, { merge: true });
 
+            // 2. Guardar Citas
             let t = hAMin(horaSeleccionada);
             for (const s of carrito) {
                 await addDoc(collection(db, "citas"), { 
                     clienteId: idClie, 
                     servicioId: s.id, 
-                    fecha: document.getElementById("fecha").value, 
+                    fecha: fecha, 
                     hora: minAH(t), 
                     duracion: s.duracion, 
                     simultaneo: s.simultaneo === true, 
@@ -226,11 +238,27 @@ if (form) {
                 });
                 t += s.duracion;
             }
-            alert("¡Reserva exitosa!"); 
+
+            // 3. ENVIAR CORREO AUTOMÁTICO (Solo esta parte se agregó)
+            const templateParams = {
+                nombre_cliente: nombre,
+                email_cliente: correo,
+                servicio: carrito.map(s => s.nombre).join(", "),
+                fecha: fecha,
+                hora: horaSeleccionada,
+                link_calendario: `https://www.google.com/calendar/render?action=TEMPLATE&text=Cita+Anthia&dates=${fecha.replace(/-/g,'')}T${horaSeleccionada.replace(':','')}00Z`
+            };
+
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+
+            alert("¡Reserva exitosa! Se ha enviado un correo de confirmación."); 
             window.location.reload();
+
         } catch (err) { 
             console.error(err); 
             alert("Error al guardar reserva."); 
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = "Confirmar Reserva";
         }
     });
 }
