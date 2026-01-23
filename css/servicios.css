@@ -68,3 +68,47 @@ input:checked + .slider:before { transform: translateX(16px); }
     font-size: 16px; color: #ccc; transition: 0.2s;
 }
 .btn-eliminar:hover { color: #e74c3c; transform: scale(1.2); }
+
+
+.card-servicios {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.form-grid {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-premium {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-primario-lux {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.btn-primario-lux:hover {
+    background: #c5a059;
+}
