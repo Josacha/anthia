@@ -30,11 +30,10 @@
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
                 <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Clientes</h1>
-                <p class="agenda-mes">Base de datos de contactos</p>
+                <p class="agenda-mes">Gestión de fidelización</p>
             </div>
-            
             <div class="search-box">
-                <input type="text" id="busquedaCliente" placeholder="Buscar nombre o correo..." class="agenda-date-picker" style="width: 300px; border-radius: 20px;">
+                <input type="text" id="busquedaCliente" placeholder="Buscar cliente..." class="agenda-date-picker" style="width: 300px; border-radius: 20px;">
             </div>
         </header>
 
@@ -43,9 +42,9 @@
                 <thead>
                     <tr>
                         <th>Nombre Completo</th>
-                        <th>Correo Electrónico</th>
-                        <th>Teléfono</th>
-                        <th>Historial</th>
+                        <th>Correo</th>
+                        <th>WhatsApp</th>
+                        <th>Fidelidad</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -55,7 +54,7 @@
     </main>
 
     <div class="modal" id="modalHistorial">
-        <div class="modal-box" style="width: 750px; max-width: 90%;">
+        <div class="modal-box" style="width: 800px; max-width: 95%;">
             <div class="modal-header">
                 <div>
                     <h3 id="historialNombre" style="font-family: 'Playfair Display', serif; font-size: 24px;">Historial</h3>
@@ -63,9 +62,14 @@
                 </div>
                 <button id="cerrarHistorial" style="background:none; border:none; font-size: 30px; cursor:pointer;">&times;</button>
             </div>
+
+            <div class="fidelizacion-seccion">
+                <h4 class="titulo-seccion">Tarjetas de Lealtad (Ciclo de 10)</h4>
+                <div id="contenedorTarjetas" class="grid-tarjetas"></div>
+            </div>
             
             <div class="stats-historial">
-                <div class="stat-item"><span>Total Citas</span> <b id="statTotalCitas">0</b></div>
+                <div class="stat-item"><span>Citas Totales</span> <b id="statTotalCitas">0</b></div>
                 <div class="stat-item"><span>Inversión Total</span> <b id="statTotalGasto">₡0</b></div>
             </div>
 
@@ -74,16 +78,12 @@
                     <thead>
                         <tr>
                             <th>Fecha</th>
-                            <th>Hora</th>
                             <th>Servicio</th>
-                            <th>Precio</th>
+                            <th>Precio Pagado</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyHistorial"></tbody>
                 </table>
-                <div id="mensajeSinCitas" style="display:none; text-align:center; padding: 40px; color: #999;">
-                    No se encontraron registros para este cliente.
-                </div>
             </div>
         </div>
     </div>
