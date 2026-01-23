@@ -2,10 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda Premium | ANTHIA</title>
+    <title>Servicios | ANTHIA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/agenda.css">
+
+    <link rel="stylesheet" href="../../css/servicios.css">
 </head>
 <body>
 
@@ -16,9 +17,9 @@
         </div>
         <nav class="menu">
             <a href="../dashboard.html">🏠 Inicio</a>
-            <a href="agenda.html" class="active">📅 Agenda</a>
-            <a href="servicios.html">✨ Servicios</a>
-            <a href="clientes.html">👤 Clientes</a>
+            <a href="agenda.html">📅 Agenda</a>
+            <a href="servicios.html" class="active">✨ Servicios</a>
+            <a href="contactos.html">👤 Clientes</a>
             <a href="inventario.html">📦 Inventario</a>
             <a href="configuracion.html">⚙️ Ajustes</a>
         </nav>
@@ -27,73 +28,70 @@
 
     <main class="main-content">
         <header class="agenda-hero">
-            <div class="agenda-fecha">
-                <div class="agenda-dia-numero" id="numeroDia">--</div>
-                <div class="agenda-dia-texto">
-                    <div class="agenda-mes" id="mes">---</div>
-                    <div class="agenda-dia-semana" id="diaSemana">---</div>
-                </div>
-            </div>
-
-            <div class="agenda-acciones">
-                <div class="calendar-wrapper">
-                    <label class="calendar-label">Consultar Fecha</label>
-                    <div class="calendar-input-container">
-                        <input type="date" id="fechaAgenda" class="agenda-date-picker">
-                        <span class="calendar-icon">📅</span>
-                    </div>
-                </div>
-               
+            <div class="agenda-fecha" style="padding-top: 20px;">
+                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
+                <p class="agenda-mes">Catálogo de tratamientos</p>
             </div>
         </header>
 
         <div class="tabla-container">
-            <table class="tabla-premium" id="tablaAgenda">
+            <div class="card-servicios">
+                <form id="formServicios" class="form-grid">
+                    <div class="input-group">
+                        <label>Categoría</label>
+                        <select id="categoriaServicio" class="input-premium" required>
+                            <option value="Faciales">Faciales</option>
+                            <option value="Masajes">Masajes</option>
+                            <option value="Uñas">Uñas</option>
+                            <option value="Cejas">Cejas y Pestañas</option>
+                            <option value="Corporales">Corporales</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nombre del Servicio</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Hidratación" class="input-premium" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Minutos</label>
+                        <input type="number" id="duracionServicio" placeholder="60" class="input-premium" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Precio</label>
+                        <input type="number" id="precioServicio" placeholder="25000" class="input-premium" required>
+                    </div>
+
+                    <div class="input-group checkbox-group">
+                         <label class="switch-container">
+                            <input type="checkbox" id="simultaneoServicio">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="font-size: 10px; color: #666;">Simultáneo</span>
+                    </div>
+
+                    <button type="submit" class="btn-primario-lux" style="padding: 10px; font-size: 12px;">Añadir</button>
+                </form>
+            </div>
+
+            <table id="tablaServicios" class="tabla-premium">
                 <thead>
                     <tr>
-                        <th>Hora</th>
-                        <th>Cliente</th>
+                        <th>Categoría</th>
                         <th>Servicio</th>
+                        <th>Tiempo</th>
+                        <th>Precio</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    </tbody>
             </table>
         </div>
     </main>
 
-    <div class="modal" id="modalCita">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Agendar Cita</h3>
-                <p id="infoHoraSeleccionada">Seleccione horario</p>
-            </div>
-            <div class="modal-body">
-                <label>Cliente (Nombre o Email)</label>
-                <div style="position: relative;">
-                    <input type="text" id="clienteNombre" placeholder="Escribe para buscar..." class="input-premium" autocomplete="off">
-                    <div id="listaSugerencias" class="sugerencias-dropdown"></div>
-                </div>
-
-                <label>Añadir Tratamiento</label>
-                <select id="servicioSelect" class="input-premium"></select>
-
-                <div class="carrito-container">
-                    <ul id="listaServicios" class="lista-servicios-premium"></ul>
-                    <div class="info-bloque-tiempo">
-                        <div class="dato"><span>Inicio:</span> <b id="displayInicio">--:--</b></div>
-                        <div class="dato"><span>Fin estimado:</span> <b id="displayFin">--:--</b></div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelarModal" class="btn-secundario-lux">Cancelar</button>
-                <button id="guardarCita" class="btn-primario-lux">Confirmar Cita</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="../../js/agenda.js"></script>
+    <script type="module" src="../../js/servicios.js"></script>
 </body>
 </html>
