@@ -1,50 +1,37 @@
-.hero {
-  height: 80vh;
-  background: linear-gradient(
-    rgba(0,0,0,0.4),
-    rgba(0,0,0,0.4)
-  ),
-  url("../assets/fondo/hero.jpg") center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
+/* Detalles específicos para la tabla de clientes */
+
+.btn-eliminar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #ccc;
+    transition: 0.3s;
 }
 
-.hero-content h2 {
-  font-size: 42px;
-  margin-bottom: 15px;
+.btn-eliminar:hover {
+    color: #e74c3c;
+    transform: scale(1.2);
 }
 
-.servicios {
-  padding: 60px 40px;
-  text-align: center;
+.btn-ver-historial:hover {
+    background: #c5a059 !important;
+    color: white !important;
+    transition: 0.3s;
 }
 
-.servicios-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
-  margin-top: 30px;
+/* Estilo del buscador en el Hero */
+.search-box input::placeholder {
+    color: rgba(255,255,255,0.4);
 }
 
-.servicio-card {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+.search-box input:focus {
+    border-color: #c5a059 !important;
+    outline: none;
+    background: rgba(255,255,255,0.1);
 }
 
-.cta {
-  background-color: #f3efe9;
-  padding: 60px 20px;
-  text-align: center;
+/* Badge de contacto */
+.tabla-premium td {
+    vertical-align: middle;
 }
-
-.footer {
-  padding: 20px;
-  text-align: center;
-  color: #999;
-}
-
