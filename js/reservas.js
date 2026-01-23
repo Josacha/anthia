@@ -23,7 +23,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- MOTOR DE DISPONIBILIDAD (CON CIERRE DE CANAL SEGURO) ---
+// --- MOTOR DE DISPONIBILIDAD (SINCRO REAL) ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
@@ -31,20 +31,17 @@ async function cargarHorasDisponibles() {
 
     const fechaSeleccionada = fechaInput.value;
 
-    // 1. Si no hay datos suficientes, limpiamos y salimos
     if (!fechaSeleccionada || carrito.length === 0) {
         horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona servicios y fecha.</p>";
         return;
     }
 
-    // 2. Si la fecha es diferente a la última, cerramos la conexión anterior
+    // Cerramos escucha anterior si cambiamos de fecha
     if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
-        console.log("Cambiando de fecha, cerrando conexión previa...");
         desuscribirCitas();
         desuscribirCitas = null;
     }
 
-    // 3. Solo abrimos una conexión si no existe una activa para esta fecha
     if (!desuscribirCitas) {
         const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
         
@@ -60,14 +57,9 @@ async function cargarHorasDisponibles() {
             });
             ultimaFechaConsultada = fechaSeleccionada;
             renderizarBotones(citasExistentes);
-        }, (error) => {
-            console.error("Error de Firebase:", error);
         });
     } else {
-        // Si el usuario cambió de servicio pero sigue en la misma fecha, 
-        // Firebase no enviará un nuevo snapshot, así que forzamos el renderizado.
-        // Pero para esto necesitamos las citas que ya tenemos. 
-        // Para simplificar, forzamos un reset si el carrito cambia:
+        // Forzar recarga si cambia el carrito pero la fecha es la misma
         desuscribirCitas();
         desuscribirCitas = null;
         cargarHorasDisponibles();
@@ -118,7 +110,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- RESTO DE FUNCIONES (SERVICIOS, CALENDARIO, GUARDADO) ---
+// --- GESTIÓN DE SERVICIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     if (!serviciosGrid) return;
@@ -156,37 +148,49 @@ function renderCarrito() {
     carritoDiv.innerHTML = "";
     if (carrito.length === 0) return;
     let total = carrito.reduce((sum, s) => sum + s.duracion, 0);
-    carritoDiv.innerHTML = `
-        <div class="resumen-badge">
-            <p><b>RESUMEN:</b></p>
-            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
-            <div class='resumen-total'><span>Total</span><span>${total} min</span></div>
-        </div>`;
+    carritoDiv.innerHTML = `<div class="resumen-badge"><p><b>RESUMEN:</b></p>${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}<div class='resumen-total'><span>Total</span><span>${total} min</span></div></div>`;
 }
 
+// --- CALENDARIO (CORREGIDO PARA EVITAR SALTO DE DÍA) ---
 function generarCalendario() {
     const calendarioContenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
     if (!calendarioContenedor || !fechaInput) return;
+    
     calendarioContenedor.innerHTML = "";
     const hoy = new Date();
     let diasContados = 0;
     let offset = 0;
+
     while (diasContados < 7) {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
+        
         if (d.getDay() === 0) continue; 
+
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
-        const isoFecha = d.toISOString().split('T')[0];
-        diaCard.innerHTML = `<span class="mes">${d.toLocaleString('es', { weekday: 'short' })}</span><span class="num">${d.getDate()}</span><span class="mes">${d.toLocaleString('es', { month: 'short' })}</span>`;
+
+        // Obtención manual de fecha local (Evita el error de zona horaria)
+        const anio = d.getFullYear();
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const dia = String(d.getDate()).padStart(2, '0');
+        const isoFechaLocal = `${anio}-${mes}-${dia}`;
+
+        diaCard.innerHTML = `
+            <span class="mes">${d.toLocaleString('es', { weekday: 'short' })}</span>
+            <span class="num">${d.getDate()}</span>
+            <span class="mes">${d.toLocaleString('es', { month: 'short' })}</span>
+        `;
+
         diaCard.onclick = () => {
             document.querySelectorAll(".day-item").forEach(el => el.classList.remove("selected"));
             diaCard.classList.add("selected");
-            fechaInput.value = isoFecha;
+            fechaInput.value = isoFechaLocal; 
             cargarHorasDisponibles(); 
         };
+
         calendarioContenedor.appendChild(diaCard);
         diasContados++;
     }
@@ -201,6 +205,7 @@ if (form) {
             const correo = document.getElementById("correo").value;
             const telefono = document.getElementById("telefono").value;
             const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
+            
             await setDoc(doc(db, "clientes", idClie), { 
                 nombre: document.getElementById("nombre").value, 
                 apellido1: document.getElementById("apellido1").value, 
