@@ -11,13 +11,31 @@ const contenedorTarjetas = document.getElementById("contenedorTarjetas");
 let clientesData = [];
 let serviciosMap = {};
 
+// --- 1. FUNCIÓN DE ELIMINAR (SOLUCIÓN) ---
+// La asignamos explícitamente a window para que el HTML la encuentre
+window.eliminarCliente = async (id, nombre) => {
+    // Confirmación simple del navegador
+    const confirmado = confirm(`¿Estás seguro de eliminar a ${nombre}? Esta acción no se puede deshacer.`);
+    
+    if (confirmado) {
+        try {
+            await deleteDoc(doc(db, "clientes", id));
+            // No hace falta alert, la tabla se actualizará sola por el onSnapshot
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+            alert("Error: No se pudo eliminar el cliente. Revisa los permisos.");
+        }
+    }
+};
+
+// --- CARGA DE SERVICIOS ---
 async function cargarServicios() {
     const snap = await getDocs(collection(db, "servicios"));
     snap.forEach(d => { serviciosMap[d.id] = d.data(); });
 }
 
+// --- GENERADOR DE CÍRCULOS (LEALTAD) ---
 function generarCirculosHTML(cantidadTotal) {
-    // Calculamos el progreso en el ciclo actual de 10
     const progreso = cantidadTotal % 10 === 0 && cantidadTotal > 0 ? 10 : cantidadTotal % 10;
     let html = "";
     for (let i = 1; i <= 10; i++) {
@@ -31,6 +49,7 @@ function generarCirculosHTML(cantidadTotal) {
     return html;
 }
 
+// --- VER HISTORIAL ---
 window.verHistorial = async (id, nombre, correo) => {
     document.getElementById("historialNombre").textContent = nombre;
     document.getElementById("historialCorreo").textContent = correo;
@@ -42,7 +61,7 @@ window.verHistorial = async (id, nombre, correo) => {
 
     let totalCitas = 0;
     let gastoTotal = 0;
-    const conteoPorServicio = {}; // Para las tarjetas de lealtad
+    const conteoPorServicio = {};
 
     if (!snap.empty) {
         const citas = [];
@@ -52,15 +71,15 @@ window.verHistorial = async (id, nombre, correo) => {
         citas.forEach(cita => {
             const s = serviciosMap[cita.servicioId] || { nombre: "Servicio", precio: 0 };
             totalCitas++;
-            gastoTotal += Number(s.precio);
+            gastoTotal += Number(s.precio || 0);
             conteoPorServicio[cita.servicioId] = (conteoPorServicio[cita.servicioId] || 0) + 1;
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${cita.fecha}</td><td>${s.nombre}</td><td>₡${Number(s.precio).toLocaleString()}</td>`;
+            tr.innerHTML = `<td>${cita.fecha}</td><td>${c.nombresServicios || s.nombre}</td><td>₡${Number(s.precio || 0).toLocaleString()}</td>`;
             tbodyHistorial.appendChild(tr);
         });
 
-        // Crear tarjetas de lealtad por cada servicio que ha tomado
+        // Tarjetas
         Object.entries(conteoPorServicio).forEach(([sId, cantidad]) => {
             const sInfo = serviciosMap[sId];
             if(!sInfo) return;
@@ -87,10 +106,11 @@ window.verHistorial = async (id, nombre, correo) => {
     modalHistorial.classList.add("active");
 };
 
-// Renderizado principal y búsqueda
+// --- RENDERIZADO DE TABLA ---
 function renderFila(id, data) {
     const tr = document.createElement("tr");
     const fullNombre = `${data.nombre} ${data.apellido1}`;
+    // Aquí es donde conectamos con la función window.eliminarCliente
     tr.innerHTML = `
         <td style="font-weight:600;">${fullNombre}</td>
         <td>${data.correo}</td>
@@ -101,6 +121,7 @@ function renderFila(id, data) {
     return tr;
 }
 
+// Buscador
 document.getElementById("busquedaCliente").addEventListener("input", (e) => {
     const term = e.target.value.toLowerCase();
     tbody.innerHTML = "";
@@ -108,16 +129,17 @@ document.getElementById("busquedaCliente").addEventListener("input", (e) => {
                 .forEach(c => tbody.appendChild(renderFila(c.id, c)));
 });
 
-window.eliminarCliente = async (id, nombre) => {
-    if(confirm(`¿Eliminar a ${nombre}?`)) await deleteDoc(doc(db, "clientes", id));
-};
-
+// Cerrar Modal
 document.getElementById("cerrarHistorial").onclick = () => modalHistorial.classList.remove("active");
 
+// --- INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", async () => {
     await cargarServicios();
+    
+    // Escucha en tiempo real para actualizar (y borrar) la tabla automáticamente
     onSnapshot(collection(db, "clientes"), (snap) => {
-        tbody.innerHTML = ""; clientesData = [];
+        tbody.innerHTML = ""; 
+        clientesData = [];
         snap.forEach(d => {
             clientesData.push({id: d.id, ...d.data()});
             tbody.appendChild(renderFila(d.id, d.data()));
