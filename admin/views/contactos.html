@@ -1,60 +1,29 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Clientes | ANTHIA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/agenda.css">
-    <link rel="stylesheet" href="../../css/cliente.css">
-</head>
-<body>
-
-    <aside class="sidebar">
-        <div class="brand">
-            <h1>ANTHIA</h1>
-            <span>Esthetic Center</span>
+<div class="modal" id="modalHistorial">
+    <div class="modal-box" style="width: 700px; max-width: 90%; max-height: 80vh; overflow-y: auto;">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <div>
+                <h3 id="historialClienteNombre" style="font-family: 'Playfair Display', serif; font-size: 24px;">Historial de Citas</h3>
+                <p id="historialClienteCorreo" style="color: #c5a059; font-size: 12px;"></p>
+            </div>
+            <button id="cerrarHistorial" style="background:none; border:none; font-size: 24px; cursor:pointer;">&times;</button>
         </div>
-        <nav class="menu">
-            <a href="../dashboard.html">🏠 Inicio</a>
-            <a href="agenda.html">📅 Agenda</a>
-            <a href="servicios.html">✨ Servicios</a>
-            <a href="contactos.html" class="active">👤 Clientes</a>
-            <a href="inventario.html">📦 Inventario</a>
-            <a href="configuracion.html">⚙️ Ajustes</a>
-        </nav>
-        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
-    </aside>
-
-    <main class="main-content">
-        <header class="agenda-hero">
-            <div class="agenda-fecha" style="padding-top: 20px;">
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Clientes</h1>
-                <p class="agenda-mes">Base de datos de contactos</p>
-            </div>
-            
-            <div class="search-box">
-                <input type="text" id="busquedaCliente" placeholder="Buscar por nombre o correo..." class="agenda-date-picker" style="width: 300px; border-radius: 20px;">
-            </div>
-        </header>
-
-        <div class="tabla-container">
-            <table id="tablaContactos" class="tabla-premium">
+        
+        <div class="modal-body" style="padding-top: 20px;">
+            <table class="tabla-premium" id="tablaHistorial">
                 <thead>
                     <tr>
-                        <th>Nombre Completo</th>
-                        <th>Correo Electrónico</th>
-                        <th>Teléfono</th>
-                        <th>Historial</th>
-                        <th>Acciones</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Servicio</th>
+                        <th>Precio</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbodyHistorial">
                     </tbody>
             </table>
+            <div id="mensajeSinCitas" style="display:none; text-align:center; padding: 40px; color: #999;">
+                Este cliente aún no tiene citas registradas.
+            </div>
         </div>
-    </main>
-
-    <script type="module" src="../../js/contactos.js"></script>
-</body>
-</html>
+    </div>
+</div>
