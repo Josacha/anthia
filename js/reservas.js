@@ -43,7 +43,7 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-        if (d.getDay() === 0) continue; // Salta domingos
+        if (d.getDay() === 0) continue; // Domingo cerrado
 
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
@@ -66,7 +66,7 @@ function generarCalendario() {
     }
 }
 
-// --- CARGAR SERVICIOS DESDE FIREBASE ---
+// --- CARGAR SERVICIOS ---
 async function cargarServicios() {
     serviciosGrid.innerHTML = "";
     const snapshot = await getDocs(collection(db, "servicios"));
@@ -86,7 +86,7 @@ async function cargarServicios() {
                     id: docSnap.id, 
                     nombre: data.nombre, 
                     duracion: parseInt(data.duracion) || 60, 
-                    simultaneo: data.simultaneo === true // Asegura booleano
+                    simultaneo: data.simultaneo === true 
                 }); 
                 card.classList.add("selected"); 
             }
@@ -97,7 +97,7 @@ async function cargarServicios() {
     });
 }
 
-// --- LÓGICA DE VALIDACIÓN (REGLA DE ORO) ---
+// --- VALIDACIÓN DE HORARIOS (REGLA DE ORO) ---
 async function cargarHorasDisponibles() {
     horasVisualGrid.innerHTML = "";
     const fecha = fechaInput.value;
@@ -106,7 +106,6 @@ async function cargarHorasDisponibles() {
         return;
     }
 
-    // Obtenemos solo las citas de la fecha seleccionada
     const q = query(collection(db, "citas"), where("fecha", "==", fecha));
     const snapshotCitas = await getDocs(q);
     const citas = snapshotCitas.docs.map(d => d.data());
@@ -115,12 +114,12 @@ async function cargarHorasDisponibles() {
         let tiempoCorriente = horaAMinutos(hApertura);
         let posible = true;
 
-        // Validamos cada servicio del carrito (Encadenamiento)
+        // Validamos el encadenamiento de todos los servicios en el carrito
         for (const s of carrito) {
             const inicioR = tiempoCorriente;
             const finR = inicioR + s.duracion;
 
-            // Buscamos si hay citas que se solapan en este rango de tiempo
+            // Filtramos citas que se solapan con este rango de tiempo
             const ocupadas = citas.filter(c => {
                 const cIni = horaAMinutos(c.hora);
                 const cFin = cIni + (c.duracion || 60);
@@ -128,17 +127,17 @@ async function cargarHorasDisponibles() {
             });
 
             if (ocupadas.length > 0) {
-                // APLICANDO TU REGLA: 
-                // La única forma de entrar es que el que ya ESTABA sea simultáneo.
-                const elExistentePermite = ocupadas.every(c => c.simultaneo === true);
+                // REGLA: Si hay alguien, el primero que estaba debe ser simultáneo obligatoriamente
+                const algunoEsPrivado = ocupadas.some(c => c.simultaneo === false);
                 const limiteAlcanzado = ocupadas.length >= 2;
 
-                if (!elExistentePermite || limiteAlcanzado) {
+                if (algunoEsPrivado || limiteAlcanzado) {
                     posible = false;
                     break;
                 }
             }
-            tiempoCorriente = finR; // Sumar duración para el siguiente servicio del carrito
+            // Si el bloque está vacío (ocupadas.length === 0), 'posible' sigue siendo true.
+            tiempoCorriente = finR; 
         }
 
         if (posible) {
@@ -207,6 +206,6 @@ formReserva.addEventListener("submit", async (e) => {
     }
 });
 
-// Inicio
+// Inicialización inicial
 generarCalendario();
 cargarServicios();
