@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/agenda.css">
+    <style>
+        .sugerencia-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; background: white; }
+        .sugerencia-item:hover { background: #f8f8f8; }
+        .sugerencias-dropdown { position: absolute; width: 100%; z-index: 1000; border: 1px solid #ddd; display: none; max-height: 200px; overflow-y: auto; }
+        .item-carrito { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff; border-radius: 4px; margin-bottom: 5px; border-left: 3px solid #d4af37; font-size: 14px; }
+        .btn-quitar { color: #ff4d4d; border: none; background: none; cursor: pointer; font-weight: bold; }
+        .libre-simul { color: #d4af37; font-style: italic; cursor: pointer; }
+    </style>
 </head>
 <body>
 
@@ -43,7 +51,6 @@
                         <span class="calendar-icon">📅</span>
                     </div>
                 </div>
-               
             </div>
         </header>
 
@@ -63,7 +70,7 @@
         </div>
     </main>
 
-    <div class="modal" id="modalCita">
+    <div class="modal" id="modalCita" style="display: none;">
         <div class="modal-box">
             <div class="modal-header">
                 <h3>Agendar Cita</h3>
@@ -76,12 +83,14 @@
                     <div id="listaSugerencias" class="sugerencias-dropdown"></div>
                 </div>
 
-                <label>Añadir Tratamiento</label>
+                <label style="margin-top: 15px; display: block;">Añadir Tratamiento(s)</label>
                 <select id="servicioSelect" class="input-premium"></select>
 
-                <div class="carrito-container">
-                    <ul id="listaServicios" class="lista-servicios-premium"></ul>
-                    <div class="info-bloque-tiempo">
+                <div class="carrito-container" style="margin-top: 15px;">
+                    <label>Servicios seleccionados:</label>
+                    <ul id="listaServiciosCarrito" style="padding: 0; list-style: none;"></ul>
+                    
+                    <div class="info-bloque-tiempo" style="background: #fdfaf0; padding: 10px; border-radius: 8px;">
                         <div class="dato"><span>Inicio:</span> <b id="displayInicio">--:--</b></div>
                         <div class="dato"><span>Fin estimado:</span> <b id="displayFin">--:--</b></div>
                     </div>
@@ -93,16 +102,18 @@
             </div>
         </div>
     </div>
-<div id="notificacionPush" class="push-alert">
-    <div class="push-content">
-        <div class="push-icon">🎁</div>
-        <div class="push-text">
-            <h4 id="pushCliente">Nombre Cliente</h4>
-            <p id="pushDetalle">¡Tiene un premio ahora!</p>
+
+    <div id="notificacionPush" class="push-alert">
+        <div class="push-content">
+            <div class="push-icon">🎁</div>
+            <div class="push-text">
+                <h4 id="pushCliente">Nombre Cliente</h4>
+                <p id="pushDetalle">¡Tiene un premio ahora!</p>
+            </div>
+            <button onclick="cerrarPush()" class="push-close">&times;</button>
         </div>
-        <button onclick="cerrarPush()" class="push-close">&times;</button>
     </div>
-</div>
+
     <script type="module" src="../../js/agenda.js"></script>
 </body>
 </html>
