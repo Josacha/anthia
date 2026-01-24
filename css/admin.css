@@ -278,11 +278,3 @@ body {
 .nav-links a:hover {
     color: var(--gold);
 }
-
-
-
-/* Responsivo: Logo más pequeño en móviles */
-@media (max-width: 768px) {
-    .nav-logo-img { height: 45px; }
-    .brand-name { font-size: 18px; }
-}
