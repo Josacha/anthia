@@ -30,7 +30,7 @@
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
                 <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
-                <p class="agenda-mes">Gestión de Menú Profesional</p>
+                <p class="agenda-mes">Catálogo Profesional</p>
             </div>
         </header>
 
@@ -38,19 +38,26 @@
             <div class="card-servicios">
                 <form id="formServicios" class="form-grid">
                     <div class="input-group">
-                        <label>Categoría Principal</label>
+                        <label>Categoría</label>
                         <select id="categoriaServicio" class="input-premium" required>
+                            <option value="">Seleccione...</option>
                             <option value="Tratamientos Capilares (Fibra)">🌿 Tratamientos Capilares (Fibra)</option>
                             <option value="Tratamientos de Cuero Cabelludo (Raíz)">🧠 Tratamientos de Cuero Cabelludo (Raíz)</option>
                             <option value="Tratamientos Faciales">✨ Tratamientos Faciales</option>
                             <option value="Depilación y Cejas">🧶 Depilación y Cejas</option>
-                            <option value="Maquillaje y Peinado">🎭 Maquillaje y Peinado</option>
                         </select>
                     </div>
 
                     <div class="input-group">
-                        <label>Subcategoría y Servicio</label>
-                        <input type="text" id="nombreServicio" placeholder="Ej: Hidratación - Mascarilla" class="input-premium" required>
+                        <label>Subcategoría</label>
+                        <select id="subcategoriaServicio" class="input-premium" required disabled>
+                            <option value="">Elija primero una categoría</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nombre del Servicio</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Ritual Hidratante" class="input-premium" required>
                     </div>
                     
                     <div class="input-group">
@@ -76,14 +83,14 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <input type="text" id="busquedaServicio" placeholder="🔍 Filtrar servicios registrados..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
+                <input type="text" id="busquedaServicio" placeholder="🔍 Buscar servicio por nombre o categoría..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
             </div>
 
             <table id="tablaServicios" class="tabla-premium">
                 <thead>
                     <tr>
-                        <th>Categoría</th>
-                        <th>Subcategoría - Servicio</th>
+                        <th>Categoría / Sub</th>
+                        <th>Servicio</th>
                         <th>Tiempo</th>
                         <th>Precio</th>
                         <th>Simultáneo</th>
