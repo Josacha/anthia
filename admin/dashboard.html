@@ -1,68 +1,76 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Administrativo | ANDRE ARIAS BEAUTY STYLIST</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="../assets/fondo/FAVICON3.png?v=2" sizes="32x32">
-    
+    <meta charset="UTF-8">
+    <title>Administrativo | ANDRE ARIAS BEAUTY STYLIST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/fondo/FAVICON3.png?v=2" sizes="32x32">
     <link rel="apple-touch-icon" href="../assets/fondo/FAVICON3.png?v=2">
-  <!-- CSS -->
-  <link rel="stylesheet" href="../css/dash.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/dash.css">
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="brand">
-    <h2>ANDRE ARIAS</h2>
-    <span>Beauty Stylist</span>
-  </div>
+    <div class="brand">
+        <h2>ANDRE ARIAS</h2>
+        <span>Beauty Stylist</span>
+    </div>
 
-  <nav class="menu">
-    <a href="views/agenda.html">📅 Agenda</a>
-    <a href="views/servicios.html">✨ Servicios</a>
-    <a href="views/contactos.html">👤 Contactos</a>
-  </nav>
+    <nav class="menu">
+        <a href="views/agenda.html" class="active">📅 Agenda</a>
+        <a href="views/servicios.html">✨ Servicios</a>
+        <a href="views/contactos.html">👤 Contactos</a>
+    </nav>
 
-  <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
+    <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 </aside>
 
-<!-- CONTENIDO -->
 <main class="dashboard">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-text">
-      <h1>Panel Administrativo</h1>
-      <p>Gestión de reservas, clientes y servicios de ANDRE ARIAS</p>
-    </div>
-  </section>
+    <section class="hero">
+        <div class="hero-text">
+            <h1 id="welcome-title">Panel Administrativo</h1>
+            <p>Gestión de reservas, clientes y servicios de ANDRE ARIAS</p>
+        </div>
+    </section>
 
-  <!-- ACCESOS RÁPIDOS -->
-  <section class="quick-actions">
-    <a href="views/agenda.html" class="card">
-      <h3>Agenda</h3>
-      <p>Ver y gestionar citas</p>
-    </a>
+    <section class="stats-container">
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Ocupación de la Agenda</h3>
+                <span id="ocupacion-porcentaje">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <p id="stat-detalle">Sincronizando con la base de datos...</p>
+        </div>
+    </section>
 
-    <a href="views/servicios.html" class="card">
-      <h3>Servicios</h3>
-      <p>Administrar tratamientos</p>
-    </a>
+    <section class="quick-actions">
+        <a href="views/agenda.html" class="card">
+            <h3>Agenda</h3>
+            <p>Ver y gestionar citas de hoy</p>
+        </a>
 
-    <a href="views/contactos.html" class="card">
-      <h3>Clientes</h3>
-      <p>Base de datos de clientes</p>
-    </a>
-  </section>
+        <a href="views/servicios.html" class="card">
+            <h3>Servicios</h3>
+            <p>Administrar tratamientos y precios</p>
+        </a>
+
+        <a href="views/contactos.html" class="card">
+            <h3>Clientes</h3>
+            <p>Base de datos de contactos</p>
+        </a>
+    </section>
 
 </main>
 
-<!-- JS -->
 <script type="module" src="../js/firebase.js"></script>
-<script type="module" src="../js/auth.js"></script>
- <script type="module" src="../js/dash.js"></script>
+<script type="module" src="../js/dash.js"></script>
 
 </body>
 </html>
