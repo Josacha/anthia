@@ -30,7 +30,7 @@
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
                 <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
-                <p class="agenda-mes">Catálogo Profesional</p>
+                <p class="agenda-mes">Catálogo Profesional Completo</p>
             </div>
         </header>
 
@@ -38,13 +38,17 @@
             <div class="card-servicios">
                 <form id="formServicios" class="form-grid">
                     <div class="input-group">
-                        <label>Categoría</label>
+                        <label>Categoría Principal</label>
                         <select id="categoriaServicio" class="input-premium" required>
                             <option value="">Seleccione...</option>
                             <option value="Tratamientos Capilares (Fibra)">🌿 Tratamientos Capilares (Fibra)</option>
                             <option value="Tratamientos de Cuero Cabelludo (Raíz)">🧠 Tratamientos de Cuero Cabelludo (Raíz)</option>
+                            <option value="Servicios de Color">🎨 Servicios de Color</option>
+                            <option value="Servicios de Corte">✂️ Servicios de Corte</option>
                             <option value="Tratamientos Faciales">✨ Tratamientos Faciales</option>
                             <option value="Depilación y Cejas">🧶 Depilación y Cejas</option>
+                            <option value="Maquillaje y Peinado Eventos">✨ Maquillaje y Peinado Eventos</option>
+                            <option value="Maquillaje Fantasía">🎭 Maquillaje Fantasía / Personajes</option>
                         </select>
                     </div>
 
@@ -83,7 +87,7 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <input type="text" id="busquedaServicio" placeholder="🔍 Buscar servicio por nombre o categoría..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
+                <input type="text" id="busquedaServicio" placeholder="🔍 Filtrar servicios registrados..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
             </div>
 
             <table id="tablaServicios" class="tabla-premium">
