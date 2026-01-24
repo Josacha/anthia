@@ -110,3 +110,105 @@ body { font-family: 'Montserrat', sans-serif; background: #fcfcfc; display: flex
     background: none; border: none; color: white;
     font-size: 20px; cursor: pointer; margin-left: auto;
 }
+
+/* --- RESPONSIVE DESIGN: ANDRE ARIAS BEAUTY STYLIST --- */
+
+@media (max-width: 1024px) {
+    :root { --sidebar-w: 200px; }
+    .agenda-hero { padding: 60px 20px; }
+    .agenda-dia-numero { font-size: 50px; }
+}
+
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+
+    /* SIDEBAR: Pasa de lateral a superior */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 20px;
+        order: 1;
+    }
+    .brand { margin-bottom: 0; }
+    .menu { 
+        margin-top: 20px; 
+        display: flex; 
+        justify-content: center; 
+        gap: 10px;
+        flex-wrap: wrap; 
+    }
+    .menu a { padding: 10px; font-size: 12px; }
+    .btn-logout { display: none; } /* Ocultar para ahorrar espacio en móvil */
+
+    /* MAIN CONTENT */
+    .main-content { margin-left: 0; width: 100%; order: 2; }
+
+    /* HERO: Se apila verticalmente */
+    .agenda-hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+        padding: 40px 20px;
+    }
+
+    /* TABLA: Transformación a Formato Tarjeta (Card) */
+    .tabla-container { padding: 15px; }
+    
+    .tabla-premium, .tabla-premium thead, .tabla-premium tbody, .tabla-premium th, .tabla-premium td, .tabla-premium tr {
+        display: block; /* Forzamos que todo sea un bloque */
+    }
+
+    .tabla-premium thead tr { display: none; } /* Ocultamos los encabezados de tabla */
+
+    .tabla-premium tr {
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        padding: 15px;
+        position: relative;
+        background: white;
+        border-left: 4px solid var(--gold);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+
+    .tabla-premium td {
+        text-align: right;
+        padding: 10px 5px;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        font-size: 13px;
+    }
+
+    /* Insertamos el título de la columna antes del dato */
+    .tabla-premium td::before {
+        content: attr(data-label); /* Necesitas añadir data-label en tu HTML */
+        position: absolute;
+        left: 0;
+        width: 50%;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 10px;
+        color: var(--gold);
+    }
+
+    .tabla-premium td:last-child { border-bottom: none; }
+
+    /* MODAL RESPONSIVO */
+    .modal-box {
+        width: 90%;
+        padding: 25px;
+    }
+    
+    /* ALERTAS PUSH EN MÓVIL */
+    .push-alert {
+        width: calc(100% - 40px);
+        left: 20px;
+        right: 20px;
+        bottom: -200px;
+    }
+    .push-alert.active {
+        bottom: 20px;
+        right: 20px;
+    }
+}
