@@ -29,7 +29,7 @@ async function initDashboard() {
         const lunes = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1));
         lunes.setHours(0,0,0,0);
 
-        const q = query(collection(db, "reservas"), where("fecha", ">=", lunes.toISOString()));
+        const q = query(collection(db, "citas"), where("fecha", ">=", lunes.toISOString()));
         const snapshot = await getDocs(q);
         const totalCitas = snapshot.size;
 
