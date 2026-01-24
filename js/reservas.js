@@ -119,33 +119,73 @@ function renderizarBotones(citasExistentes) {
 // --- GESTIÓN DE SERVICIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
+    const categoriasFilter = document.getElementById("categoriasFilter");
     if (!serviciosGrid) return;
+
     const snapshot = await getDocs(collection(db, "servicios"));
-    serviciosGrid.innerHTML = "";
+    const todosLosServicios = [];
+    const categoriasSet = new Set(["Todos"]);
+
+    // Guardamos los datos y extraemos categorías únicas
     snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        const card = document.createElement("div");
-        card.className = "service-card";
-        card.innerHTML = `<h4>${data.nombre}</h4><span>₡${data.precio}</span><p>${data.duracion || 60} min</p>`;
-        card.onclick = () => {
-            const index = carrito.findIndex(s => s.id === docSnap.id);
-            if (index > -1) { 
-                carrito.splice(index, 1); 
-                card.classList.remove("selected"); 
-            } else { 
-                carrito.push({ 
-                    id: docSnap.id, 
-                    nombre: data.nombre, 
-                    duracion: Number(data.duracion) || 60, 
-                    simultaneo: data.simultaneo === true 
-                }); 
-                card.classList.add("selected"); 
-            }
-            renderCarrito();
-            cargarHorasDisponibles(); 
-        };
-        serviciosGrid.appendChild(card);
+        todosLosServicios.push({ id: docSnap.id, ...data });
+        if (data.categoria) categoriasSet.add(data.categoria);
     });
+
+    // 1. Renderizar botones de categorías
+    categoriasFilter.innerHTML = "";
+    categoriasSet.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "cat-btn" + (cat === "Todos" ? " active" : "");
+        btn.textContent = cat;
+        btn.onclick = () => {
+            document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            renderizarGrid(todosLosServicios, cat);
+        };
+        categoriasFilter.appendChild(btn);
+    });
+
+    // 2. Función para renderizar el grid filtrado
+    function renderizarGrid(servicios, filtro) {
+        serviciosGrid.innerHTML = "";
+        const filtrados = filtro === "Todos" ? servicios : servicios.filter(s => s.categoria === filtro);
+
+        filtrados.forEach(s => {
+            const card = document.createElement("div");
+            card.className = "service-card";
+            if (carrito.some(item => item.id === s.id)) card.classList.add("selected");
+            
+            card.innerHTML = `
+                <h4>${s.nombre}</h4>
+                <span>₡${s.precio}</span>
+                <p>${s.duracion || 60} min</p>
+            `;
+            
+            card.onclick = () => {
+                const index = carrito.findIndex(item => item.id === s.id);
+                if (index > -1) {
+                    carrito.splice(index, 1);
+                    card.classList.remove("selected");
+                } else {
+                    carrito.push({
+                        id: s.id,
+                        nombre: s.nombre,
+                        duracion: Number(s.duracion) || 60,
+                        simultaneo: s.simultaneo === true
+                    });
+                    card.classList.add("selected");
+                }
+                renderCarrito();
+                cargarHorasDisponibles();
+            };
+            serviciosGrid.appendChild(card);
+        });
+    }
+
+    // Render inicial
+    renderizarGrid(todosLosServicios, "Todos");
 }
 
 function renderCarrito() {
