@@ -278,3 +278,51 @@ body {
 .nav-links a:hover {
     color: var(--gold);
 }
+
+/* Ajustes de la Barra de Navegación */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #ffffff; /* O transparente si prefieres */
+    border-bottom: 1px solid #eee;
+}
+
+/* Estilo de la Imagen del Logo */
+.nav-logo-img {
+    height: 60px; /* Tamaño ideal para que destaque sin ser gigante */
+    width: auto;
+    margin-right: 15px;
+    transition: transform 0.3s ease;
+}
+
+.nav-logo-img:hover {
+    transform: scale(1.05);
+}
+
+/* Tipografía de la Marca en la Barra */
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1;
+}
+
+.brand-tagline {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #d4af37; /* Dorado Anthia */
+    text-transform: uppercase;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Responsivo: Logo más pequeño en móviles */
+@media (max-width: 768px) {
+    .nav-logo-img { height: 45px; }
+    .brand-name { font-size: 18px; }
+}
