@@ -15,12 +15,12 @@ onAuthStateChanged(auth, (user) => {
 
   // ❌ NO logueado y NO está en login → mandar a login
   if (!user && !esLogin) {
-    window.location.href = "login.html";
+    window.location.href = "./login.html";
   }
 
   // ✅ Logueado y está en login → mandar a dashboard
   if (user && esLogin) {
-    window.location.href = "dashboard.html";
+    window.location.href = "./dashboard.html";
   }
 });
 
@@ -37,7 +37,7 @@ if (formLogin) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html";
+      window.location.href = "./dashboard.html";
     } catch (error) {
       document.getElementById("errorMsg").textContent =
         "Correo o contraseña incorrectos";
@@ -52,6 +52,6 @@ const btnLogout = document.getElementById("btnLogout");
 if (btnLogout) {
   btnLogout.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "./login.html";
   });
 }
