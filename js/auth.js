@@ -10,17 +10,19 @@ import {
 ========================= */
 onAuthStateChanged(auth, (user) => {
   const path = window.location.pathname;
+  const esLogin = path.endsWith("login.html");
+  const enViews = path.includes("/views/");
 
-  const esLogin = path.includes("login.html");
-
-  // ❌ NO logueado y NO está en login → mandar a login
   if (!user && !esLogin) {
-    window.location.href = "./login.html";
+    // Si no está logueado:
+    // Desde /admin/views/agenda.html -> necesita salir de views con "../login.html"
+    // Desde /admin/dashboard.html    -> login.html está en la misma carpeta "admin"
+    window.location.href = enViews ? "../login.html" : "login.html";
   }
 
-  // ✅ Logueado y está en login → mandar a dashboard
   if (user && esLogin) {
-    window.location.href = "./dashboard.html";
+    // Si ya está logueado y entra al login, va al dashboard (están al mismo nivel)
+    window.location.href = "dashboard.html";
   }
 });
 
@@ -31,16 +33,16 @@ const formLogin = document.getElementById("formLogin");
 if (formLogin) {
   formLogin.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "./dashboard.html";
+      // El dashboard está en la misma carpeta que el login (/admin/)
+      window.location.href = "dashboard.html";
     } catch (error) {
-      document.getElementById("errorMsg").textContent =
-        "Correo o contraseña incorrectos";
+      const errorDiv = document.getElementById("errorMsg");
+      if (errorDiv) errorDiv.textContent = "Correo o contraseña incorrectos";
     }
   });
 }
@@ -51,7 +53,13 @@ if (formLogin) {
 const btnLogout = document.getElementById("btnLogout");
 if (btnLogout) {
   btnLogout.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "./login.html";
+    try {
+      await signOut(auth);
+      const enViews = window.location.pathname.includes("/views/");
+      // Redirección inteligente al salir
+      window.location.href = enViews ? "../login.html" : "login.html";
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   });
 }
