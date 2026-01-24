@@ -71,7 +71,7 @@ body {
 /* HERO SECTION */
 .hero-premium {
     height: 100vh;
-    background: url('https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+    background: url("../assets/fondo/FONDO3.jpg") center / cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
