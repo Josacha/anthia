@@ -52,6 +52,6 @@ const btnLogout = document.getElementById("btnLogout");
 if (btnLogout) {
   btnLogout.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "/anthia/admin/login.html";
+    window.location.href = "login.html";
   });
 }
