@@ -20,7 +20,7 @@ onAuthStateChanged(auth, (user) => {
 
   // ✅ Logueado y está en login → mandar a dashboard
   if (user && esLogin) {
-    window.location.href = "/anthia/admin/dashboard.html";
+    window.location.href = "dashboard.html";
   }
 });
 
