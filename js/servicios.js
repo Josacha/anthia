@@ -7,20 +7,20 @@ function renderFila(id, data) {
     const precio = data.precio ? Number(data.precio).toLocaleString() : "0";
 
     tr.innerHTML = `
-        <td><span class="badge-cat" style="background:#f4f4f4; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600; color:#666;">${categoria}</span></td>
+        <td><span class="badge-cat" style="background:#f4f4f4; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600; color:#c5a059; text-transform:uppercase;">${categoria}</span></td>
         <td style="font-weight: 600;">${data.nombre}</td>
         <td>${data.duracion || 0} min</td>
         <td>₡${precio}</td>
-        <td><span>${data.simultaneo ? '✨' : '🔒'}</span></td>
+        <td style="text-align:center;"><span>${data.simultaneo ? '✅' : '❌'}</span></td>
         <td>
-            <button class="btn-eliminar" onclick="window.eliminarServicio('${id}', '${data.nombre}')" style="background:none; border:none; cursor:pointer; font-size:18px;">🗑️</button>
+            <button class="btn-eliminar" onclick="window.eliminarServicio('${id}', '${data.nombre}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
         </td>
     `;
     return tr;
 }
 
 window.eliminarServicio = async (id, nombre) => {
-    if (confirm(`¿Eliminar el servicio "${nombre}"?`)) {
+    if (confirm(`¿Eliminar "${nombre}"?`)) {
         await deleteDoc(doc(db, "servicios", id));
     }
 };
@@ -36,7 +36,7 @@ onSnapshot(collection(db, "servicios"), (snap) => {
         servicios.push({ id: doc.id, ...doc.data() });
     });
 
-    // Ordenar por categoría para facilitar la lectura
+    // Ordenar por categoría principal
     servicios.sort((a, b) => a.categoria.localeCompare(b.categoria));
 
     servicios.forEach(serv => {
@@ -44,14 +44,12 @@ onSnapshot(collection(db, "servicios"), (snap) => {
     });
 });
 
-// Buscador dinámico
 buscador.addEventListener("input", (e) => {
     const termino = e.target.value.toLowerCase();
     const filas = tbody.querySelectorAll("tr");
     filas.forEach(fila => {
-        const nombreServicio = fila.querySelector("td:nth-child(2)").textContent.toLowerCase();
-        const categoriaServicio = fila.querySelector("td:nth-child(1)").textContent.toLowerCase();
-        fila.style.display = (nombreServicio.includes(termino) || categoriaServicio.includes(termino)) ? "" : "none";
+        const contenido = fila.textContent.toLowerCase();
+        fila.style.display = contenido.includes(termino) ? "" : "none";
     });
 });
 
