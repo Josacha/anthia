@@ -16,7 +16,7 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
 
 /* LAYOUT */
 .booking-layout { display: flex; min-height: 100vh; }
-.booking-visual { width: 35%; background: url("../assets/fondo/FONDO3.png") center/cover; position: relative; }
+.booking-visual { width: 35%; background: url("../assets/fondo/FONDO2.png") center/cover; position: relative; }
 .visual-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); }
 .visual-info { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 60px; color: #fff; }
 .visual-info h2 { font-family: 'Playfair Display'; font-size: 40px; }
