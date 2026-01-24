@@ -146,3 +146,30 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
         z-index: 10;
     }
 }
+
+@media (max-width: 768px) {
+    /* ... tus otros estilos ... */
+
+    .visual-info {
+        padding: 30px 20px; /* Reducimos el padding para ganar espacio */
+        text-align: center;
+        justify-content: center; /* Asegura que el texto esté centrado verticalmente */
+    }
+
+    .visual-info h2 {
+        font-size: 26px; /* Reducimos el tamaño de la letra para que no se corte */
+        line-height: 1.2;
+        margin-bottom: 10px;
+        word-wrap: break-word; /* Fuerza a que la palabra rompa si es muy larga */
+    }
+
+    .visual-info p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .visual-overlay {
+        background: rgba(0, 0, 0, 0.5); /* Un poco más oscuro para que el texto blanco brille */
+    }
+}
+}
