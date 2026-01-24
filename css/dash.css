@@ -171,3 +171,69 @@ body {
     .admin-grid-secondary { order: 3; }
     .quick-actions { order: 4; }
 }
+
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+
+    /* Sidebar se vuelve barra superior */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar .brand { padding-bottom: 10px; text-align: center; }
+
+    /* Menú horizontal */
+    .menu { 
+        flex-direction: row; 
+        justify-content: center; 
+        flex-wrap: wrap; 
+        padding: 0 10px;
+    }
+
+    .menu a { 
+        padding: 10px 12px; 
+        font-size: 11px; 
+        border-left: none; 
+        border-bottom: 2px solid transparent; 
+    }
+
+    .menu a.active { border-bottom: 2px solid var(--gold); }
+
+    /* BOTÓN LOGOUT EN MÓVIL (Corregido) */
+    .btn-logout { 
+        display: block;      /* Lo volvemos a mostrar */
+        margin: 10px auto;   /* Lo centramos debajo del menú */
+        padding: 8px 15px;
+        width: auto;         /* No ocupa todo el ancho */
+        font-size: 10px;
+        border: 1px solid #ff4d4d;
+        color: #ff4d4d;
+        order: 10;           /* Se asegura de ir al final */
+    }
+
+    /* Contenido */
+    .dashboard { margin-left: 0; width: 100%; padding: 20px; }
+
+    .hero { padding: 25px; text-align: center; }
+    .hero h1 { font-size: 24px; }
+
+    /* Grids a una sola columna */
+    .admin-grid-secondary, .quick-actions {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .stat-card, .next-appointments, .status-card { padding: 20px; }
+
+    /* Reordenar visualmente */
+    .dashboard { display: flex; flex-direction: column; }
+    .hero { order: 1; }
+    .stats-container { order: 2; }
+    .admin-grid-secondary { order: 3; }
+    .quick-actions { order: 4; }
+}
