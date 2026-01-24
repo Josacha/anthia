@@ -1,39 +1,52 @@
+/* VARIABLES DE MARCA - ANDRE ARIAS */
 :root {
     --gold: #c5a059;
     --dark: #1a1a1a;
     --bg-gray: #fcfcfc;
     --border: #eeeeee;
     --text-muted: #888888;
+    --white: #ffffff;
+    --transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
-    background-color: #fff;
+    background-color: var(--white);
     display: flex;
+    color: var(--dark);
+    line-height: 1.6;
 }
 
-/* SIDEBAR - Tal como se ve en tu captura */
+/* SIDEBAR - NAVEGACIÓN IZQUIERDA */
 .sidebar {
-    width: 250px;
+    width: 260px;
     height: 100vh;
     border-right: 1px solid var(--border);
     position: fixed;
     display: flex;
     flex-direction: column;
     padding: 40px 0;
-    background: #fff;
+    background: var(--white);
+    z-index: 100;
 }
 
 .sidebar .brand {
     padding: 0 40px 50px;
+    text-align: left;
 }
 
+/* Si usas texto en lugar de imagen para el logo */
 .sidebar .brand h2 {
     font-family: 'Playfair Display', serif;
     letter-spacing: 3px;
-    font-size: 22px;
+    font-size: 20px;
     margin: 0;
+    text-transform: uppercase;
 }
 
 .sidebar .brand span {
@@ -41,28 +54,34 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--gold);
+    display: block;
+    margin-top: 5px;
 }
 
+/* MENU DE NAVEGACIÓN */
 .menu {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
 }
 
 .menu a {
-    padding: 15px 40px;
+    padding: 16px 40px;
     text-decoration: none;
     color: #555;
     font-size: 13px;
+    font-weight: 400;
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: 0.3s;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
 }
 
-.menu a:hover {
+.menu a:hover, .menu a.active {
     background-color: var(--bg-gray);
     color: var(--gold);
+    border-left: 3px solid var(--gold);
 }
 
 .btn-logout {
@@ -71,83 +90,171 @@ body {
     background: none;
     border: 1px solid var(--border);
     font-size: 11px;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     text-transform: uppercase;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: var(--transition);
 }
 
 .btn-logout:hover {
     border-color: #ff4d4d;
     color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.05);
 }
 
-/* CONTENIDO PRINCIPAL */
+/* PANEL PRINCIPAL (DASHBOARD) */
 .dashboard {
-    margin-left: 250px;
-    width: calc(100% - 250px);
+    margin-left: 260px;
+    width: calc(100% - 260px);
     padding: 60px;
     background-color: var(--bg-gray);
     min-height: 100vh;
 }
 
-/* HERO BOX (Panel Administrativo) */
+/* HERO / WELCOME BOX */
 .hero {
-    background: #fff;
-    padding: 40px;
+    background: var(--white);
+    padding: 50px;
     border: 1px solid var(--border);
     margin-bottom: 40px;
+    border-left: 5px solid var(--dark);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
 }
 
 .hero h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 28px;
+    font-size: 32px;
     margin: 0 0 10px;
+    font-weight: 700;
 }
 
 .hero p {
     color: var(--text-muted);
-    font-size: 14px;
-    margin: 0;
+    font-size: 15px;
+    max-width: 600px;
 }
 
 /* GRID DE ACCESOS RÁPIDOS */
 .quick-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
 }
 
 .card {
-    background: #fff;
-    padding: 40px 30px;
+    background: var(--white);
+    padding: 45px 35px;
     text-decoration: none;
     color: var(--dark);
     border: 1px solid var(--border);
-    transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
 }
 
 .card h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    margin: 0 0 10px;
+    font-size: 22px;
+    margin: 0 0 12px;
 }
 
 .card p {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-muted);
     margin: 0;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    border-color: var(--gold);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+/* Efecto Gold Line en Hover */
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--gold);
+    transition: var(--transition);
 }
 
-/* RESPONSIVO */
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border-color: var(--gold);
+}
+
+.card:hover::after {
+    width: 100%;
+}
+
+/* --- MEDIA QUERIES (RESPONSIVE) --- */
+
+/* Tablets y Laptops pequeñas */
 @media (max-width: 1024px) {
-    .quick-actions { grid-template-columns: 1fr; }
-    .sidebar { width: 200px; }
-    .dashboard { margin-left: 200px; width: calc(100% - 200px); }
+    .dashboard {
+        padding: 40px;
+    }
+}
+
+/* Móviles y Tablets verticales */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 20px 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar .brand {
+        padding: 0 20px 20px;
+        text-align: center;
+    }
+
+    .menu {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .menu a {
+        padding: 12px 15px;
+        font-size: 12px;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+
+    .menu a:hover, .menu a.active {
+        border-left: none;
+        border-bottom: 2px solid var(--gold);
+    }
+
+    .btn-logout {
+        margin: 20px auto;
+        width: 80%;
+    }
+
+    .dashboard {
+        margin-left: 0;
+        width: 100%;
+        padding: 30px 20px;
+    }
+
+    .hero {
+        padding: 30px;
+    }
+
+    .hero h1 {
+        font-size: 26px;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr; /* Una columna en móvil */
+    }
 }
