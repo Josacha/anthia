@@ -9,9 +9,7 @@
     --transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -35,54 +33,23 @@ body {
     z-index: 100;
 }
 
-.sidebar .brand {
-    padding: 0 40px 50px;
-    text-align: left;
-}
+.sidebar .brand { padding: 0 40px 50px; text-align: left; }
+.sidebar .brand h2 { font-family: 'Playfair Display', serif; letter-spacing: 3px; font-size: 20px; margin: 0; text-transform: uppercase; }
+.sidebar .brand span { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); display: block; margin-top: 5px; }
 
-/* Si usas texto en lugar de imagen para el logo */
-.sidebar .brand h2 {
-    font-family: 'Playfair Display', serif;
-    letter-spacing: 3px;
-    font-size: 20px;
-    margin: 0;
-    text-transform: uppercase;
-}
-
-.sidebar .brand span {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--gold);
-    display: block;
-    margin-top: 5px;
-}
-
-/* MENU DE NAVEGACIÓN */
-.menu {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
+.menu { display: flex; flex-direction: column; gap: 2px; }
 .menu a {
     padding: 16px 40px;
     text-decoration: none;
     color: #555;
     font-size: 13px;
-    font-weight: 400;
     display: flex;
     align-items: center;
     gap: 12px;
     transition: var(--transition);
     border-left: 3px solid transparent;
 }
-
-.menu a:hover, .menu a.active {
-    background-color: var(--bg-gray);
-    color: var(--gold);
-    border-left: 3px solid var(--gold);
-}
+.menu a:hover, .menu a.active { background-color: var(--bg-gray); color: var(--gold); border-left: 3px solid var(--gold); }
 
 .btn-logout {
     margin: auto 40px 40px;
@@ -90,20 +57,12 @@ body {
     background: none;
     border: 1px solid var(--border);
     font-size: 11px;
-    letter-spacing: 2px;
     text-transform: uppercase;
-    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
 
-.btn-logout:hover {
-    border-color: #ff4d4d;
-    color: #ff4d4d;
-    background: rgba(255, 77, 77, 0.05);
-}
-
-/* PANEL PRINCIPAL (DASHBOARD) */
+/* PANEL PRINCIPAL */
 .dashboard {
     margin-left: 260px;
     width: calc(100% - 260px);
@@ -112,259 +71,103 @@ body {
     min-height: 100vh;
 }
 
-/* HERO / WELCOME BOX */
+/* ELEMENTOS DEL DASHBOARD */
 .hero {
     background: var(--white);
     padding: 50px;
     border: 1px solid var(--border);
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     border-left: 5px solid var(--dark);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
 }
 
-.hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    margin: 0 0 10px;
-    font-weight: 700;
-}
+.hero h1 { font-family: 'Playfair Display'; font-size: 32px; margin: 0; }
 
-.hero p {
-    color: var(--text-muted);
-    font-size: 15px;
-    max-width: 600px;
-}
-
-/* GRID DE ACCESOS RÁPIDOS */
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-}
-
-.card {
-    background: var(--white);
-    padding: 45px 35px;
-    text-decoration: none;
-    color: var(--dark);
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-    transition: var(--transition);
-}
-
-.card h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    margin: 0 0 12px;
-}
-
-.card p {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
-}
-
-/* Efecto Gold Line en Hover */
-.card::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 3px;
-    background: var(--gold);
-    transition: var(--transition);
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-    border-color: var(--gold);
-}
-
-.card:hover::after {
-    width: 100%;
-}
-
-/* --- MEDIA QUERIES (RESPONSIVE) --- */
-
-/* Tablets y Laptops pequeñas */
-@media (max-width: 1024px) {
-    .dashboard {
-        padding: 40px;
-    }
-}
-
-/* Móviles y Tablets verticales */
-@media (max-width: 768px) {
-    body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 20px 0;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar .brand {
-        padding: 0 20px 20px;
-        text-align: center;
-    }
-
-    .menu {
-        flex-direction: row;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-
-    .menu a {
-        padding: 12px 15px;
-        font-size: 12px;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-    }
-
-    .menu a:hover, .menu a.active {
-        border-left: none;
-        border-bottom: 2px solid var(--gold);
-    }
-
-    .btn-logout {
-        margin: 20px auto;
-        width: 80%;
-    }
-
-    .dashboard {
-        margin-left: 0;
-        width: 100%;
-        padding: 30px 20px;
-    }
-
-    .hero {
-        padding: 30px;
-    }
-
-    .hero h1 {
-        font-size: 26px;
-    }
-
-    .quick-actions {
-        grid-template-columns: 1fr; /* Una columna en móvil */
-    }
-}
-
-/* ESTADÍSTICAS */
-.stats-container {
-    margin-bottom: 40px;
-}
-
-.stat-card {
-    background: var(--white);
-    padding: 35px;
-    border: 1px solid var(--border);
-    border-left: 5px solid var(--gold); /* Detalle de lujo */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-}
-
-.stat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.stat-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    margin: 0;
-}
-
-#ocupacion-porcentaje {
-    font-weight: 600;
-    color: var(--gold);
-    font-size: 20px;
-}
-
-.progress-bar-bg {
-    width: 100%;
-    height: 8px;
-    background: var(--bg-gray);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 12px;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--dark), var(--gold));
-    width: 0%; /* Se anima con JS */
-    transition: width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-#stat-detalle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
-}
-
-
+/* GRIDS */
 .admin-grid-secondary {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 30px;
-    margin-top: 20px;
+    margin-bottom: 30px;
 }
 
-.next-appointments, .status-card {
+.stats-container { margin-bottom: 30px; }
+
+.stat-card, .next-appointments, .status-card, .card {
     background: var(--white);
     padding: 30px;
     border: 1px solid var(--border);
 }
 
-.recent-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+/* ESTILOS ESPECIFICOS */
+.stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+#ocupacion-porcentaje { color: var(--gold); font-weight: 600; font-size: 20px; }
 
+.progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--dark), var(--gold)); transition: 1.5s var(--transition); }
+
+.recent-list { display: flex; flex-direction: column; gap: 12px; }
 .recent-item {
     background: var(--bg-gray);
-    padding: 15px 20px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     border-left: 3px solid var(--gold);
 }
 
-.c-name { font-weight: 600; font-size: 14px; display: block; color: var(--dark); }
-.c-service { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-.c-time { font-family: 'Playfair Display'; font-weight: bold; color: var(--dark); }
+.view-all { color: var(--gold); text-decoration: none; font-size: 11px; font-weight: 600; text-transform: uppercase; }
 
-/* Tarjeta de Estado */
-.status-card {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
+.quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { transition: var(--transition); text-decoration: none; color: inherit; }
+.card:hover { transform: translateY(-5px); border-color: var(--gold); }
 
-.status-card h3 { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
-.status-subtitle { font-family: 'Playfair Display'; font-size: 28px; margin: 10px 0; }
-.badge-gold {
-    background: var(--gold);
-    color: white;
-    padding: 5px 15px;
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
+/* --- OPTIMIZACIÓN MOBILE (RESPONSIVE) --- */
+
+@media (max-width: 1024px) {
+    .dashboard { margin-left: 200px; width: calc(100% - 200px); padding: 30px; }
+    .sidebar { width: 200px; }
+    .sidebar .brand { padding: 0 20px 30px; }
+    .menu a { padding: 12px 20px; }
 }
-.status-info { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
 @media (max-width: 768px) {
-    .admin-grid-secondary { grid-template-columns: 1fr; }
+    body { flex-direction: column; }
+
+    /* Sidebar se vuelve barra superior */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar .brand { padding-bottom: 10px; text-align: center; }
+
+    .menu { flex-direction: row; justify-content: center; flex-wrap: wrap; }
+    .menu a { padding: 8px 12px; font-size: 11px; border-left: none; border-bottom: 2px solid transparent; }
+    .menu a.active { border-bottom: 2px solid var(--gold); border-left: none; }
+
+    .btn-logout { display: none; } /* Ocultar logout en el menú principal de móvil para ahorrar espacio */
+
+    /* Contenido */
+    .dashboard { margin-left: 0; width: 100%; padding: 20px; }
+
+    .hero { padding: 25px; text-align: center; }
+    .hero h1 { font-size: 24px; }
+
+    /* Grids a una sola columna */
+    .admin-grid-secondary, .quick-actions {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .stat-card, .next-appointments, .status-card { padding: 20px; }
+
+    /* Reordenar visualmente para que lo más importante esté arriba */
+    .dashboard { display: flex; flex-direction: column; }
+    .hero { order: 1; }
+    .stats-container { order: 2; }
+    .admin-grid-secondary { order: 3; }
+    .quick-actions { order: 4; }
 }
