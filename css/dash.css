@@ -312,3 +312,59 @@ body {
     color: var(--text-muted);
     margin: 0;
 }
+
+
+.admin-grid-secondary {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.next-appointments, .status-card {
+    background: var(--white);
+    padding: 30px;
+    border: 1px solid var(--border);
+}
+
+.recent-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+
+.recent-item {
+    background: var(--bg-gray);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid var(--gold);
+}
+
+.c-name { font-weight: 600; font-size: 14px; display: block; color: var(--dark); }
+.c-service { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.c-time { font-family: 'Playfair Display'; font-weight: bold; color: var(--dark); }
+
+/* Tarjeta de Estado */
+.status-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-card h3 { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.status-subtitle { font-family: 'Playfair Display'; font-size: 28px; margin: 10px 0; }
+.badge-gold {
+    background: var(--gold);
+    color: white;
+    padding: 5px 15px;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+.status-info { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+@media (max-width: 768px) {
+    .admin-grid-secondary { grid-template-columns: 1fr; }
+}
