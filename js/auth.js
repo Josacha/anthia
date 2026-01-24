@@ -11,7 +11,7 @@ import {
 onAuthStateChanged(auth, (user) => {
   const path = window.location.pathname;
 
-  const esLogin = path.includes("/admin/login.html");
+  const esLogin = path.includes("login.html");
 
   // ❌ NO logueado y NO está en login → mandar a login
   if (!user && !esLogin) {
