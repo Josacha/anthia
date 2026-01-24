@@ -37,7 +37,7 @@ if (formLogin) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "/anthia/admin/dashboard.html";
+      window.location.href = "dashboard.html";
     } catch (error) {
       document.getElementById("errorMsg").textContent =
         "Correo o contraseña incorrectos";
