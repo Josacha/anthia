@@ -173,3 +173,38 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
     }
 }
 }
+
+/* Filtros de Categoría */
+.categories-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Oculta scroll en Firefox */
+}
+
+.categories-tabs::-webkit-scrollbar { display: none; } /* Oculta scroll en Chrome/Safari */
+
+.cat-btn {
+    background: none;
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.cat-btn.active {
+    background: var(--gold);
+    color: white;
+    border-color: var(--gold);
+}
+
+.cat-btn:hover:not(.active) {
+    border-color: var(--gold);
+}
