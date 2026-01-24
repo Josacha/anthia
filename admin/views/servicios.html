@@ -30,7 +30,7 @@
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
                 <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
-                <p class="agenda-mes">Catálogo Profesional de Belleza</p>
+                <p class="agenda-mes">Gestión de Menú Profesional</p>
             </div>
         </header>
 
@@ -38,49 +38,29 @@
             <div class="card-servicios">
                 <form id="formServicios" class="form-grid">
                     <div class="input-group">
-                        <label>Categoría Profesional</label>
+                        <label>Categoría Principal</label>
                         <select id="categoriaServicio" class="input-premium" required>
-                            <optgroup label="TRATAMIENTOS CAPILARES (FIBRA)">
-                                <option value="Hidratación">💧 Hidratación Capilar</option>
-                                <option value="Nutrición">🥑 Nutrición Capilar</option>
-                                <option value="Botox y Reparación">🧬 Botox / Reparación</option>
-                                <option value="Alaciados y Volumen">✨ Alaciados / Control Volumen</option>
-                            </optgroup>
-                            <optgroup label="CUERO CABELLUDO (RAÍZ)">
-                                <option value="Caspa y Detox">🧴 Caspa / Detox</option>
-                                <option value="Caída y Crecimiento">🌱 Caída / Crecimiento</option>
-                                <option value="Exceso de Grasa">⚖️ Exceso de grasa</option>
-                                <option value="Sensibilidad">🌸 Dermo-sensibilidad</option>
-                            </optgroup>
-                            <optgroup label="TRATAMIENTOS FACIALES (PIEL)">
-                                <option value="Limpieza Facial">🫧 Limpieza Profunda</option>
-                                <option value="Cuidado Facial">✨ Faciales (Hidratante/Antioxi)</option>
-                                <option value="Tratamientos Piel">💆‍♀️ Renovador / Antiage / Despigmen</option>
-                            </optgroup>
-                            <optgroup label="CEJAS Y DEPILACIÓN">
-                                <option value="Hilos">🧵 Depilación con Hilo</option>
-                                <option value="Diseño Cejas">📐 Diseño de Cejas / Henna</option>
-                            </optgroup>
-                            <optgroup label="OTROS">
-                                <option value="Maquillaje y Peinado">🎭 Maquillaje y Peinado</option>
-                                <option value="Corte y Color">✂️ Corte y Colorimetría</option>
-                            </optgroup>
+                            <option value="Tratamientos Capilares (Fibra)">🌿 Tratamientos Capilares (Fibra)</option>
+                            <option value="Tratamientos de Cuero Cabelludo (Raíz)">🧠 Tratamientos de Cuero Cabelludo (Raíz)</option>
+                            <option value="Tratamientos Faciales">✨ Tratamientos Faciales</option>
+                            <option value="Depilación y Cejas">🧶 Depilación y Cejas</option>
+                            <option value="Maquillaje y Peinado">🎭 Maquillaje y Peinado</option>
                         </select>
                     </div>
 
                     <div class="input-group">
-                        <label>Nombre del Servicio</label>
-                        <input type="text" id="nombreServicio" placeholder="Ej: Facial Antioxidante" class="input-premium" required>
+                        <label>Subcategoría y Servicio</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Hidratación - Mascarilla" class="input-premium" required>
                     </div>
                     
                     <div class="input-group">
                         <label>Minutos</label>
-                        <input type="number" id="duracionServicio" placeholder="45" class="input-premium" required>
+                        <input type="number" id="duracionServicio" placeholder="60" class="input-premium" required>
                     </div>
 
                     <div class="input-group">
                         <label>Precio</label>
-                        <input type="number" id="precioServicio" placeholder="15000" class="input-premium" required>
+                        <input type="number" id="precioServicio" placeholder="25000" class="input-premium" required>
                     </div>
 
                     <div class="input-group checkbox-group">
@@ -96,17 +76,17 @@
             </div>
 
             <div style="margin-bottom: 20px;">
-                <input type="text" id="busquedaServicio" placeholder="🔍 Buscar por nombre de servicio (ej: Limpieza, Botox...)" class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
+                <input type="text" id="busquedaServicio" placeholder="🔍 Filtrar servicios registrados..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
             </div>
 
             <table id="tablaServicios" class="tabla-premium">
                 <thead>
                     <tr>
                         <th>Categoría</th>
-                        <th>Servicio</th>
+                        <th>Subcategoría - Servicio</th>
                         <th>Tiempo</th>
                         <th>Precio</th>
-                        <th>Estado</th>
+                        <th>Simultáneo</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
