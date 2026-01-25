@@ -6,13 +6,12 @@ import {
 // --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 const HORA_CIERRE = "20:00"; 
-const NUMERO_WHATSAPP = "50686920294"; // Reemplaza con el número de Andre
+const NUMERO_WHATSAPP = "50688888888"; 
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// Inicializar EmailJS (opcional según tu configuración)
 emailjs.init("s8xK3KN3XQ4g9Qccg");
 
 // --- UTILIDADES DE TIEMPO ---
@@ -28,12 +27,10 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- LÓGICA DE VALORACIÓN (ESTRICTA) ---
+// --- LÓGICA DE VALORACIÓN (WHATSAPP VS RESERVA DIRECTA) ---
 function verificarSiRequiereValoracion() {
     if (carrito.length === 0) return false;
-    
-    // REGLA: Solo WhatsApp si es el nombre específico del Alaciado 
-    // O si un solo servicio (no la suma) supera los 300 min.
+    // Solo WhatsApp si es el Alaciado específico o si UN solo servicio individual >= 300 min
     return carrito.some(s => 
         s.nombre === "Alaciados/Control de volumen " || 
         s.duracion >= 300
@@ -110,7 +107,7 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO [cite: 2026-01-23]: Solo simultáneo si el PRIMER servicio lo permite
+                // REGLA DE ORO: Solo simultáneo si el PRIMER servicio del carrito lo permite
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const hayCupo = ocupantes.length < 2;
@@ -138,7 +135,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- CARGA DE SERVICIOS Y CATEGORÍAS ---
+// --- CARGA DE SERVICIOS Y PRECIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     const categoriasFilter = document.getElementById("categoriasFilter");
@@ -177,8 +174,8 @@ async function cargarServicios() {
             card.className = "service-card";
             if (carrito.some(item => item.id === s.id)) card.classList.add("selected");
             
-            // CARGA DE PRECIOS DESDE FIREBASE
-            let txtPrecio = s.precio.tipo === "fijo" 
+            let esRango = s.precio.tipo === "rango";
+            let txtPrecio = !esRango 
                 ? `₡${Number(s.precio.valor).toLocaleString()}`
                 : `₡${Number(s.precio.desde).toLocaleString()} - ₡${Number(s.precio.hasta).toLocaleString()}*`;
 
@@ -186,6 +183,7 @@ async function cargarServicios() {
                 <h4>${s.nombre}</h4>
                 <span class="price-tag">${txtPrecio}</span>
                 <p class="duration-tag">${s.duracion || 60} min</p>
+                ${esRango ? '<small class="tag-valoracion">Sujeto a valoración el día de la cita</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -199,7 +197,8 @@ async function cargarServicios() {
                         nombre: s.nombre,
                         duracion: Number(s.duracion) || 60,
                         simultaneo: s.simultaneo === true,
-                        precio_info: txtPrecio
+                        precio_info: txtPrecio,
+                        esRango: esRango
                     });
                     card.classList.add("selected");
                 }
@@ -226,17 +225,23 @@ function renderCarrito() {
         return;
     }
 
-    const requiereValoracion = verificarSiRequiereValoracion();
+    const requiereWhatsApp = verificarSiRequiereValoracion();
+    const tieneAlgunRango = carrito.some(s => s.esRango);
     let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
     
     carritoDiv.innerHTML = `
         <div class="resumen-badge">
-            <p><b>TU SELECCIÓN:</b></p>
-            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.precio_info}</span></div>`).join('')}
-            <div class='resumen-total'><span>Duración Total</span><span>${totalMin} min</span></div>
+            <p><b>RESUMEN:</b></p>
+            ${carrito.map(s => `
+                <div class='resumen-item'>
+                    <span>${s.nombre} ${s.esRango ? '<b style="color:#d4af37;">*</b>' : ''}</span>
+                    <span>${s.precio_info}</span>
+                </div>`).join('')}
+            <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
+            ${tieneAlgunRango ? '<p class="aviso-rango-footer">* El precio final se definirá mediante valoración presencial el día de la cita.</p>' : ''}
         </div>`;
 
-    if (requiereValoracion) {
+    if (requiereWhatsApp) {
         btnConfirmar.textContent = "SOLICITAR VALORACIÓN WHATSAPP";
         btnConfirmar.classList.add("btn-whatsapp");
         btnConfirmar.dataset.modo = "whatsapp";
@@ -247,7 +252,7 @@ function renderCarrito() {
     }
 }
 
-// --- PROCESO DE ENVÍO ---
+// --- ENVÍO DE DATOS ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -265,15 +270,13 @@ if (form) {
         const serviciosTxt = carrito.map(s => s.nombre).join(", ");
 
         if (modo === "whatsapp") {
-            setTimeout(() => {
-                const msj = `¡Hola Andre! ✨ Me interesa una valoración para: ${serviciosTxt}. Mi nombre es ${nombre} y mi cel es ${telefono}.`;
-                window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = textoOriginal;
-            }, 1000);
+            const msj = `¡Hola Andre! ✨ Me interesa una valoración para: ${serviciosTxt}. Cliente: ${nombre}, Cel: ${telefono}.`;
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = textoOriginal;
         } else {
             if (!horaSeleccionada) {
-                alert("Por favor, selecciona una hora para tu cita.");
+                alert("Por favor selecciona una hora.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
                 return;
@@ -303,8 +306,7 @@ if (form) {
                 alert("¡Cita reservada con éxito!");
                 window.location.reload();
             } catch (err) {
-                console.error(err);
-                alert("Hubo un error al guardar la reserva.");
+                alert("Error al guardar la reserva.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
@@ -319,7 +321,7 @@ function generarCalendario() {
     const hoy = new Date();
     for (let i = 0; i < 14; i++) {
         let d = new Date(); d.setDate(hoy.getDate() + i);
-        if (d.getDay() === 0) continue; // Saltamos domingos
+        if (d.getDay() === 0) continue; 
         const card = document.createElement("div");
         card.className = "day-item";
         const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
