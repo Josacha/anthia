@@ -30,7 +30,7 @@
         <header class="agenda-hero">
             <div class="agenda-fecha" style="padding-top: 20px;">
                 <h1 style="font-family: 'Playfair Display', serif; font-size: 40px; color: white;">Servicios</h1>
-                <p class="agenda-mes">Catálogo Profesional Completo</p>
+                <p class="agenda-mes">Configuración de Menú</p>
             </div>
         </header>
 
@@ -38,40 +38,51 @@
             <div class="card-servicios">
                 <form id="formServicios" class="form-grid">
                     <div class="input-group">
-                        <label>Categoría Principal</label>
+                        <label>Categoría</label>
                         <select id="categoriaServicio" class="input-premium" required>
-                            <option value="">Seleccione...</option>
+                            <option value="">Seleccione Categoría...</option>
                             <option value="Tratamientos Capilares (Fibra)">🌿 Tratamientos Capilares (Fibra)</option>
                             <option value="Tratamientos de Cuero Cabelludo (Raíz)">🧠 Tratamientos de Cuero Cabelludo (Raíz)</option>
                             <option value="Servicios de Color">🎨 Servicios de Color</option>
                             <option value="Servicios de Corte">✂️ Servicios de Corte</option>
                             <option value="Tratamientos Faciales">✨ Tratamientos Faciales</option>
                             <option value="Depilación y Cejas">🧶 Depilación y Cejas</option>
-                            <option value="Maquillaje y Peinado Eventos">✨ Maquillaje y Peinado Eventos</option>
-                            <option value="Maquillaje Fantasía">🎭 Maquillaje Fantasía / Personajes</option>
+                            <option value="Maquillaje y Peinado">🎭 Maquillaje y Peinado</option>
                         </select>
                     </div>
 
                     <div class="input-group">
-                        <label>Subcategoría</label>
-                        <select id="subcategoriaServicio" class="input-premium" required disabled>
-                            <option value="">Elija primero una categoría</option>
-                        </select>
+                        <label>Nombre del Tratamiento</label>
+                        <input type="text" id="nombreServicio" placeholder="Ej: Hidratación Profunda" class="input-premium" required>
                     </div>
 
                     <div class="input-group">
-                        <label>Nombre del Servicio</label>
-                        <input type="text" id="nombreServicio" placeholder="Ej: Ritual Hidratante" class="input-premium" required>
+                        <label>Tipo de Precio</label>
+                        <select id="tipoPrecio" class="input-premium">
+                            <option value="fijo">Precio Único (Monto fijo)</option>
+                            <option value="rango">Rango de Precios (Largo/Factores)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="contenedorPrecioFijo">
+                        <label>Precio Final (₡)</label>
+                        <input type="number" id="precioServicio" placeholder="25000" class="input-premium">
+                    </div>
+
+                    <div class="input-group" id="contenedorPrecioRango" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label>Desde (₡)</label>
+                            <input type="number" id="precioDesde" placeholder="20000" class="input-premium">
+                        </div>
+                        <div>
+                            <label>Hasta (₡)</label>
+                            <input type="number" id="precioHasta" placeholder="45000" class="input-premium">
+                        </div>
                     </div>
                     
                     <div class="input-group">
-                        <label>Minutos</label>
+                        <label>Duración Aprox. (Min)</label>
                         <input type="number" id="duracionServicio" placeholder="60" class="input-premium" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Precio</label>
-                        <input type="number" id="precioServicio" placeholder="25000" class="input-premium" required>
                     </div>
 
                     <div class="input-group checkbox-group">
@@ -79,24 +90,20 @@
                             <input type="checkbox" id="simultaneoServicio">
                             <span class="slider"></span>
                         </label>
-                        <span style="font-size: 10px; color: #666;">Simultáneo</span>
+                        <span style="font-size: 10px; color: #666;">Permite Simultáneo</span>
                     </div>
 
-                    <button type="submit" class="btn-primario-lux" style="padding: 10px; font-size: 12px;">Añadir</button>
+                    <button type="submit" class="btn-primario-lux" style="grid-column: span 2; padding: 12px; margin-top: 10px;">Guardar Tratamiento</button>
                 </form>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <input type="text" id="busquedaServicio" placeholder="🔍 Filtrar servicios registrados..." class="input-premium" style="width: 100%; border-bottom: 1px solid #ddd;">
             </div>
 
             <table id="tablaServicios" class="tabla-premium">
                 <thead>
                     <tr>
-                        <th>Categoría / Sub</th>
-                        <th>Servicio</th>
+                        <th>Categoría</th>
+                        <th>Tratamiento</th>
                         <th>Tiempo</th>
-                        <th>Precio</th>
+                        <th>Precio / Rango</th>
                         <th>Simultáneo</th>
                         <th>Acciones</th>
                     </tr>
