@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva | ANDRE ARIAS</title>
-    <link rel="icon" type="image/png" href="assets/fondo/FAVICON3.png?v=2" sizes="32x32">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/fondo/FAVICON3.png?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        .btn-whatsapp { background-color: #25D366 !important; border-color: #25D366 !important; color: white !important; }
+        .aviso-v { background: #fffcf0; padding: 10px; border-radius: 5px; border-left: 3px solid #d4af37; margin-top: 10px; }
+        .aviso-whatsapp-inline { text-align: center; padding: 20px; color: #888; font-style: italic; font-size: 13px; }
+    </style>
 </head>
 <body>
-
     <header class="header-luxury">
         <div class="header-inner">
-            <div class="brand">
-                <h1>ANDRE ARIAS</h1>
-                <p>BEAUTY STYLIST</p>
-            </div>
-            <a href="index.html" class="nav-back">← VOLVER AL INICIO</a>
+            <div class="brand"><h1>ANDRE ARIAS</h1><p>BEAUTY STYLIST</p></div>
+            <a href="index.html" class="nav-back">← VOLVER</a>
         </div>
     </header>
 
@@ -24,17 +25,16 @@
         <aside class="booking-visual">
             <div class="visual-overlay"></div>
             <div class="visual-info">
-                <h2>Diseña tu Momento</h2>
-                <p>Nuestros precios se ajustan a tu necesidad. Los rangos dependen del largo y volumen de tu cabello.</p>
+                <h2>Experiencia Personalizada</h2>
+                <p>Para servicios de color y alaciados, la valoración nos permite garantizar resultados impecables.</p>
             </div>
         </aside>
 
         <section class="booking-form-container">
             <form id="formReserva" class="modern-form">
-                
                 <div class="step-box">
                     <span class="step-indicator">01</span>
-                    <label class="step-label">ELIGE TUS TRATAMIENTOS</label>
+                    <label class="step-label">TRATAMIENTOS</label>
                     <div id="categoriasFilter" class="categories-tabs"></div>
                     <div id="serviciosGrid" class="premium-grid"></div>
                     <div id="carritoServicios"></div>
@@ -42,14 +42,14 @@
 
                 <div class="step-box">
                     <span class="step-indicator">02</span>
-                    <label class="step-label">FECHA DE TU CITA</label>
+                    <label class="step-label">FECHA</label>
                     <div id="calendarioSemanas" class="calendar-strip"></div>
                     <input type="date" id="fecha" style="display:none;" required>
                 </div>
 
                 <div class="step-box">
                     <span class="step-indicator">03</span>
-                    <label class="step-label">HORARIOS DISPONIBLES</label>
+                    <label class="step-label">HORA</label>
                     <div id="horasVisualGrid" class="hours-flex"></div>
                 </div>
 
@@ -59,22 +59,19 @@
                     <div class="fields-group">
                         <input type="text" id="nombre" placeholder="Nombre completo" class="lux-input" required>
                         <div class="dual-fields">
-                            <input type="email" id="correo" placeholder="Correo electrónico" class="lux-input" required>
+                            <input type="email" id="correo" placeholder="Correo" class="lux-input" required>
                             <input type="tel" id="telefono" placeholder="WhatsApp" class="lux-input" required>
                         </div>
-                        <div class="dual-fields">
-                            <input type="text" id="apellido1" placeholder="Primer Apellido" class="lux-input" required>
-                            <input type="text" id="apellido2" placeholder="Segundo Apellido" class="lux-input">
-                        </div>
+                        <input type="text" id="apellido1" placeholder="Primer Apellido" class="lux-input" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit-lux">CONFIRMAR MI CITA</button>
+                <button type="submit" class="btn-submit-lux" data-modo="reserva">CONFIRMAR RESERVA</button>
             </form>
         </section>
     </main>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="module" src="js/firebase.js"></script>
     <script type="module" src="js/reservas.js"></script>
 </body>
