@@ -5,16 +5,15 @@ import {
 
 // --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
-const NUMERO_WHATSAPP = "50686920294"; // <-- Reemplaza con el número real de Andre
+const HORA_CIERRE = "19:00"; 
+const NUMERO_WHATSAPP = "50688888888"; 
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// Inicializar EmailJS
 emailjs.init("s8xK3KN3XQ4g9Qccg");
 
-// --- UTILIDADES ---
 const hAMin = (h) => { 
     if(!h) return 0;
     const [hh, mm] = h.split(":").map(Number); 
@@ -27,17 +26,29 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
+// --- DETECCIÓN DE SERVICIOS ESPECIALES ---
+function verificarSiRequiereValoracion() {
+    const totalMinutos = carrito.reduce((sum, s) => sum + s.duracion, 0);
+    
+    // Detecta el nombre exacto de tu base de datos o si excede 5 horas (300 min)
+    const tieneAlaciadoEspecial = carrito.some(s => 
+        s.nombre === "Alaciados/Control de volumen " || 
+        s.nombre.toLowerCase().includes("alaciado")
+    );
+
+    return (totalMinutos >= 300 || tieneAlaciadoEspecial);
+}
+
 // --- MOTOR DE DISPONIBILIDAD ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
     if (!horasVisualGrid || !fechaInput) return;
 
-    const requiereValoracion = verificarSiRequiereValoracion();
-    if (requiereValoracion) {
+    if (verificarSiRequiereValoracion()) {
         horasVisualGrid.innerHTML = `
             <div class="aviso-whatsapp-inline">
-                <p>Para este servicio, Andre coordinará la hora directamente contigo tras la valoración técnica.</p>
+                <p>Este tratamiento requiere valoración personalizada para definir tiempo y costo exacto según tu fibra capilar. Coordinaremos la hora por WhatsApp.</p>
             </div>`;
         return;
     }
@@ -79,20 +90,26 @@ function renderizarBotones(citasExistentes) {
         let tiempoCorriente = hAMin(hApertura);
         let esPosibleTodoElCombo = true;
 
-        for (const s of carrito) {
+        for (let i = 0; i < carrito.length; i++) {
+            const s = carrito[i];
             const inicioNuevo = tiempoCorriente;
             const duracionNuevo = Number(s.duracion) || 60;
             const finNuevo = inicioNuevo + duracionNuevo;
 
+            if (finNuevo > hAMin(HORA_CIERRE)) {
+                esPosibleTodoElCombo = false;
+                break;
+            }
+
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO [cite: 2026-01-23]
+                // REGLA DE ORO: Solo simultáneo si el PRIMER servicio lo permite
+                const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
-                const nuevoPermite = s.simultaneo === true;
                 const hayCupo = ocupantes.length < 2;
 
-                if (!existentesPermiten || !nuevoPermite || !hayCupo) {
+                if (!primerServicioPermite || !existentesPermiten || !hayCupo) {
                     esPosibleTodoElCombo = false;
                     break;
                 }
@@ -115,15 +132,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- GESTIÓN DE SERVICIOS ---
-function verificarSiRequiereValoracion() {
-    return carrito.some(s => 
-        s.duracion >= 240 || 
-        s.nombre.toLowerCase().includes("alaciado") || 
-        s.nombre.toLowerCase().includes("color")
-    );
-}
-
+// --- CARRITO Y SERVICIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     const categoriasFilter = document.getElementById("categoriasFilter");
@@ -170,7 +179,7 @@ async function cargarServicios() {
                 <h4>${s.nombre}</h4>
                 <span class="price-tag">${txtPrecio}</span>
                 <p class="duration-tag">${s.duracion || 60} min</p>
-                ${s.precio.tipo === 'rango' ? '<small style="font-size:9px; color:var(--gold);">*Sujeto a valoración</small>' : ''}
+                ${s.precio.tipo === 'rango' ? '<small style="font-size:9px; color:#d4af37; display:block;">*Valoración requerida</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -210,10 +219,10 @@ function renderCarrito() {
     
     carritoDiv.innerHTML = `
         <div class="resumen-badge">
-            <p><b>TU SELECCIÓN:</b></p>
-            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.precio_info}</span></div>`).join('')}
-            <div class='resumen-total'><span>Duración Estimada</span><span>${totalMin} min</span></div>
-            ${requiereValoracion ? '<div class="aviso-v"><small>⚠️ Requiere valoración por WhatsApp</small></div>' : ''}
+            <p><b>SOLICITUD:</b></p>
+            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
+            <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
+            ${requiereValoracion ? '<div class="aviso-v"><small>⚠️ Servicio especial: Valoración vía WhatsApp</small></div>' : ''}
         </div>`;
 
     if (requiereValoracion) {
@@ -234,23 +243,35 @@ if (form) {
         e.preventDefault();
         const btnSubmit = form.querySelector("button[type='submit']");
         const modo = btnSubmit.dataset.modo;
-        
+        const textoOriginal = btnSubmit.textContent;
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<span class="spinner"></span> Procesando...`;
+
         const nombre = document.getElementById("nombre").value;
         const telefono = document.getElementById("telefono").value;
         const correo = document.getElementById("correo").value;
         const serviciosTxt = carrito.map(s => s.nombre).join(", ");
 
         if (modo === "whatsapp") {
-            const msj = `¡Hola Andre! ✨%0A%0AInterés en valoración:%0A*Servicios:* ${serviciosTxt}%0A*Cliente:* ${nombre}%0A*WhatsApp:* ${telefono}`;
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
+            setTimeout(() => {
+                const msj = `¡Hola Andre! ✨%0A%0AHe solicitado una *Valoración para Alaciado/Color* desde tu sitio web:%0A%0A*Servicios:* ${serviciosTxt}%0A*Cliente:* ${nombre}%0A*WhatsApp:* ${telefono}`;
+                window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = textoOriginal;
+            }, 1000);
         } else {
-            if (!horaSeleccionada) return alert("Selecciona una hora.");
-            btnSubmit.disabled = true;
-            btnSubmit.textContent = "Reservando...";
-
+            if (!horaSeleccionada) {
+                alert("Por favor selecciona una hora.");
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = textoOriginal;
+                return;
+            }
             try {
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
-                await setDoc(doc(db, "clientes", idClie), { nombre, correo, telefono }, { merge: true });
+                await setDoc(doc(db, "clientes", idClie), { 
+                    nombre, apellido1: document.getElementById("apellido1").value, correo, telefono 
+                }, { merge: true });
 
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
@@ -260,28 +281,28 @@ if (form) {
                     });
                     t += s.duracion;
                 }
-                alert("¡Cita reservada con éxito!");
+                alert("¡Cita reservada!");
                 window.location.reload();
-            } catch (err) { alert("Error al reservar."); btnSubmit.disabled = false; }
+            } catch (err) {
+                alert("Error al reservar.");
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = textoOriginal;
+            }
         }
     });
 }
 
-// --- CALENDARIO ---
 function generarCalendario() {
     const contenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
     if (!contenedor) return;
-    
     const hoy = new Date();
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 14; i++) {
         let d = new Date(); d.setDate(hoy.getDate() + i);
         if (d.getDay() === 0) continue; 
-
         const card = document.createElement("div");
         card.className = "day-item";
         const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-
         card.innerHTML = `<span class="mes">${d.toLocaleString('es',{weekday:'short'})}</span><span class="num">${d.getDate()}</span>`;
         card.onclick = () => {
             document.querySelectorAll(".day-item").forEach(el => el.classList.remove("selected"));
