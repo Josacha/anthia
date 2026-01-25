@@ -10,12 +10,10 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// --- CONFIGURACIÓN EMAILJS ---
 const SERVICE_ID = "service_14jwpyq";
 const TEMPLATE_ID = "template_itx9f7f";
 const PUBLIC_KEY = "s8xK3KN3XQ4g9Qccg";
 
-// Inicializar EmailJS para evitar el error "defined"
 emailjs.init(PUBLIC_KEY);
 
 // --- UTILIDADES ---
@@ -31,7 +29,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- MOTOR DE DISPONIBILIDAD (SINCRO REAL) ---
+// --- MOTOR DE DISPONIBILIDAD ---
 async function cargarHorasDisponibles() {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     const fechaInput = document.getElementById("fecha");
@@ -51,7 +49,6 @@ async function cargarHorasDisponibles() {
 
     if (!desuscribirCitas) {
         const q = query(collection(db, "citas"), where("fecha", "==", fechaSeleccionada));
-        
         desuscribirCitas = onSnapshot(q, (snapshot) => {
             const citasExistentes = snapshot.docs.map(d => {
                 const data = d.data();
@@ -65,10 +62,6 @@ async function cargarHorasDisponibles() {
             ultimaFechaConsultada = fechaSeleccionada;
             renderizarBotones(citasExistentes);
         });
-    } else {
-        desuscribirCitas();
-        desuscribirCitas = null;
-        cargarHorasDisponibles();
     }
 }
 
@@ -88,7 +81,7 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO [cite: 2026-01-23]
+                // REGLA DE ORO: Solo simultáneo si el primero es simultáneo
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const nuevoPermite = s.simultaneo === true;
                 const hayCupo = ocupantes.length < 2;
@@ -116,7 +109,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- GESTIÓN DE SERVICIOS ---
+// --- GESTIÓN DE SERVICIOS (ACTUALIZADO CON RANGOS) ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     const categoriasFilter = document.getElementById("categoriasFilter");
@@ -126,20 +119,19 @@ async function cargarServicios() {
     const todosLosServicios = [];
     const categoriasSet = new Set(["Todos"]);
 
-    // Guardamos los datos y extraemos categorías únicas
     snapshot.forEach(docSnap => {
         const data = docSnap.data();
         todosLosServicios.push({ id: docSnap.id, ...data });
         if (data.categoria) categoriasSet.add(data.categoria);
     });
 
-    // 1. Renderizar botones de categorías
     categoriasFilter.innerHTML = "";
     categoriasSet.forEach(cat => {
         const btn = document.createElement("button");
         btn.className = "cat-btn" + (cat === "Todos" ? " active" : "");
         btn.textContent = cat;
-        btn.onclick = () => {
+        btn.onclick = (e) => {
+            e.preventDefault();
             document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             renderizarGrid(todosLosServicios, cat);
@@ -147,7 +139,6 @@ async function cargarServicios() {
         categoriasFilter.appendChild(btn);
     });
 
-    // 2. Función para renderizar el grid filtrado
     function renderizarGrid(servicios, filtro) {
         serviciosGrid.innerHTML = "";
         const filtrados = filtro === "Todos" ? servicios : servicios.filter(s => s.categoria === filtro);
@@ -157,10 +148,19 @@ async function cargarServicios() {
             card.className = "service-card";
             if (carrito.some(item => item.id === s.id)) card.classList.add("selected");
             
+            // Lógica visual del precio flexible
+            let txtPrecio = "";
+            if (s.precio.tipo === "fijo") {
+                txtPrecio = `₡${Number(s.precio.valor).toLocaleString()}`;
+            } else {
+                txtPrecio = `₡${Number(s.precio.desde).toLocaleString()} - ₡${Number(s.precio.hasta).toLocaleString()}*`;
+            }
+
             card.innerHTML = `
                 <h4>${s.nombre}</h4>
-                <span>₡${s.precio}</span>
-                <p>${s.duracion || 60} min</p>
+                <span class="price-tag">${txtPrecio}</span>
+                <p class="duration-tag">${s.duracion || 60} min</p>
+                ${s.precio.tipo === 'rango' ? '<small class="valoracion-note">*Valoración técnica el día de la cita</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -173,7 +173,8 @@ async function cargarServicios() {
                         id: s.id,
                         nombre: s.nombre,
                         duracion: Number(s.duracion) || 60,
-                        simultaneo: s.simultaneo === true
+                        simultaneo: s.simultaneo === true,
+                        precio_info: txtPrecio // Guardamos para el resumen
                     });
                     card.classList.add("selected");
                 }
@@ -183,8 +184,6 @@ async function cargarServicios() {
             serviciosGrid.appendChild(card);
         });
     }
-
-    // Render inicial
     renderizarGrid(todosLosServicios, "Todos");
 }
 
@@ -193,11 +192,17 @@ function renderCarrito() {
     if (!carritoDiv) return;
     carritoDiv.innerHTML = "";
     if (carrito.length === 0) return;
-    let total = carrito.reduce((sum, s) => sum + s.duracion, 0);
-    carritoDiv.innerHTML = `<div class="resumen-badge"><p><b>RESUMEN:</b></p>${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}<div class='resumen-total'><span>Total</span><span>${total} min</span></div></div>`;
+    let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
+    
+    carritoDiv.innerHTML = `
+        <div class="resumen-badge">
+            <p><b>TU SELECCIÓN:</b></p>
+            ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.precio_info}</span></div>`).join('')}
+            <div class='resumen-total'><span>Duración Total</span><span>${totalMin} min</span></div>
+        </div>`;
 }
 
-// --- CALENDARIO ---
+// --- CALENDARIO Y ENVÍO (SE MANTIENE IGUAL) ---
 function generarCalendario() {
     const calendarioContenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
@@ -212,16 +217,11 @@ function generarCalendario() {
         let d = new Date();
         d.setDate(hoy.getDate() + offset);
         offset++;
-        
         if (d.getDay() === 0) continue; 
 
         const diaCard = document.createElement("div");
         diaCard.className = "day-item";
-
-        const anio = d.getFullYear();
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const dia = String(d.getDate()).padStart(2, '0');
-        const isoFechaLocal = `${anio}-${mes}-${dia}`;
+        const isoFechaLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
         diaCard.innerHTML = `
             <span class="mes">${d.toLocaleString('es', { weekday: 'short' })}</span>
@@ -235,13 +235,11 @@ function generarCalendario() {
             fechaInput.value = isoFechaLocal; 
             cargarHorasDisponibles(); 
         };
-
         calendarioContenedor.appendChild(diaCard);
         diasContados++;
     }
 }
 
-// --- FORMULARIO Y ENVÍO DE CORREO ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -255,15 +253,13 @@ if (form) {
         try {
             const nombre = document.getElementById("nombre").value;
             const correo = document.getElementById("correo").value;
-            const telefono = document.getElementById("telefono").value;
-            const fecha = document.getElementById("fecha").value;
-            const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
+            const idClie = (correo || document.getElementById("telefono").value).replace(/[.#$[\]]/g,'_');
             
             await setDoc(doc(db, "clientes", idClie), { 
                 nombre: nombre, 
                 apellido1: document.getElementById("apellido1").value, 
                 correo: correo, 
-                telefono: telefono 
+                telefono: document.getElementById("telefono").value 
             }, { merge: true });
 
             let t = hAMin(horaSeleccionada);
@@ -271,7 +267,7 @@ if (form) {
                 await addDoc(collection(db, "citas"), { 
                     clienteId: idClie, 
                     servicioId: s.id, 
-                    fecha: fecha, 
+                    fecha: document.getElementById("fecha").value, 
                     hora: minAH(t), 
                     duracion: s.duracion, 
                     simultaneo: s.simultaneo === true, 
@@ -280,26 +276,20 @@ if (form) {
                 t += s.duracion;
             }
 
-            // Enviar correo
-            const templateParams = {
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
                 nombre_cliente: nombre,
                 email_cliente: correo,
                 servicio: carrito.map(s => s.nombre).join(", "),
-                fecha: fecha,
+                fecha: document.getElementById("fecha").value,
                 hora: horaSeleccionada,
-                link_calendario: `https://www.google.com/calendar/render?action=TEMPLATE&text=Cita+Anthia&dates=${fecha.replace(/-/g,'')}T${horaSeleccionada.replace(':','')}00Z`
-            };
+            });
 
-            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
-
-            alert("¡Reserva exitosa! Se ha enviado un correo de confirmación."); 
+            alert("¡Reserva exitosa!"); 
             window.location.reload();
 
         } catch (err) { 
             console.error(err); 
-            alert("Error al procesar la reserva."); 
             btnSubmit.disabled = false;
-            btnSubmit.textContent = "Confirmar Reserva";
         }
     });
 }
