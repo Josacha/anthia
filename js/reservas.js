@@ -5,8 +5,8 @@ import {
 
 // --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
-const HORA_CIERRE = "19:00"; 
-const NUMERO_WHATSAPP = "50688888888"; 
+const HORA_CIERRE = "20:00"; 
+const NUMERO_WHATSAPP = "50686920294"; 
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
@@ -26,17 +26,15 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- DETECCIÓN DE SERVICIOS ESPECIALES ---
+// --- LÓGICA DE VALORACIÓN AJUSTADA ---
 function verificarSiRequiereValoracion() {
-    const totalMinutos = carrito.reduce((sum, s) => sum + s.duracion, 0);
-    
-    // Detecta el nombre exacto de tu base de datos o si excede 5 horas (300 min)
-    const tieneAlaciadoEspecial = carrito.some(s => 
-        s.nombre === "Alaciados/Control de volumen " || 
-        s.nombre.toLowerCase().includes("alaciado")
+    // 1. Si algún servicio INDIVIDUAL supera los 300 min (o lo que tú definas como límite)
+    // 2. Si el servicio es el de Alaciados/Control de volumen (por ser precio rango)
+    return carrito.some(s => 
+        s.duracion >= 300 || 
+        s.nombre === "Alaciados/Control de volumen " ||
+        s.precio_tipo === "rango"
     );
-
-    return (totalMinutos >= 300 || tieneAlaciadoEspecial);
 }
 
 // --- MOTOR DE DISPONIBILIDAD ---
@@ -48,7 +46,7 @@ async function cargarHorasDisponibles() {
     if (verificarSiRequiereValoracion()) {
         horasVisualGrid.innerHTML = `
             <div class="aviso-whatsapp-inline">
-                <p>Este tratamiento requiere valoración personalizada para definir tiempo y costo exacto según tu fibra capilar. Coordinaremos la hora por WhatsApp.</p>
+                <p>Este servicio es de alta duración o complejidad técnica. Coordinaremos la hora directamente contigo por WhatsApp.</p>
             </div>`;
         return;
     }
@@ -104,7 +102,7 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO: Solo simultáneo si el PRIMER servicio lo permite
+                // REGLA DE ORO [cite: 2026-01-23]
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const hayCupo = ocupantes.length < 2;
@@ -179,7 +177,7 @@ async function cargarServicios() {
                 <h4>${s.nombre}</h4>
                 <span class="price-tag">${txtPrecio}</span>
                 <p class="duration-tag">${s.duracion || 60} min</p>
-                ${s.precio.tipo === 'rango' ? '<small style="font-size:9px; color:#d4af37; display:block;">*Valoración requerida</small>' : ''}
+                ${s.precio.tipo === 'rango' ? '<small style="font-size:9px; color:#d4af37; display:block;">*Sujeto a valoración</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -193,6 +191,7 @@ async function cargarServicios() {
                         nombre: s.nombre,
                         duracion: Number(s.duracion) || 60,
                         simultaneo: s.simultaneo === true,
+                        precio_tipo: s.precio.tipo,
                         precio_info: txtPrecio
                     });
                     card.classList.add("selected");
@@ -219,14 +218,13 @@ function renderCarrito() {
     
     carritoDiv.innerHTML = `
         <div class="resumen-badge">
-            <p><b>SOLICITUD:</b></p>
+            <p><b>TU SELECCIÓN:</b></p>
             ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
             <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
-            ${requiereValoracion ? '<div class="aviso-v"><small>⚠️ Servicio especial: Valoración vía WhatsApp</small></div>' : ''}
         </div>`;
 
     if (requiereValoracion) {
-        btnConfirmar.textContent = "SOLICITAR VALORACIÓN WHATSAPP";
+        btnConfirmar.textContent = "SOLICITAR VALORACIÓN VÍA WHATSAPP";
         btnConfirmar.classList.add("btn-whatsapp");
         btnConfirmar.dataset.modo = "whatsapp";
     } else {
@@ -236,7 +234,6 @@ function renderCarrito() {
     }
 }
 
-// --- ENVÍO ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -255,23 +252,21 @@ if (form) {
 
         if (modo === "whatsapp") {
             setTimeout(() => {
-                const msj = `¡Hola Andre! ✨%0A%0AHe solicitado una *Valoración para Alaciado/Color* desde tu sitio web:%0A%0A*Servicios:* ${serviciosTxt}%0A*Cliente:* ${nombre}%0A*WhatsApp:* ${telefono}`;
+                const msj = `¡Hola Andre! ✨ Me interesa una valoración personalizada para: ${serviciosTxt}. Cliente: ${nombre}.`;
                 window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }, 1000);
         } else {
             if (!horaSeleccionada) {
-                alert("Por favor selecciona una hora.");
+                alert("Selecciona una hora.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
                 return;
             }
             try {
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
-                await setDoc(doc(db, "clientes", idClie), { 
-                    nombre, apellido1: document.getElementById("apellido1").value, correo, telefono 
-                }, { merge: true });
+                await setDoc(doc(db, "clientes", idClie), { nombre, apellido1: document.getElementById("apellido1").value, correo, telefono }, { merge: true });
 
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
@@ -284,7 +279,7 @@ if (form) {
                 alert("¡Cita reservada!");
                 window.location.reload();
             } catch (err) {
-                alert("Error al reservar.");
+                alert("Error.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
