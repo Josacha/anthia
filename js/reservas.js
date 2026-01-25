@@ -6,7 +6,7 @@ import {
 // --- CONFIGURACIÓN ---
 const HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 const HORA_CIERRE = "20:00"; 
-const NUMERO_WHATSAPP = "50686920294"; 
+const NUMERO_WHATSAPP = "50688888888"; 
 let carrito = [];
 let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
@@ -26,10 +26,11 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- LÓGICA DE VALORACIÓN AJUSTADA ---
+// --- LÓGICA DE VALORACIÓN (CORREGIDA) ---
 function verificarSiRequiereValoracion() {
-    // 1. Si algún servicio INDIVIDUAL supera los 300 min (o lo que tú definas como límite)
-    // 2. Si el servicio es el de Alaciados/Control de volumen (por ser precio rango)
+    if (carrito.length === 0) return false;
+    
+    // Solo activamos WhatsApp si UN solo servicio individual cumple estas condiciones
     return carrito.some(s => 
         s.duracion >= 300 || 
         s.nombre === "Alaciados/Control de volumen " ||
@@ -43,20 +44,27 @@ async function cargarHorasDisponibles() {
     const fechaInput = document.getElementById("fecha");
     if (!horasVisualGrid || !fechaInput) return;
 
+    // LIMPIEZA: Si no hay nada en el carrito, resetear vista de horas
+    if (carrito.length === 0) {
+        horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona servicios y fecha.</p>";
+        return;
+    }
+
     if (verificarSiRequiereValoracion()) {
         horasVisualGrid.innerHTML = `
             <div class="aviso-whatsapp-inline">
-                <p>Este servicio es de alta duración o complejidad técnica. Coordinaremos la hora directamente contigo por WhatsApp.</p>
+                <p>Este servicio requiere valoración técnica previa. La hora se coordina por WhatsApp.</p>
             </div>`;
         return;
     }
 
     const fechaSeleccionada = fechaInput.value;
-    if (!fechaSeleccionada || carrito.length === 0) {
-        horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona servicios y fecha.</p>";
+    if (!fechaSeleccionada) {
+        horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona una fecha.</p>";
         return;
     }
 
+    // Lógica normal de consulta a Firebase
     if (desuscribirCitas && fechaSeleccionada !== ultimaFechaConsultada) {
         desuscribirCitas();
         desuscribirCitas = null;
@@ -102,7 +110,7 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA DE ORO [cite: 2026-01-23]
+                // REGLA DE ORO
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const hayCupo = ocupantes.length < 2;
@@ -169,15 +177,9 @@ async function cargarServicios() {
             card.className = "service-card";
             if (carrito.some(item => item.id === s.id)) card.classList.add("selected");
             
-            let txtPrecio = s.precio.tipo === "fijo" 
-                ? `₡${Number(s.precio.valor).toLocaleString()}`
-                : `₡${Number(s.precio.desde).toLocaleString()} - ₡${Number(s.precio.hasta).toLocaleString()}*`;
-
             card.innerHTML = `
                 <h4>${s.nombre}</h4>
-                <span class="price-tag">${txtPrecio}</span>
                 <p class="duration-tag">${s.duracion || 60} min</p>
-                ${s.precio.tipo === 'rango' ? '<small style="font-size:9px; color:#d4af37; display:block;">*Sujeto a valoración</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -192,10 +194,11 @@ async function cargarServicios() {
                         duracion: Number(s.duracion) || 60,
                         simultaneo: s.simultaneo === true,
                         precio_tipo: s.precio.tipo,
-                        precio_info: txtPrecio
                     });
                     card.classList.add("selected");
                 }
+                // RESET DE HORA SI CAMBIA EL CARRITO
+                horaSeleccionada = ""; 
                 renderCarrito();
                 cargarHorasDisponibles();
             };
@@ -210,8 +213,13 @@ function renderCarrito() {
     const btnConfirmar = document.querySelector(".btn-submit-lux");
     if (!carritoDiv) return;
 
-    carritoDiv.innerHTML = "";
-    if (carrito.length === 0) return;
+    if (carrito.length === 0) {
+        carritoDiv.innerHTML = "";
+        btnConfirmar.textContent = "CONFIRMAR RESERVA";
+        btnConfirmar.classList.remove("btn-whatsapp");
+        btnConfirmar.dataset.modo = "reserva";
+        return;
+    }
 
     const requiereValoracion = verificarSiRequiereValoracion();
     let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
@@ -220,7 +228,7 @@ function renderCarrito() {
         <div class="resumen-badge">
             <p><b>TU SELECCIÓN:</b></p>
             ${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.duracion} min</span></div>`).join('')}
-            <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
+            <div class='resumen-total'><span>Total</span><span>${totalMin} min</span></div>
         </div>`;
 
     if (requiereValoracion) {
@@ -234,6 +242,7 @@ function renderCarrito() {
     }
 }
 
+// El resto del código de envío y calendario sigue igual...
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -252,7 +261,7 @@ if (form) {
 
         if (modo === "whatsapp") {
             setTimeout(() => {
-                const msj = `¡Hola Andre! ✨ Me interesa una valoración personalizada para: ${serviciosTxt}. Cliente: ${nombre}.`;
+                const msj = `¡Hola Andre! ✨ Me interesa una valoración personalizada para: ${serviciosTxt}.`;
                 window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
@@ -267,7 +276,6 @@ if (form) {
             try {
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
                 await setDoc(doc(db, "clientes", idClie), { nombre, apellido1: document.getElementById("apellido1").value, correo, telefono }, { merge: true });
-
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
                     await addDoc(collection(db, "citas"), { 
