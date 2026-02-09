@@ -65,23 +65,38 @@ window.verHistorial = async (id, nombre, correo) => {
         citas.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
 
         citas.forEach(cita => {
-            const s = serviciosMap[cita.servicioId] || { nombre: "Servicio", precio: 0 };
+            const s = serviciosMap[cita.servicioId];
             totalCitas++;
             
-            const precioCita = Number(s.precio || 0);
+            // --- CORRECCIÓN DE EXTRACCIÓN DE PRECIO ---
+            let precioCita = 0;
+            let precioTexto = "₡0";
+
+            if (s && s.precio) {
+                if (s.precio.tipo === "fijo") {
+                    precioCita = Number(s.precio.valor) || 0;
+                    precioTexto = `₡${precioCita.toLocaleString()}`;
+                } else if (s.precio.tipo === "rango") {
+                    // Si es rango, usamos el precio "desde" para el historial
+                    precioCita = Number(s.precio.desde) || 0;
+                    precioTexto = `₡${precioCita.toLocaleString()}*`;
+                }
+            }
+            
             gastoTotal += precioCita;
             
             // Contabilizar para lealtad
-            conteoPorServicio[cita.servicioId] = (conteoPorServicio[cita.servicioId] || 0) + 1;
+            if (cita.servicioId) {
+                conteoPorServicio[cita.servicioId] = (conteoPorServicio[cita.servicioId] || 0) + 1;
+            }
 
             const tr = document.createElement("tr");
-            // Se usa cita.nombresServicios si existe (de la agenda multi-servicio)
-            const nombreMostrar = cita.nombresServicios || s.nombre;
+            const nombreMostrar = cita.nombresServicios || (s ? s.nombre : "Servicio");
             
             tr.innerHTML = `
                 <td>${cita.fecha}</td>
                 <td>${nombreMostrar}</td>
-                <td>₡${precioCita.toLocaleString()}</td>
+                <td>${precioTexto}</td>
             `;
             tbodyHistorial.appendChild(tr);
         });
@@ -109,6 +124,8 @@ window.verHistorial = async (id, nombre, correo) => {
     }
 
     document.getElementById("statTotalCitas").textContent = totalCitas;
+    // Opcional: Si quieres mostrar el gasto total en algún lado
+    // document.getElementById("statGastoTotal").textContent = `₡${gastoTotal.toLocaleString()}`;
   
     modalHistorial.classList.add("active");
 };
@@ -116,10 +133,10 @@ window.verHistorial = async (id, nombre, correo) => {
 // --- 5. RENDERIZADO DE TABLA PRINCIPAL ---
 function renderFila(id, data) {
     const tr = document.createElement("tr");
-    const fullNombre = `${data.nombre} ${data.apellido1}`;
+    const fullNombre = `${data.nombre} ${data.apellido1 || ""}`;
     tr.innerHTML = `
         <td style="font-weight:600;">${fullNombre}</td>
-        <td>${data.correo}</td>
+        <td>${data.correo || "N/A"}</td>
         <td><a href="https://wa.me/${data.telefono}" target="_blank" style="text-decoration:none;">📱 ${data.telefono}</a></td>
         <td><button class="btn-ver-historial" onclick="window.verHistorial('${id}','${fullNombre}','${data.correo}')">TARJETA REGALO</button></td>
         <td><button class="btn-eliminar" onclick="window.eliminarCliente('${id}','${data.nombre}')">🗑️</button></td>
