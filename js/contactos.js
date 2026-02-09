@@ -125,7 +125,7 @@ window.verHistorial = async (id, nombre, correo) => {
 
     document.getElementById("statTotalCitas").textContent = totalCitas;
     // Opcional: Si quieres mostrar el gasto total en algún lado
-  document.getElementById("statGastoTotal").textContent = `₡${gastoTotal.toLocaleString()}`;
+ 
   
     modalHistorial.classList.add("active");
 };
