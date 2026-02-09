@@ -109,7 +109,7 @@ window.verHistorial = async (id, nombre, correo) => {
     }
 
     document.getElementById("statTotalCitas").textContent = totalCitas;
-    document.getElementById("statTotalGasto").textContent = `₡${gastoTotal.toLocaleString()}`;
+  
     modalHistorial.classList.add("active");
 };
 
