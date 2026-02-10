@@ -12,7 +12,7 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// Inicialización de EmailJS con tus credenciales correctas
+// Inicialización de EmailJS con tu Public Key
 emailjs.init("s8xK3KN3XQ4g9Qccg");
 
 // --- UTILIDADES DE TIEMPO ---
@@ -28,7 +28,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- LÓGICA DE VALORACIÓN ---
+// --- LÓGICA DE VALORACIÓN (WHATSAPP VS RESERVA DIRECTA) ---
 function verificarSiRequiereValoracion() {
     if (carrito.length === 0) return false;
     return carrito.some(s => 
@@ -107,7 +107,6 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA [cite: 2026-01-23]: Solo simultáneo si el PRIMER servicio lo permite
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const hayCupo = ocupantes.length < 2;
@@ -183,7 +182,7 @@ async function cargarServicios() {
                 <h4>${s.nombre}</h4>
                 <span class="price-tag">${txtPrecio}</span>
                 <p class="duration-tag">${s.duracion || 60} min</p>
-                ${esRango ? '<small class="tag-valoracion">Sujeto a valoración</small>' : ''}
+                ${esRango ? '<small class="tag-valoracion">Sujeto a valoración el día de la cita</small>' : ''}
             `;
             
             card.onclick = () => {
@@ -220,11 +219,13 @@ function renderCarrito() {
     if (carrito.length === 0) {
         carritoDiv.innerHTML = "";
         btnConfirmar.textContent = "CONFIRMAR RESERVA";
+        btnConfirmar.classList.remove("btn-whatsapp");
         btnConfirmar.dataset.modo = "reserva";
         return;
     }
 
     const requiereWhatsApp = verificarSiRequiereValoracion();
+    const tieneAlgunRango = carrito.some(s => s.esRango);
     let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
     
     carritoDiv.innerHTML = `
@@ -232,24 +233,25 @@ function renderCarrito() {
             <p><b>RESUMEN:</b></p>
             ${carrito.map(s => `
                 <div class='resumen-item'>
-                    <span>${s.nombre}</span>
+                    <span>${s.nombre} ${s.esRango ? '<b style="color:#d4af37;">*</b>' : ''}</span>
                     <span>${s.precio_info}</span>
                 </div>`).join('')}
             <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
+            ${tieneAlgunRango ? '<p class="aviso-rango-footer">* El precio final se definirá mediante valoración presencial el día de la cita.</p>' : ''}
         </div>`;
 
     if (requiereWhatsApp) {
         btnConfirmar.textContent = "SOLICITAR VALORACIÓN WHATSAPP";
-        btnConfirmar.dataset.modo = "whatsapp";
         btnConfirmar.classList.add("btn-whatsapp");
+        btnConfirmar.dataset.modo = "whatsapp";
     } else {
         btnConfirmar.textContent = "CONFIRMAR RESERVA";
-        btnConfirmar.dataset.modo = "reserva";
         btnConfirmar.classList.remove("btn-whatsapp");
+        btnConfirmar.dataset.modo = "reserva";
     }
 }
 
-// --- ENVÍO DE DATOS Y CORREO ---
+// --- ENVÍO DE DATOS CON EMAILJS ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -262,13 +264,14 @@ if (form) {
         btnSubmit.innerHTML = `<span class="spinner"></span> Procesando...`;
 
         const nombre = document.getElementById("nombre").value;
+        const apellido = document.getElementById("apellido1")?.value || "";
         const telefono = document.getElementById("telefono").value;
         const correo = document.getElementById("correo").value;
         const fecha = document.getElementById("fecha").value;
         const serviciosTxt = carrito.map(s => s.nombre).join(", ");
 
         if (modo === "whatsapp") {
-            const msj = `¡Hola Andre! ✨ Me interesa valoración para: ${serviciosTxt}. Cliente: ${nombre}, Cel: ${telefono}.`;
+            const msj = `¡Hola Andre! ✨ Me interesa una valoración para: ${serviciosTxt}. Cliente: ${nombre}, Cel: ${telefono}.`;
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
             btnSubmit.disabled = false;
             btnSubmit.textContent = textoOriginal;
@@ -280,20 +283,19 @@ if (form) {
                 return;
             }
             try {
-                // 1. Guardar Cliente
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
                 await setDoc(doc(db, "clientes", idClie), { 
-                    nombre, correo, telefono, creado: Timestamp.now() 
+                    nombre, 
+                    apellido1: apellido, 
+                    correo, 
+                    telefono 
                 }, { merge: true });
 
-                // 2. Guardar Citas
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
                     await addDoc(collection(db, "citas"), { 
                         clienteId: idClie, 
-                        nombreCliente: nombre, 
                         servicioId: s.id, 
-                        nombresServicios: s.nombre,
                         fecha: fecha, 
                         hora: minAH(t), 
                         duracion: s.duracion, 
@@ -303,27 +305,23 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // 3. Envío de Correo (Saneado)
-                const emailParams = {
-                    to_name: "Andre",
-                    from_name: "Andre Salón",
-                    cliente_nombre: nombre,
-                    cliente_correo: correo || "no-reply@reservas.com",
-                    cliente_telefono: telefono,
-                    fecha_cita: fecha,
-                    hora_cita: horaSeleccionada,
-                    servicios: serviciosTxt
+                // ENVÍO DE CORREO TRAS ÉXITO EN FIREBASE
+                const templateParams = {
+                    user_name: nombre + " " + apellido,
+                    user_email: correo,
+                    user_phone: telefono,
+                    date: fecha,
+                    time: horaSeleccionada,
+                    services: serviciosTxt
                 };
 
-                // Enviando con Service ID: service_14jwpyq
-                await emailjs.send("service_14jwpyq", "template_itx9f7f", emailParams);
-                
+                await emailjs.send("service_14jwpyq", "template_itx9f7f", templateParams);
+
                 alert("¡Cita reservada con éxito!");
                 window.location.reload();
-
             } catch (err) {
                 console.error(err);
-                alert("Error al procesar la reserva.");
+                alert("Error al procesar la solicitud.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
