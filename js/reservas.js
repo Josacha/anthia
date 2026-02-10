@@ -12,7 +12,7 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// Inicialización de EmailJS (Asegúrate de que tu ID sea correcto)
+// Inicialización de EmailJS con tu Public Key correcta
 emailjs.init("s8xK3KN3XQ4g9Qccg");
 
 // --- UTILIDADES DE TIEMPO ---
@@ -107,7 +107,6 @@ function renderizarBotones(citasExistentes) {
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
 
             if (ocupantes.length > 0) {
-                // REGLA [cite: 2026-01-23]: Solo simultáneo si el PRIMER servicio lo permite
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
                 const hayCupo = ocupantes.length < 2;
@@ -135,7 +134,6 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- CARGA DE SERVICIOS Y PRECIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     const categoriasFilter = document.getElementById("categoriasFilter");
@@ -225,7 +223,6 @@ function renderCarrito() {
     }
 
     const requiereWhatsApp = verificarSiRequiereValoracion();
-    const tieneAlgunRango = carrito.some(s => s.esRango);
     let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
     
     carritoDiv.innerHTML = `
@@ -250,7 +247,6 @@ function renderCarrito() {
     }
 }
 
-// --- ENVÍO DE DATOS Y CORREO ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -281,18 +277,16 @@ if (form) {
                 return;
             }
             try {
-                // 1. Guardar/Actualizar Cliente
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
                 await setDoc(doc(db, "clientes", idClie), { 
                     nombre, correo, telefono, creado: Timestamp.now() 
                 }, { merge: true });
 
-                // 2. Guardar Citas
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
                     await addDoc(collection(db, "citas"), { 
                         clienteId: idClie, 
-                        nombreCliente: nombre, // Guardamos nombre para el Dashboard
+                        nombreCliente: nombre, 
                         servicioId: s.id, 
                         nombresServicios: s.nombre,
                         fecha: fecha, 
@@ -304,21 +298,21 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // --- 3. ENVÍO DE CORREO (REINTEGRADO) ---
+                // --- CORRECCIÓN DE IDs EMAILJS ---
                 const emailParams = {
                     to_name: "Andre",
                     from_name: "CAFÉ PRÓDIGO SUELO",
                     cliente_nombre: nombre,
-                    cliente_correo: correo,
+                    cliente_correo: correo || "Sin correo",
                     cliente_telefono: telefono,
                     fecha_cita: fecha,
                     hora_cita: horaSeleccionada,
                     servicios: serviciosTxt
                 };
 
-                await emailjs.send("service_48p645n", "template_a92p8ic", emailParams);
+                await emailjs.send("service_14jwpyq", "template_a92p8ic", emailParams);
                 
-                alert("¡Cita reservada con éxito! Revisa tu correo de confirmación.");
+                alert("¡Cita reservada con éxito!");
                 window.location.reload();
 
             } catch (err) {
