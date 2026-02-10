@@ -305,9 +305,10 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // --- INTEGRACIÓN EMAILJS (CORRECCIONES PARA 422) ---
+                // --- CORRECCIÓN FINAL PARA EMAILJS ---
                 const templateParams = {
                     nombre_cliente: `${nombre} ${apellido}`,
+                    email_cliente: correo, // ESTE CAMPO ES EL QUE FALTABA PARA EL DESTINATARIO
                     servicio: serviciosTxt,
                     fecha: fecha,
                     hora: horaSeleccionada,
@@ -324,7 +325,7 @@ if (form) {
                 window.location.reload();
             } catch (err) {
                 console.error("Error completo:", err);
-                alert("Ocurrió un error al procesar la reserva.");
+                alert("Error al procesar la reserva. Verifica que el correo sea válido.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
