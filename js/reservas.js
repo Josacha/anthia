@@ -28,6 +28,23 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
+// --- FUNCIÓN PARA GENERAR LINK DE GOOGLE CALENDAR ---
+const generarGoogleCalendarLink = (nombre, servicio, fecha, hora) => {
+    const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+    const titulo = encodeURIComponent(`Cita Beauty: ${servicio}`);
+    
+    // Formatear fecha para Google (YYYYMMDD)
+    const fechaLimpia = fecha.replace(/-/g, '');
+    // Formatear hora (HHMMSS)
+    const horaLimpia = hora.replace(/:/g, '') + "00";
+    
+    const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos para tu servicio de ${servicio} en Andre Arias Beauty Stylist.`);
+    // Se define el inicio y fin (por defecto ponemos 1 hora si no se calcula el total exacto aquí)
+    const link = `${baseUrl}&text=${titulo}&dates=${fechaLimpia}T${horaLimpia}/${fechaLimpia}T${horaLimpia}&details=${detalles}`;
+    
+    return link;
+};
+
 // --- LÓGICA DE VALORACIÓN ---
 function verificarSiRequiereValoracion() {
     if (carrito.length === 0) return false;
@@ -305,14 +322,17 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // --- CORRECCIÓN FINAL PARA EMAILJS ---
+                // Generar Link dinámico para Google Calendar
+                const linkCal = generarGoogleCalendarLink(nombre, serviciosTxt, fecha, horaSeleccionada);
+
+                // --- ENVÍO DE EMAIL CON EMAILJS ---
                 const templateParams = {
                     nombre_cliente: `${nombre} ${apellido}`,
-                    email_cliente: correo, // ESTE CAMPO ES EL QUE FALTABA PARA EL DESTINATARIO
+                    email_cliente: correo,
                     servicio: serviciosTxt,
                     fecha: fecha,
                     hora: horaSeleccionada,
-                    link_calendario: "#" 
+                    link_calendario: linkCal 
                 };
 
                 await emailjs.send(
@@ -325,7 +345,7 @@ if (form) {
                 window.location.reload();
             } catch (err) {
                 console.error("Error completo:", err);
-                alert("Error al procesar la reserva. Verifica que el correo sea válido.");
+                alert("Ocurrió un error al procesar la reserva.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
