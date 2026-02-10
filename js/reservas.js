@@ -12,7 +12,7 @@ let horaSeleccionada = "";
 let ultimaFechaConsultada = "";
 let desuscribirCitas = null;
 
-// Inicialización de EmailJS con tu Public Key
+// Inicialización de EmailJS
 emailjs.init("s8xK3KN3XQ4g9Qccg");
 
 // --- UTILIDADES DE TIEMPO ---
@@ -28,7 +28,7 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- LÓGICA DE VALORACIÓN (WHATSAPP VS RESERVA DIRECTA) ---
+// --- LÓGICA DE VALORACIÓN ---
 function verificarSiRequiereValoracion() {
     if (carrito.length === 0) return false;
     return carrito.some(s => 
@@ -251,7 +251,7 @@ function renderCarrito() {
     }
 }
 
-// --- ENVÍO DE DATOS CON EMAILJS ---
+// --- ENVÍO DE DATOS ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
@@ -305,23 +305,26 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // ENVÍO DE CORREO TRAS ÉXITO EN FIREBASE
+                // --- INTEGRACIÓN EMAILJS (CORRECCIONES PARA 422) ---
                 const templateParams = {
-                    user_name: nombre + " " + apellido,
-                    user_email: correo,
-                    user_phone: telefono,
-                    date: fecha,
-                    time: horaSeleccionada,
-                    services: serviciosTxt
+                    nombre_cliente: `${nombre} ${apellido}`,
+                    servicio: serviciosTxt,
+                    fecha: fecha,
+                    hora: horaSeleccionada,
+                    link_calendario: "#" 
                 };
 
-                await emailjs.send("service_14jwpyq", "template_itx9f7f", templateParams);
+                await emailjs.send(
+                    "service_14jwpyq", 
+                    "template_itx9f7f", 
+                    templateParams
+                );
 
                 alert("¡Cita reservada con éxito!");
                 window.location.reload();
             } catch (err) {
-                console.error(err);
-                alert("Error al procesar la solicitud.");
+                console.error("Error completo:", err);
+                alert("Ocurrió un error al procesar la reserva.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
