@@ -28,21 +28,31 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- FUNCIÓN PARA GENERAR LINK DE GOOGLE CALENDAR ---
+// --- FUNCIÓN PARA GENERAR LINK DE GOOGLE CALENDAR (CORREGIDA) ---
 const generarGoogleCalendarLink = (nombre, servicio, fecha, hora) => {
-    const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
-    const titulo = encodeURIComponent(`Cita Beauty: ${servicio}`);
-    
-    // Formatear fecha para Google (YYYYMMDD)
-    const fechaLimpia = fecha.replace(/-/g, '');
-    // Formatear hora (HHMMSS)
-    const horaLimpia = hora.replace(/:/g, '') + "00";
-    
-    const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos para tu servicio de ${servicio} en Andre Arias Beauty Stylist.`);
-    // Se define el inicio y fin (por defecto ponemos 1 hora si no se calcula el total exacto aquí)
-    const link = `${baseUrl}&text=${titulo}&dates=${fechaLimpia}T${horaLimpia}/${fechaLimpia}T${horaLimpia}&details=${detalles}`;
-    
-    return link;
+    try {
+        const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+        const titulo = encodeURIComponent(`Cita Beauty: ${servicio}`);
+        
+        // Formato fecha: de "2024-05-10" a "20240510"
+        const f = fecha.replace(/-/g, '');
+        
+        // Formato hora inicio: de "08:30" a "083000"
+        const hInicio = hora.replace(/:/g, '') + "00";
+        
+        // Calcular hora fin (sumamos 1 hora por defecto para el calendario)
+        let [hh, mm] = hora.split(':').map(Number);
+        let hFin = `${(hh + 1).toString().padStart(2, '0')}${mm.toString().padStart(2, '0')}00`;
+
+        const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos en Andre Arias Beauty Stylist para tu servicio de ${servicio}.`);
+        const ubicacion = encodeURIComponent("Andre Arias Beauty Stylist, Costa Rica");
+
+        // Retorna el link completo con fechas de inicio y fin requeridas por Google
+        return `${baseUrl}&text=${titulo}&dates=${f}T${hInicio}/${f}T${hFin}&details=${detalles}&location=${ubicacion}`;
+    } catch (e) {
+        console.error("Error al generar link:", e);
+        return "#";
+    }
 };
 
 // --- LÓGICA DE VALORACIÓN ---
@@ -300,6 +310,7 @@ if (form) {
                 return;
             }
             try {
+                // Guardar/Actualizar Cliente en Firestore
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
                 await setDoc(doc(db, "clientes", idClie), { 
                     nombre, 
@@ -308,6 +319,7 @@ if (form) {
                     telefono 
                 }, { merge: true });
 
+                // Guardar Citas en Firestore
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
                     await addDoc(collection(db, "citas"), { 
@@ -322,10 +334,10 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // Generar Link dinámico para Google Calendar
+                // --- PROCESO DE EMAIL ---
+                // Generamos el link real para el botón de calendario
                 const linkCal = generarGoogleCalendarLink(nombre, serviciosTxt, fecha, horaSeleccionada);
 
-                // --- ENVÍO DE EMAIL CON EMAILJS ---
                 const templateParams = {
                     nombre_cliente: `${nombre} ${apellido}`,
                     email_cliente: correo,
@@ -335,6 +347,7 @@ if (form) {
                     link_calendario: linkCal 
                 };
 
+                // Enviamos el correo con EmailJS
                 await emailjs.send(
                     "service_14jwpyq", 
                     "template_itx9f7f", 
@@ -345,7 +358,7 @@ if (form) {
                 window.location.reload();
             } catch (err) {
                 console.error("Error completo:", err);
-                alert("Ocurrió un error al procesar la reserva.");
+                alert("Ocurrió un error al procesar la reserva. Revisa la consola.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
