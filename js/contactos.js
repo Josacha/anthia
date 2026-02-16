@@ -137,7 +137,7 @@ function renderFila(id, data) {
     tr.innerHTML = `
         <td style="font-weight:600;">${fullNombre}</td>
         <td>${data.correo || "N/A"}</td>
-        <td><a href="https://wa.me/${data.telefono}" target="_blank" style="text-decoration:none;">📱 ${data.telefono}</a></td>
+        <td><a href="https://wa.me/506${data.telefono}" target="_blank" style="text-decoration:none;">📱 ${data.telefono}</a></td>
         <td><button class="btn-ver-historial" onclick="window.verHistorial('${id}','${fullNombre}','${data.correo}')">TARJETA REGALO</button></td>
         <td><button class="btn-eliminar" onclick="window.eliminarCliente('${id}','${data.nombre}')">🗑️</button></td>
     `;
