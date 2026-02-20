@@ -110,6 +110,7 @@ function actualizarCarritoUI() {
 }
 
 // --- 4. AGENDA (CON CORRECCIÓN DE NOMBRE DE SERVICIO) ---
+// --- 4. AGENDA (CON SOPORTE PARA BLOQUEOS) ---
 async function cargarAgenda(fecha) {
     if (desuscribirAgenda) desuscribirAgenda();
 
@@ -137,25 +138,25 @@ async function cargarAgenda(fecha) {
                 ocupantes.forEach((c, i) => {
                     const cli = clientesMap[c.clienteId];
                     
-                    // CORRECCIÓN: Si no hay nombresServicios, buscamos en serviciosMap usando el servicioId de la BD
-                    let nombreServicio = "Servicio";
-                    if (c.nombresServicios) {
-                        nombreServicio = c.nombresServicios;
-                    } else if (c.servicioId && serviciosMap[c.servicioId]) {
-                        nombreServicio = serviciosMap[c.servicioId].nombre;
-                    }
+                    // REVISIÓN DE BLOQUEO
+                    const esBloqueo = c.clienteId === "SISTEMA_BLOQUEO";
+                    const nombreMostrado = esBloqueo ? "🚫 BLOQUEADO" : (cli ? cli.nombre + " " + (cli.apellido1 || "") : "Cliente");
+                    
+                    // Color de fondo si es bloqueo
+                    const filaStyle = esBloqueo ? "style='background-color: #ffebee; color: #c62828;'" : "";
 
-                    tbody.innerHTML += `<tr>
+                    tbody.innerHTML += `<tr ${filaStyle}>
                         <td>${i === 0 ? hora : ""}</td>
-                        <td><b>${cli ? cli.nombre + " " + (cli.apellido1 || "") : "Cliente"}</b></td>
-                        <td>${nombreServicio}</td>
-                        <td>${c.simultaneo ? '✨' : '🔒'}</td>
+                        <td><b>${nombreMostrado}</b></td>
+                        <td>${c.nombresServicios || "Servicio"}</td>
+                        <td>${esBloqueo ? '🚫' : (c.simultaneo ? '✨' : '🔒')}</td>
                         <td><button onclick="window.eliminar('${c.id}')">🗑️</button></td>
                     </tr>`;
                 });
                 
-                // REGLA DE ORO [cite: 2026-01-23]
-                if (ocupantes.length === 1 && ocupantes[0].simultaneo) {
+                // REGLA: Solo mostrar "Espacio libre" si NO hay un bloqueo en esa hora
+                const hayBloqueo = ocupantes.some(c => c.clienteId === "SISTEMA_BLOQUEO");
+                if (ocupantes.length === 1 && ocupantes[0].simultaneo && !hayBloqueo) {
                     tbody.innerHTML += `<tr><td></td><td colspan="2" class="libre-simul" onclick="window.abrirModal('${hora}')">+ Espacio libre</td><td>✨</td><td><button onclick="window.abrirModal('${hora}')">➕</button></td></tr>`;
                 }
             }
