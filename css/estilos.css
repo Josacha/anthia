@@ -394,3 +394,82 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Contenedor principal más estrecho */
+#calendarioSemanas {
+    max-width: 320px; /* Tamaño compacto */
+    margin: 0 auto;
+    padding: 10px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+/* Navegación de meses más pequeña */
+.nav-meses-premium {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;
+    margin-bottom: 12px;
+    background: #f1f1f1;
+    padding: 3px;
+    border-radius: 6px;
+}
+
+.btn-mes {
+    flex: 1;
+    padding: 6px 2px; /* Más estrecho */
+    font-size: 10px; /* Fuente pequeña */
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.btn-mes.active {
+    background: #1a1a1a;
+    color: #d4af37;
+}
+
+/* Grid del calendario ajustado */
+#gridCalendarioDinamico {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); 
+    gap: 4px; /* Espacio mínimo entre días */
+}
+
+.day-name {
+    font-size: 9px;
+    color: #aaa;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.day-item-new {
+    aspect-ratio: 1 / 1;
+    font-size: 12px; /* Números más pequeños */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.day-item-new.selected {
+    background: #1a1a1a !important;
+    color: #d4af37 !important;
+    border-color: #1a1a1a;
+}
+
+.day-item-new.pasado {
+    font-size: 10px;
+    opacity: 0.2;
+}
+
+.day-empty {
+    height: 25px; /* Altura reducida para huecos */
+}
