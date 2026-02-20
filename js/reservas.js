@@ -34,20 +34,15 @@ const generarGoogleCalendarLink = (nombre, servicio, fecha, hora) => {
         const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
         const titulo = encodeURIComponent(`Cita Beauty: ${servicio}`);
         
-        // Formato fecha: de "2024-05-10" a "20240510"
         const f = fecha.replace(/-/g, '');
-        
-        // Formato hora inicio: de "08:30" a "083000"
         const hInicio = hora.replace(/:/g, '') + "00";
         
-        // Calcular hora fin (sumamos 1 hora por defecto para el calendario)
         let [hh, mm] = hora.split(':').map(Number);
         let hFin = `${(hh + 1).toString().padStart(2, '0')}${mm.toString().padStart(2, '0')}00`;
 
         const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos en Andre Arias Beauty Stylist para tu servicio de ${servicio}.`);
         const ubicacion = encodeURIComponent("Andre Arias Beauty Stylist, Costa Rica");
 
-        // Retorna el link completo con fechas de inicio y fin requeridas por Google
         return `${baseUrl}&text=${titulo}&dates=${f}T${hInicio}/${f}T${hFin}&details=${detalles}&location=${ubicacion}`;
     } catch (e) {
         console.error("Error al generar link:", e);
@@ -310,7 +305,6 @@ if (form) {
                 return;
             }
             try {
-                // Guardar/Actualizar Cliente en Firestore
                 const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
                 await setDoc(doc(db, "clientes", idClie), { 
                     nombre, 
@@ -319,7 +313,6 @@ if (form) {
                     telefono 
                 }, { merge: true });
 
-                // Guardar Citas en Firestore
                 let t = hAMin(horaSeleccionada);
                 for (const s of carrito) {
                     await addDoc(collection(db, "citas"), { 
@@ -334,8 +327,6 @@ if (form) {
                     t += s.duracion;
                 }
 
-                // --- PROCESO DE EMAIL ---
-                // Generamos el link real para el botón de calendario
                 const linkCal = generarGoogleCalendarLink(nombre, serviciosTxt, fecha, horaSeleccionada);
 
                 const templateParams = {
@@ -347,18 +338,13 @@ if (form) {
                     link_calendario: linkCal 
                 };
 
-                // Enviamos el correo con EmailJS
-                await emailjs.send(
-                    "service_14jwpyq", 
-                    "template_itx9f7f", 
-                    templateParams
-                );
+                await emailjs.send("service_14jwpyq", "template_itx9f7f", templateParams);
 
                 alert("¡Cita reservada con éxito!");
                 window.location.reload();
             } catch (err) {
                 console.error("Error completo:", err);
-                alert("Ocurrió un error al procesar la reserva. Revisa la consola.");
+                alert("Ocurrió un error al procesar la reserva.");
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = textoOriginal;
             }
@@ -366,21 +352,19 @@ if (form) {
     });
 }
 
+// --- GENERACIÓN DE CALENDARIO CORREGIDA ---
 function generarCalendario() {
     const contenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
     if (!contenedor) return;
 
     const hoy = new Date();
-    
-    // 1. Crear el contenedor de pestañas de meses
     const navMeses = document.createElement("div");
     navMeses.className = "nav-meses-premium";
     
     const gridCalendario = document.createElement("div");
     gridCalendario.id = "gridCalendarioDinamico";
 
-    // Generar los 4 botones de meses
     for (let m = 0; m < 4; m++) {
         const fechaMes = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
         const botonMes = document.createElement("button");
@@ -396,37 +380,38 @@ function generarCalendario() {
         navMeses.appendChild(botonMes);
     }
 
-    // 2. Función interna para dibujar el mes seleccionado
     function renderizarMes(año, mes) {
         gridCalendario.innerHTML = "";
-        
-        // Cabecera de días (L-S)
-        const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+        const diasSemana = ["L", "M", "M", "J", "V", "S"];
         diasSemana.forEach(d => {
             gridCalendario.innerHTML += `<div class="day-name">${d}</div>`;
         });
 
-        const primerDiaMes = new Date(año, mes, 1).getDay(); // 0=Dom, 1=Lun...
-        const ultimoDiaMes = new Date(año, mes + 1, 0).getDate();
-        
-        // Ajustar huecos iniciales (Lunes es nuestro día 1)
-        let huecos = primerDiaMes === 0 ? 5 : primerDiaMes - 1;
+        const primerDiaFecha = new Date(año, mes, 1);
+        let primerDiaSemana = primerDiaFecha.getDay(); 
+
+        // Ajuste para que Lunes sea la primera columna (1=Lun, ..., 0=Dom)
+        let huecos = (primerDiaSemana === 0) ? 5 : primerDiaSemana - 1;
 
         for (let h = 0; h < huecos; h++) {
             gridCalendario.innerHTML += `<div class="day-empty"></div>`;
         }
 
+        const ultimoDiaMes = new Date(año, mes + 1, 0).getDate();
         for (let dia = 1; dia <= ultimoDiaMes; dia++) {
             const fechaLoop = new Date(año, mes, dia);
-            if (fechaLoop.getDay() === 0) continue; // Saltar domingos
+            const diaSemanaLoop = fechaLoop.getDay();
 
-            const esPasado = fechaLoop < new Date().setHours(0,0,0,0);
+            if (diaSemanaLoop === 0) continue; // Saltar domingos
+
+            const hoySinHora = new Date();
+            hoySinHora.setHours(0, 0, 0, 0);
+            const esPasado = fechaLoop < hoySinHora;
             const iso = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
             const card = document.createElement("div");
             card.className = `day-item-new ${esPasado ? 'pasado' : ''}`;
             if (fechaInput.value === iso) card.classList.add("selected");
-            
             card.innerHTML = `<span>${dia}</span>`;
             
             if (!esPasado) {
@@ -441,12 +426,9 @@ function generarCalendario() {
         }
     }
 
-    // Limpiar contenedor y armar
     contenedor.innerHTML = "";
     contenedor.appendChild(navMeses);
     contenedor.appendChild(gridCalendario);
-
-    // Renderizar el mes actual por defecto
     renderizarMes(hoy.getFullYear(), hoy.getMonth());
 }
 
