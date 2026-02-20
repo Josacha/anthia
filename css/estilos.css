@@ -232,3 +232,82 @@ body { margin: 0; font-family: 'Montserrat', sans-serif; background: #fff; color
     cursor: not-allowed;
     filter: grayscale(0.2);
 }
+
+/* Contenedor principal del calendario */
+#calendarioSemanas {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 10px;
+    max-height: 500px; /* Altura máxima con scroll */
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+}
+
+.mes-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+    border-left: 4px solid #d4af37;
+    padding-left: 10px;
+}
+
+.calendar-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 columnas: Lunes a Sábado */
+    gap: 8px;
+    text-align: center;
+}
+
+.day-name {
+    font-size: 11px;
+    font-weight: bold;
+    color: #d4af37;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+}
+
+.day-item-new {
+    padding: 12px 5px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.day-item-new .num {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.day-item-new:hover:not(.pasado) {
+    background: #f9f5eb;
+    border-color: #d4af37;
+    transform: translateY(-2px);
+}
+
+.day-item-new.selected {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    border-color: #1a1a1a;
+}
+
+.day-item-new.pasado {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #f5f5f5;
+}
+
+.day-empty {
+    height: 40px;
+}
+
+/* Scrollbar elegante */
+#calendarioSemanas::-webkit-scrollbar { width: 6px; }
+#calendarioSemanas::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
