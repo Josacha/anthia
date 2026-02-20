@@ -1,54 +1,56 @@
 import { db, auth } from './firebase.js';
-import { collection, query, where, getDocs, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    collection, query, where, limit, orderBy, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // --- ESTADO DE AUTENTICACIÓN ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        document.getElementById('welcome-title').innerText = `Bienvenida, ${user.displayName || 'Andre'}`;
+        const welcomeTitle = document.getElementById('welcome-title');
+        if (welcomeTitle) welcomeTitle.innerText = `Bienvenida, ${user.displayName || 'Andre'}`;
         initDashboard();
     } else {
         window.location.href = '../login.html';
     }
 });
 
-// --- LÓGICA PRINCIPAL DEL DASHBOARD ---
+// --- LÓGICA PRINCIPAL DEL DASHBOARD (TIEMPO REAL) ---
 async function initDashboard() {
     try {
         const hoy = new Date();
         
-        // 1. Obtener el lunes de esta semana (Formato YYYY-MM-DD)
+        // 1. Calcular el lunes de esta semana
         const lunes = new Date(hoy);
         lunes.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1));
         const fechaLunesISO = lunes.toISOString().split('T')[0];
 
-        // 2. Consultar citas de la semana para estadísticas
+        // 2. ESCUCHADOR EN TIEMPO REAL: Estadísticas y Barra de Progreso
         const qStats = query(collection(db, "citas"), where("fecha", ">=", fechaLunesISO));
-        const snapshotStats = await getDocs(qStats);
         
-        let horasOcupadas = 0;
-        let ingresosFijosSemana = 0;
+        onSnapshot(qStats, (snapshot) => {
+            let horasOcupadas = 0;
+            let ingresosFijosSemana = 0;
 
-        snapshotStats.forEach(doc => {
-            const data = doc.data();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                
+                // Cálculo de tiempo
+                const duracionMinutos = Number(data.duracion) || 60;
+                horasOcupadas += (duracionMinutos / 60);
+                
+                // Suma de inversión fija
+                ingresosFijosSemana += Number(data.inversionFija || 0);
+            });
+
+            const CAPACIDAD_SEMANAL = 60; 
+            actualizarBarra(horasOcupadas, CAPACIDAD_SEMANAL);
             
-            // Cálculo por tiempo: si dura 120 min, suma 2 horas (bloques)
-            const duracionMinutos = Number(data.duracion) || 60;
-            horasOcupadas += (duracionMinutos / 60);
-            
-            // Suma de inversión fija (solo servicios no rango)
-            ingresosFijosSemana += Number(data.inversionFija || 0);
+            const txtIngresos = document.getElementById('stat-ingresos');
+            if(txtIngresos) txtIngresos.innerText = `₡${ingresosFijosSemana.toLocaleString()}`;
         });
 
-        // 3. Capacidad Total: Lunes-Sábado (6 días) * 10 horas (8am-6pm) = 60 horas
-        const CAPACIDAD_SEMANAL = 60; 
-        actualizarBarra(horasOcupadas, CAPACIDAD_SEMANAL);
-        
-        // Actualizar ingresos en pantalla
-        const txtIngresos = document.getElementById('stat-ingresos');
-        if(txtIngresos) txtIngresos.innerText = `₡${ingresosFijosSemana.toLocaleString()}`;
-
-        // 4. Mostrar las 3 próximas citas (de hoy en adelante)
+        // 3. ESCUCHADOR EN TIEMPO REAL: Próximas 3 citas
         const hoyISO = hoy.toISOString().split('T')[0];
         const qRecent = query(
             collection(db, "citas"), 
@@ -56,12 +58,17 @@ async function initDashboard() {
             orderBy("fecha", "asc"),
             limit(3)
         );
-        const snapshotRecent = await getDocs(qRecent);
-        renderRecentList(snapshotRecent);
 
-        // 5. Nombre del día actual
+        onSnapshot(qRecent, (snapshot) => {
+            renderRecentList(snapshot);
+        });
+
+        // 4. Nombre del día actual
         const opciones = { weekday: 'long' };
-        document.getElementById('current-day-name').innerText = new Intl.DateTimeFormat('es-ES', opciones).format(hoy);
+        const dayNameEl = document.getElementById('current-day-name');
+        if (dayNameEl) {
+            dayNameEl.innerText = new Intl.DateTimeFormat('es-ES', opciones).format(hoy);
+        }
 
     } catch (e) {
         console.error("Error cargando datos del dashboard:", e);
@@ -78,7 +85,7 @@ function actualizarBarra(ocupadas, total) {
 
     if(fill) {
         fill.style.width = `${porcentaje}%`;
-        // Colores según carga de trabajo de CAFÉ PRÓDIGO SUELO
+        // Colores según carga
         if(porcentaje < 50) fill.style.backgroundColor = "#2ecc71"; // Verde
         else if(porcentaje < 85) fill.style.backgroundColor = "#f1c40f"; // Amarillo
         else fill.style.backgroundColor = "#e74c3c"; // Rojo
