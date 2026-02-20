@@ -28,21 +28,17 @@ const minAH = (min) => {
     return `${hh}:${mm}`;
 };
 
-// --- FUNCIÓN PARA GENERAR LINK DE GOOGLE CALENDAR (CORREGIDA) ---
+// --- FUNCIÓN PARA GENERAR LINK DE GOOGLE CALENDAR ---
 const generarGoogleCalendarLink = (nombre, servicio, fecha, hora) => {
     try {
         const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
         const titulo = encodeURIComponent(`Cita Beauty: ${servicio}`);
-        
         const f = fecha.replace(/-/g, '');
         const hInicio = hora.replace(/:/g, '') + "00";
-        
         let [hh, mm] = hora.split(':').map(Number);
         let hFin = `${(hh + 1).toString().padStart(2, '0')}${mm.toString().padStart(2, '0')}00`;
-
-        const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos en Andre Arias Beauty Stylist para tu servicio de ${servicio}.`);
+        const detalles = encodeURIComponent(`Hola ${nombre}, te esperamos en Andre Arias Beauty Stylist.`);
         const ubicacion = encodeURIComponent("Andre Arias Beauty Stylist, Costa Rica");
-
         return `${baseUrl}&text=${titulo}&dates=${f}T${hInicio}/${f}T${hFin}&details=${detalles}&location=${ubicacion}`;
     } catch (e) {
         console.error("Error al generar link:", e);
@@ -71,16 +67,13 @@ async function cargarHorasDisponibles() {
     }
 
     if (verificarSiRequiereValoracion()) {
-        horasVisualGrid.innerHTML = `
-            <div class="aviso-whatsapp-inline">
-                <p>Este servicio requiere valoración técnica previa. Haz clic en el botón inferior para coordinar por WhatsApp.</p>
-            </div>`;
+        horasVisualGrid.innerHTML = `<div class="aviso-whatsapp-inline"><p>Este servicio requiere valoración técnica previa.</p></div>`;
         return;
     }
 
     const fechaSeleccionada = fechaInput.value;
     if (!fechaSeleccionada) {
-        horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona una fecha en el calendario.</p>";
+        horasVisualGrid.innerHTML = "<p style='font-size:12px; color:#aaa; text-align:center;'>Selecciona una fecha.</p>";
         return;
     }
 
@@ -95,11 +88,7 @@ async function cargarHorasDisponibles() {
             const citasExistentes = snapshot.docs.map(d => {
                 const data = d.data();
                 const ini = hAMin(data.hora);
-                return {
-                    inicio: ini,
-                    fin: ini + (Number(data.duracion) || 60),
-                    simultaneo: data.simultaneo === true 
-                };
+                return { inicio: ini, fin: ini + (Number(data.duracion) || 60), simultaneo: data.simultaneo === true };
             });
             ultimaFechaConsultada = fechaSeleccionada;
             renderizarBotones(citasExistentes);
@@ -110,42 +99,27 @@ async function cargarHorasDisponibles() {
 function renderizarBotones(citasExistentes) {
     const horasVisualGrid = document.getElementById("horasVisualGrid");
     horasVisualGrid.innerHTML = ""; 
-
     HORAS.forEach(hApertura => {
         let tiempoCorriente = hAMin(hApertura);
         let esPosibleTodoElCombo = true;
-
         for (let i = 0; i < carrito.length; i++) {
             const s = carrito[i];
             const inicioNuevo = tiempoCorriente;
             const duracionNuevo = Number(s.duracion) || 60;
             const finNuevo = inicioNuevo + duracionNuevo;
-
-            if (finNuevo > hAMin(HORA_CIERRE)) {
-                esPosibleTodoElCombo = false;
-                break;
-            }
-
+            if (finNuevo > hAMin(HORA_CIERRE)) { esPosibleTodoElCombo = false; break; }
             const ocupantes = citasExistentes.filter(c => (inicioNuevo < c.fin && finNuevo > c.inicio));
-
             if (ocupantes.length > 0) {
                 const primerServicioPermite = carrito[0].simultaneo === true;
                 const existentesPermiten = ocupantes.every(c => c.simultaneo === true);
-                const hayCupo = ocupantes.length < 2;
-
-                if (!primerServicioPermite || !existentesPermiten || !hayCupo) {
-                    esPosibleTodoElCombo = false;
-                    break;
-                }
+                if (!primerServicioPermite || !existentesPermiten || ocupantes.length >= 2) { esPosibleTodoElCombo = false; break; }
             }
             tiempoCorriente = finNuevo;
         }
-
         if (esPosibleTodoElCombo) {
             const btn = document.createElement("div");
-            btn.className = "hour-item";
+            btn.className = "hour-item" + (horaSeleccionada === hApertura ? " selected" : "");
             btn.textContent = hApertura;
-            if (horaSeleccionada === hApertura) btn.classList.add("selected");
             btn.onclick = () => {
                 document.querySelectorAll(".hour-item").forEach(el => el.classList.remove("selected"));
                 btn.classList.add("selected");
@@ -156,7 +130,7 @@ function renderizarBotones(citasExistentes) {
     });
 }
 
-// --- CARGA DE SERVICIOS Y PRECIOS ---
+// --- CARGA DE SERVICIOS ---
 async function cargarServicios() {
     const serviciosGrid = document.getElementById("serviciosGrid");
     const categoriasFilter = document.getElementById("categoriasFilter");
@@ -165,7 +139,6 @@ async function cargarServicios() {
     const snapshot = await getDocs(collection(db, "servicios"));
     const todosLosServicios = [];
     const categoriasSet = new Set(["Todos"]);
-
     snapshot.forEach(docSnap => {
         const data = docSnap.data();
         todosLosServicios.push({ id: docSnap.id, ...data });
@@ -189,43 +162,19 @@ async function cargarServicios() {
     function renderizarGrid(servicios, filtro) {
         serviciosGrid.innerHTML = "";
         const filtrados = filtro === "Todos" ? servicios : servicios.filter(s => s.categoria === filtro);
-
         filtrados.forEach(s => {
             const card = document.createElement("div");
-            card.className = "service-card";
-            if (carrito.some(item => item.id === s.id)) card.classList.add("selected");
-            
+            card.className = "service-card" + (carrito.some(item => item.id === s.id) ? " selected" : "");
             let esRango = s.precio.tipo === "rango";
-            let txtPrecio = !esRango 
-                ? `₡${Number(s.precio.valor).toLocaleString()}`
-                : `₡${Number(s.precio.desde).toLocaleString()} - ₡${Number(s.precio.hasta).toLocaleString()}*`;
-
-            card.innerHTML = `
-                <h4>${s.nombre}</h4>
-                <span class="price-tag">${txtPrecio}</span>
-                <p class="duration-tag">${s.duracion || 60} min</p>
-                ${esRango ? '<small class="tag-valoracion">Sujeto a valoración el día de la cita</small>' : ''}
-            `;
-            
+            let txtPrecio = !esRango ? `₡${Number(s.precio.valor).toLocaleString()}` : `₡${Number(s.precio.desde).toLocaleString()} - ₡${Number(s.precio.hasta).toLocaleString()}*`;
+            card.innerHTML = `<h4>${s.nombre}</h4><span class="price-tag">${txtPrecio}</span><p class="duration-tag">${s.duracion || 60} min</p>`;
             card.onclick = () => {
                 const index = carrito.findIndex(item => item.id === s.id);
-                if (index > -1) {
-                    carrito.splice(index, 1);
-                    card.classList.remove("selected");
-                } else {
-                    carrito.push({
-                        id: s.id,
-                        nombre: s.nombre,
-                        duracion: Number(s.duracion) || 60,
-                        simultaneo: s.simultaneo === true,
-                        precio_info: txtPrecio,
-                        esRango: esRango
-                    });
-                    card.classList.add("selected");
+                if (index > -1) { carrito.splice(index, 1); } else {
+                    carrito.push({ id: s.id, nombre: s.nombre, duracion: Number(s.duracion) || 60, simultaneo: s.simultaneo === true, precio_info: txtPrecio, esRango: esRango });
                 }
-                horaSeleccionada = ""; 
-                renderCarrito();
-                cargarHorasDisponibles();
+                horaSeleccionada = ""; renderCarrito(); cargarHorasDisponibles();
+                renderizarGrid(servicios, filtro);
             };
             serviciosGrid.appendChild(card);
         });
@@ -237,122 +186,46 @@ function renderCarrito() {
     const carritoDiv = document.getElementById("carritoServicios");
     const btnConfirmar = document.querySelector(".btn-submit-lux");
     if (!carritoDiv) return;
-
-    if (carrito.length === 0) {
-        carritoDiv.innerHTML = "";
-        btnConfirmar.textContent = "CONFIRMAR RESERVA";
-        btnConfirmar.classList.remove("btn-whatsapp");
-        btnConfirmar.dataset.modo = "reserva";
-        return;
-    }
-
+    if (carrito.length === 0) { carritoDiv.innerHTML = ""; return; }
     const requiereWhatsApp = verificarSiRequiereValoracion();
-    const tieneAlgunRango = carrito.some(s => s.esRango);
-    let totalMin = carrito.reduce((sum, s) => sum + s.duracion, 0);
-    
-    carritoDiv.innerHTML = `
-        <div class="resumen-badge">
-            <p><b>RESUMEN:</b></p>
-            ${carrito.map(s => `
-                <div class='resumen-item'>
-                    <span>${s.nombre} ${s.esRango ? '<b style="color:#d4af37;">*</b>' : ''}</span>
-                    <span>${s.precio_info}</span>
-                </div>`).join('')}
-            <div class='resumen-total'><span>Tiempo Est.</span><span>${totalMin} min</span></div>
-            ${tieneAlgunRango ? '<p class="aviso-rango-footer">* El precio final se definirá mediante valoración presencial el día de la cita.</p>' : ''}
-        </div>`;
-
-    if (requiereWhatsApp) {
-        btnConfirmar.textContent = "SOLICITAR VALORACIÓN WHATSAPP";
-        btnConfirmar.classList.add("btn-whatsapp");
-        btnConfirmar.dataset.modo = "whatsapp";
-    } else {
-        btnConfirmar.textContent = "CONFIRMAR RESERVA";
-        btnConfirmar.classList.remove("btn-whatsapp");
-        btnConfirmar.dataset.modo = "reserva";
-    }
+    carritoDiv.innerHTML = `<div class="resumen-badge"><p><b>RESUMEN:</b></p>${carrito.map(s => `<div class='resumen-item'><span>${s.nombre}</span><span>${s.precio_info}</span></div>`).join('')}</div>`;
+    btnConfirmar.textContent = requiereWhatsApp ? "SOLICITAR VALORACIÓN WHATSAPP" : "CONFIRMAR RESERVA";
+    btnConfirmar.dataset.modo = requiereWhatsApp ? "whatsapp" : "reserva";
 }
 
-// --- ENVÍO DE DATOS ---
+// --- ENVÍO ---
 const form = document.getElementById("formReserva");
 if (form) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const btnSubmit = form.querySelector("button[type='submit']");
         const modo = btnSubmit.dataset.modo;
-        const textoOriginal = btnSubmit.textContent;
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<span class="spinner"></span> Procesando...`;
-
-        const nombre = document.getElementById("nombre").value;
-        const apellido = document.getElementById("apellido1")?.value || "";
-        const telefono = document.getElementById("telefono").value;
-        const correo = document.getElementById("correo").value;
-        const fecha = document.getElementById("fecha").value;
-        const serviciosTxt = carrito.map(s => s.nombre).join(", ");
-
         if (modo === "whatsapp") {
-            const msj = `¡Hola Andre! ✨ Me interesa una valoración para: ${serviciosTxt}. Cliente: ${nombre}, Cel: ${telefono}.`;
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${msj}`, '_blank');
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = textoOriginal;
-        } else {
-            if (!horaSeleccionada) {
-                alert("Por favor selecciona una hora.");
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = textoOriginal;
-                return;
-            }
-            try {
-                const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
-                await setDoc(doc(db, "clientes", idClie), { 
-                    nombre, 
-                    apellido1: apellido, 
-                    correo, 
-                    telefono 
-                }, { merge: true });
-
-                let t = hAMin(horaSeleccionada);
-                for (const s of carrito) {
-                    await addDoc(collection(db, "citas"), { 
-                        clienteId: idClie, 
-                        servicioId: s.id, 
-                        fecha: fecha, 
-                        hora: minAH(t), 
-                        duracion: s.duracion, 
-                        simultaneo: s.simultaneo, 
-                        creado: Timestamp.now() 
-                    });
-                    t += s.duracion;
-                }
-
-                const linkCal = generarGoogleCalendarLink(nombre, serviciosTxt, fecha, horaSeleccionada);
-
-                const templateParams = {
-                    nombre_cliente: `${nombre} ${apellido}`,
-                    email_cliente: correo,
-                    servicio: serviciosTxt,
-                    fecha: fecha,
-                    hora: horaSeleccionada,
-                    link_calendario: linkCal 
-                };
-
-                await emailjs.send("service_14jwpyq", "template_itx9f7f", templateParams);
-
-                alert("¡Cita reservada con éxito!");
-                window.location.reload();
-            } catch (err) {
-                console.error("Error completo:", err);
-                alert("Ocurrió un error al procesar la reserva.");
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = textoOriginal;
-            }
+            const msj = `¡Hola Andre! Me interesa valoración para: ${carrito.map(s => s.nombre).join(", ")}.`;
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msj)}`, '_blank');
+            return;
         }
+        if (!horaSeleccionada) return alert("Selecciona una hora.");
+        btnSubmit.disabled = true;
+        try {
+            const nombre = document.getElementById("nombre").value;
+            const correo = document.getElementById("correo").value;
+            const telefono = document.getElementById("telefono").value;
+            const fecha = document.getElementById("fecha").value;
+            const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
+            await setDoc(doc(db, "clientes", idClie), { nombre, correo, telefono }, { merge: true });
+            let t = hAMin(horaSeleccionada);
+            for (const s of carrito) {
+                await addDoc(collection(db, "citas"), { clienteId: idClie, servicioId: s.id, fecha: fecha, hora: minAH(t), duracion: s.duracion, simultaneo: s.simultaneo, creado: Timestamp.now() });
+                t += s.duracion;
+            }
+            alert("¡Cita reservada!");
+            window.location.reload();
+        } catch (err) { alert("Error al reservar."); btnSubmit.disabled = false; }
     });
 }
 
-// --- GENERACIÓN DE CALENDARIO CORREGIDA ---
+// --- GENERACIÓN DE CALENDARIO (CORREGIDO) ---
 function generarCalendario() {
     const contenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
@@ -361,7 +234,6 @@ function generarCalendario() {
     const hoy = new Date();
     const navMeses = document.createElement("div");
     navMeses.className = "nav-meses-premium";
-    
     const gridCalendario = document.createElement("div");
     gridCalendario.id = "gridCalendarioDinamico";
 
@@ -370,7 +242,6 @@ function generarCalendario() {
         const botonMes = document.createElement("button");
         botonMes.className = `btn-mes ${m === 0 ? 'active' : ''}`;
         botonMes.textContent = fechaMes.toLocaleString('es', { month: 'short' }).toUpperCase();
-        
         botonMes.onclick = (e) => {
             e.preventDefault();
             document.querySelectorAll(".btn-mes").forEach(btn => btn.classList.remove("active"));
@@ -382,16 +253,17 @@ function generarCalendario() {
 
     function renderizarMes(año, mes) {
         gridCalendario.innerHTML = "";
-        const diasSemana = ["L", "M", "M", "J", "V", "S"];
-        diasSemana.forEach(d => {
+        ["L", "M", "M", "J", "V", "S"].forEach(d => {
             gridCalendario.innerHTML += `<div class="day-name">${d}</div>`;
         });
 
         const primerDiaFecha = new Date(año, mes, 1);
         let primerDiaSemana = primerDiaFecha.getDay(); 
 
-        // Ajuste para que Lunes sea la primera columna (1=Lun, ..., 0=Dom)
-        let huecos = (primerDiaSemana === 0) ? 5 : primerDiaSemana - 1;
+        // AJUSTE CLAVE: Lunes es columna 0. 
+        // getDay() es: Dom=0, Lun=1, Mar=2, Mie=3, Jue=4, Vie=5, Sab=6
+        // Si el mes empieza en Domingo (0), el primer día visible (Lunes 2) no necesita huecos.
+        let huecos = (primerDiaSemana === 0) ? 0 : primerDiaSemana - 1;
 
         for (let h = 0; h < huecos; h++) {
             gridCalendario.innerHTML += `<div class="day-empty"></div>`;
@@ -400,20 +272,15 @@ function generarCalendario() {
         const ultimoDiaMes = new Date(año, mes + 1, 0).getDate();
         for (let dia = 1; dia <= ultimoDiaMes; dia++) {
             const fechaLoop = new Date(año, mes, dia);
-            const diaSemanaLoop = fechaLoop.getDay();
+            if (fechaLoop.getDay() === 0) continue; // Saltar Domingos
 
-            if (diaSemanaLoop === 0) continue; // Saltar domingos
-
-            const hoySinHora = new Date();
-            hoySinHora.setHours(0, 0, 0, 0);
+            const hoySinHora = new Date(); hoySinHora.setHours(0,0,0,0);
             const esPasado = fechaLoop < hoySinHora;
             const iso = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
             const card = document.createElement("div");
-            card.className = `day-item-new ${esPasado ? 'pasado' : ''}`;
-            if (fechaInput.value === iso) card.classList.add("selected");
+            card.className = `day-item-new ${esPasado ? 'pasado' : ''}` + (fechaInput.value === iso ? " selected" : "");
             card.innerHTML = `<span>${dia}</span>`;
-            
             if (!esPasado) {
                 card.onclick = () => {
                     document.querySelectorAll(".day-item-new").forEach(el => el.classList.remove("selected"));
