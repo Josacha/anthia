@@ -163,6 +163,47 @@ async function cargarAgenda(fecha) {
     });
 }
 
+
+// --- FUNCIÓN PARA BLOQUEAR HORARIOS ---
+window.bloquearHorario = async (tipo) => {
+    const fecha = fechaInput.value;
+    let horaInicio, duracionTotal, motivo;
+
+    if (tipo === 'dia') {
+        horaInicio = "08:00";
+        duracionTotal = 600; // 10 horas (de 8am a 6pm)
+        motivo = "DÍA BLOQUEADO / VACACIONES";
+    } else if (tipo === 'manana') {
+        horaInicio = "08:00";
+        duracionTotal = 240; // 4 horas (8am a 12md)
+        motivo = "MAÑANA BLOQUEADA";
+    } else if (tipo === 'tarde') {
+        horaInicio = "13:00";
+        duracionTotal = 300; // 5 horas (1pm a 6pm)
+        motivo = "TARDE BLOQUEADA";
+    }
+
+    if (!confirm(`¿Deseas bloquear ${tipo} el día ${fecha}?`)) return;
+
+    try {
+        await addDoc(collection(db, "citas"), {
+            clienteId: "SISTEMA_BLOQUEO",
+            nombreCliente: "🚫 BLOQUEADO",
+            nombresServicios: motivo,
+            fecha: fecha,
+            hora: horaInicio,
+            duracion: duracionTotal,
+            simultaneo: false, // Importante: false para que nadie pueda agendar encima
+            creado: Timestamp.now()
+        });
+        alert("Horario bloqueado correctamente");
+    } catch (error) {
+        console.error("Error al bloquear:", error);
+    }
+};
+
+
+
 // --- 5. ACCIONES FINALES ---
 window.abrirModal = (hora) => {
     horaSeleccionadaGlobal = hora;
