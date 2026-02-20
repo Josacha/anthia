@@ -15,18 +15,27 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- LÓGICA PRINCIPAL DEL DASHBOARD (TIEMPO REAL) ---
+// --- LÓGICA PRINCIPAL DEL DASHBOARD ---
 async function initDashboard() {
     try {
         const hoy = new Date();
         
-        // 1. Calcular el lunes de esta semana
+        // 1. Calcular el Lunes de esta semana
         const lunes = new Date(hoy);
         lunes.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1));
         const fechaLunesISO = lunes.toISOString().split('T')[0];
 
-        // 2. ESCUCHADOR EN TIEMPO REAL: Estadísticas y Barra de Progreso
-        const qStats = query(collection(db, "citas"), where("fecha", ">=", fechaLunesISO));
+        // 2. Calcular el Domingo de esta semana (Límite superior)
+        const domingo = new Date(lunes);
+        domingo.setDate(lunes.getDate() + 6);
+        const fechaDomingoISO = domingo.toISOString().split('T')[0];
+
+        // 3. ESCUCHADOR EN TIEMPO REAL: Estadísticas de la SEMANA ACTUAL
+        const qStats = query(
+            collection(db, "citas"), 
+            where("fecha", ">=", fechaLunesISO),
+            where("fecha", "<=", fechaDomingoISO)
+        );
         
         onSnapshot(qStats, (snapshot) => {
             let horasOcupadas = 0;
@@ -35,14 +44,17 @@ async function initDashboard() {
             snapshot.forEach(doc => {
                 const data = doc.data();
                 
-                // Cálculo de tiempo
+                // Sumamos el tiempo (Citas reales + Bloqueos de sistema)
                 const duracionMinutos = Number(data.duracion) || 60;
                 horasOcupadas += (duracionMinutos / 60);
                 
-                // Suma de inversión fija
-                ingresosFijosSemana += Number(data.inversionFija || 0);
+                // Solo sumamos ingresos si NO es un bloqueo de sistema
+                if (data.clienteId !== "SISTEMA_BLOQUEO") {
+                    ingresosFijosSemana += Number(data.inversionFija || 0);
+                }
             });
 
+            // Capacidad: 6 días (L-S) de 10 horas = 60h
             const CAPACIDAD_SEMANAL = 60; 
             actualizarBarra(horasOcupadas, CAPACIDAD_SEMANAL);
             
@@ -50,7 +62,7 @@ async function initDashboard() {
             if(txtIngresos) txtIngresos.innerText = `₡${ingresosFijosSemana.toLocaleString()}`;
         });
 
-        // 3. ESCUCHADOR EN TIEMPO REAL: Próximas 3 citas
+        // 4. ESCUCHADOR EN TIEMPO REAL: Próximas 3 citas (Desde hoy en adelante)
         const hoyISO = hoy.toISOString().split('T')[0];
         const qRecent = query(
             collection(db, "citas"), 
@@ -63,7 +75,7 @@ async function initDashboard() {
             renderRecentList(snapshot);
         });
 
-        // 4. Nombre del día actual
+        // 5. Nombre del día actual
         const opciones = { weekday: 'long' };
         const dayNameEl = document.getElementById('current-day-name');
         if (dayNameEl) {
@@ -85,10 +97,9 @@ function actualizarBarra(ocupadas, total) {
 
     if(fill) {
         fill.style.width = `${porcentaje}%`;
-        // Colores según carga
-        if(porcentaje < 50) fill.style.backgroundColor = "#2ecc71"; // Verde
-        else if(porcentaje < 85) fill.style.backgroundColor = "#f1c40f"; // Amarillo
-        else fill.style.backgroundColor = "#e74c3c"; // Rojo
+        if(porcentaje < 50) fill.style.backgroundColor = "#2ecc71"; 
+        else if(porcentaje < 85) fill.style.backgroundColor = "#f1c40f"; 
+        else fill.style.backgroundColor = "#e74c3c"; 
     }
     
     if(porcTxt) porcTxt.innerText = `${porcentaje}%`;
@@ -107,14 +118,18 @@ function renderRecentList(snapshot) {
     list.innerHTML = '';
 
     if(snapshot.empty) {
-        list.innerHTML = '<div class="recent-item">No hay citas para los próximos días</div>';
+        list.innerHTML = '<div class="recent-item">No hay citas próximas</div>';
         return;
     }
 
     snapshot.forEach(doc => {
         const cita = doc.data();
+        
+        // No mostrar bloqueos de sistema en la lista de "Próximas Citas"
+        if (cita.clienteId === "SISTEMA_BLOQUEO") return;
+
         const cliente = cita.nombreCliente || "Cliente"; 
-        const servicio = cita.nombresServicios || cita.nombreServicio || "Servicio";
+        const servicio = cita.nombresServicios || "Servicio";
         const hora = cita.hora || "--:--";
         const fechaStr = cita.fecha;
 
