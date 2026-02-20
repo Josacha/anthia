@@ -371,54 +371,63 @@ function generarCalendario() {
     const fechaInput = document.getElementById("fecha");
     if (!contenedor) return;
 
-    contenedor.innerHTML = ""; // Limpiar
     const hoy = new Date();
     
-    // Generar 3 meses
-    for (let m = 0; m < 3; m++) {
-        const mesActual = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
-        const nombreMes = mesActual.toLocaleString('es', { month: 'long' });
-        const año = mesActual.getFullYear();
+    // 1. Crear el contenedor de pestañas de meses
+    const navMeses = document.createElement("div");
+    navMeses.className = "nav-meses-premium";
+    
+    const gridCalendario = document.createElement("div");
+    gridCalendario.id = "gridCalendarioDinamico";
 
-        // Contenedor del mes
-        const mesWrapper = document.createElement("div");
-        mesWrapper.className = "mes-container";
-        mesWrapper.innerHTML = `<h3 class="mes-titulo">${nombreMes.toUpperCase()} ${año}</h3>`;
+    // Generar los 4 botones de meses
+    for (let m = 0; m < 4; m++) {
+        const fechaMes = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
+        const botonMes = document.createElement("button");
+        botonMes.className = `btn-mes ${m === 0 ? 'active' : ''}`;
+        botonMes.textContent = fechaMes.toLocaleString('es', { month: 'short' }).toUpperCase();
+        
+        botonMes.onclick = (e) => {
+            e.preventDefault();
+            document.querySelectorAll(".btn-mes").forEach(btn => btn.classList.remove("active"));
+            botonMes.classList.add("active");
+            renderizarMes(fechaMes.getFullYear(), fechaMes.getMonth());
+        };
+        navMeses.appendChild(botonMes);
+    }
 
-        const grid = document.createElement("div");
-        grid.className = "calendar-grid-premium";
-
-        // Cabecera de días
-        ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
-            grid.innerHTML += `<div class="day-name">${d}</div>`;
+    // 2. Función interna para dibujar el mes seleccionado
+    function renderizarMes(año, mes) {
+        gridCalendario.innerHTML = "";
+        
+        // Cabecera de días (L-S)
+        const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+        diasSemana.forEach(d => {
+            gridCalendario.innerHTML += `<div class="day-name">${d}</div>`;
         });
 
-        // Obtener primer día del mes (0=Dom, 1=Lun...)
-        let primerDia = new Date(mesActual.getFullYear(), mesActual.getMonth(), 1).getDay();
-        // Ajustar porque omitimos Domingo (si es domingo, no ponemos huecos)
-        let huecosCeros = primerDia === 0 ? 0 : primerDia - 1;
+        const primerDiaMes = new Date(año, mes, 1).getDay(); // 0=Dom, 1=Lun...
+        const ultimoDiaMes = new Date(año, mes + 1, 0).getDate();
+        
+        // Ajustar huecos iniciales (Lunes es nuestro día 1)
+        let huecos = primerDiaMes === 0 ? 5 : primerDiaMes - 1;
 
-        // Espacios vacíos al inicio
-        for (let h = 0; h < huecosCeros; h++) {
-            grid.innerHTML += `<div class="day-empty"></div>`;
+        for (let h = 0; h < huecos; h++) {
+            gridCalendario.innerHTML += `<div class="day-empty"></div>`;
         }
 
-        // Días del mes
-        const ultimoDia = new Date(mesActual.getFullYear(), mesActual.getMonth() + 1, 0).getDate();
-        for (let dia = 1; dia <= ultimoDia; dia++) {
-            const fechaLoop = new Date(mesActual.getFullYear(), mesActual.getMonth(), dia);
-            
-            // Omitir domingos
-            if (fechaLoop.getDay() === 0) continue;
+        for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+            const fechaLoop = new Date(año, mes, dia);
+            if (fechaLoop.getDay() === 0) continue; // Saltar domingos
 
-            // Validar que no sea pasado
             const esPasado = fechaLoop < new Date().setHours(0,0,0,0);
+            const iso = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
             const card = document.createElement("div");
             card.className = `day-item-new ${esPasado ? 'pasado' : ''}`;
-            const iso = `${fechaLoop.getFullYear()}-${String(fechaLoop.getMonth()+1).padStart(2,'0')}-${String(fechaLoop.getDate()).padStart(2,'0')}`;
+            if (fechaInput.value === iso) card.classList.add("selected");
             
-            card.innerHTML = `<span class="num">${dia}</span>`;
+            card.innerHTML = `<span>${dia}</span>`;
             
             if (!esPasado) {
                 card.onclick = () => {
@@ -426,15 +435,19 @@ function generarCalendario() {
                     card.classList.add("selected");
                     fechaInput.value = iso;
                     cargarHorasDisponibles();
-                    // Scroll suave a las horas
-                    document.getElementById("horasVisualGrid").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 };
             }
-            grid.appendChild(card);
+            gridCalendario.appendChild(card);
         }
-        mesWrapper.appendChild(grid);
-        contenedor.appendChild(mesWrapper);
     }
+
+    // Limpiar contenedor y armar
+    contenedor.innerHTML = "";
+    contenedor.appendChild(navMeses);
+    contenedor.appendChild(gridCalendario);
+
+    // Renderizar el mes actual por defecto
+    renderizarMes(hoy.getFullYear(), hoy.getMonth());
 }
 
 document.addEventListener("DOMContentLoaded", () => { generarCalendario(); cargarServicios(); });
