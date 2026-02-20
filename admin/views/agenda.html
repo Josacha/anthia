@@ -56,6 +56,14 @@
             </div>
         </header>
 
+<div class="controles-bloqueo" style="margin-bottom: 15px; display: flex; gap: 10px;">
+    <button onclick="window.bloquearHorario('manana')" style="background: #ff9800; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚫 Bloquear Mañana</button>
+    <button onclick="window.bloquearHorario('tarde')" style="background: #f44336; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚫 Bloquear Tarde</button>
+    <button onclick="window.bloquearHorario('dia')" style="background: #212121; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✈️ Vacaciones / Todo el día</button>
+</div>
+
+
+        
         <div class="tabla-container">
             <table class="tabla-premium" id="tablaAgenda">
                 <thead>
