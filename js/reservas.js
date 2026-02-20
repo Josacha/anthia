@@ -370,21 +370,70 @@ function generarCalendario() {
     const contenedor = document.getElementById("calendarioSemanas");
     const fechaInput = document.getElementById("fecha");
     if (!contenedor) return;
+
+    contenedor.innerHTML = ""; // Limpiar
     const hoy = new Date();
-    for (let i = 0; i < 14; i++) {
-        let d = new Date(); d.setDate(hoy.getDate() + i);
-        if (d.getDay() === 0) continue; 
-        const card = document.createElement("div");
-        card.className = "day-item";
-        const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        card.innerHTML = `<span class="mes">${d.toLocaleString('es',{weekday:'short'})}</span><span class="num">${d.getDate()}</span>`;
-        card.onclick = () => {
-            document.querySelectorAll(".day-item").forEach(el => el.classList.remove("selected"));
-            card.classList.add("selected");
-            fechaInput.value = iso;
-            cargarHorasDisponibles();
-        };
-        contenedor.appendChild(card);
+    
+    // Generar 3 meses
+    for (let m = 0; m < 3; m++) {
+        const mesActual = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
+        const nombreMes = mesActual.toLocaleString('es', { month: 'long' });
+        const año = mesActual.getFullYear();
+
+        // Contenedor del mes
+        const mesWrapper = document.createElement("div");
+        mesWrapper.className = "mes-container";
+        mesWrapper.innerHTML = `<h3 class="mes-titulo">${nombreMes.toUpperCase()} ${año}</h3>`;
+
+        const grid = document.createElement("div");
+        grid.className = "calendar-grid-premium";
+
+        // Cabecera de días
+        ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
+            grid.innerHTML += `<div class="day-name">${d}</div>`;
+        });
+
+        // Obtener primer día del mes (0=Dom, 1=Lun...)
+        let primerDia = new Date(mesActual.getFullYear(), mesActual.getMonth(), 1).getDay();
+        // Ajustar porque omitimos Domingo (si es domingo, no ponemos huecos)
+        let huecosCeros = primerDia === 0 ? 0 : primerDia - 1;
+
+        // Espacios vacíos al inicio
+        for (let h = 0; h < huecosCeros; h++) {
+            grid.innerHTML += `<div class="day-empty"></div>`;
+        }
+
+        // Días del mes
+        const ultimoDia = new Date(mesActual.getFullYear(), mesActual.getMonth() + 1, 0).getDate();
+        for (let dia = 1; dia <= ultimoDia; dia++) {
+            const fechaLoop = new Date(mesActual.getFullYear(), mesActual.getMonth(), dia);
+            
+            // Omitir domingos
+            if (fechaLoop.getDay() === 0) continue;
+
+            // Validar que no sea pasado
+            const esPasado = fechaLoop < new Date().setHours(0,0,0,0);
+
+            const card = document.createElement("div");
+            card.className = `day-item-new ${esPasado ? 'pasado' : ''}`;
+            const iso = `${fechaLoop.getFullYear()}-${String(fechaLoop.getMonth()+1).padStart(2,'0')}-${String(fechaLoop.getDate()).padStart(2,'0')}`;
+            
+            card.innerHTML = `<span class="num">${dia}</span>`;
+            
+            if (!esPasado) {
+                card.onclick = () => {
+                    document.querySelectorAll(".day-item-new").forEach(el => el.classList.remove("selected"));
+                    card.classList.add("selected");
+                    fechaInput.value = iso;
+                    cargarHorasDisponibles();
+                    // Scroll suave a las horas
+                    document.getElementById("horasVisualGrid").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
+            }
+            grid.appendChild(card);
+        }
+        mesWrapper.appendChild(grid);
+        contenedor.appendChild(mesWrapper);
     }
 }
 
