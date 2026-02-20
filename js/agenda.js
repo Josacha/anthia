@@ -172,15 +172,15 @@ window.bloquearHorario = async (tipo) => {
 
     if (tipo === 'dia') {
         horaInicio = "08:00";
-        duracionTotal = 600; // 10 horas (de 8am a 6pm)
+        duracionTotal = 660; // 10 horas (de 8am a 6pm)
         motivo = "DÍA BLOQUEADO / VACACIONES";
     } else if (tipo === 'manana') {
         horaInicio = "08:00";
-        duracionTotal = 240; // 4 horas (8am a 12md)
+        duracionTotal = 290; // 4 horas (8am a 12md)
         motivo = "MAÑANA BLOQUEADA";
     } else if (tipo === 'tarde') {
         horaInicio = "13:00";
-        duracionTotal = 300; // 5 horas (1pm a 6pm)
+        duracionTotal = 360; // 5 horas (1pm a 6pm)
         motivo = "TARDE BLOQUEADA";
     }
 
