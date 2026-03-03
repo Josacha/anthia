@@ -1,6 +1,7 @@
 import { db } from "./firebase.js";
 import { 
-    collection, onSnapshot, deleteDoc, doc, getDocs, query, where 
+    collection, onSnapshot, deleteDoc, doc, getDocs, query, where,
+    setDoc // ✅ SOLO AGREGADO para poder crear/actualizar clientes
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const tbody = document.querySelector("#tablaContactos tbody");
@@ -154,6 +155,35 @@ document.getElementById("busquedaCliente").addEventListener("input", (e) => {
 });
 
 document.getElementById("cerrarHistorial").onclick = () => modalHistorial.classList.remove("active");
+
+// ✅ ✅ ✅ SOLO AGREGADO: FUNCIÓN PARA AGREGAR CLIENTE DESDE ESTA PANTALLA
+// Requiere que exista este form en el HTML:
+// form#formAgregarCliente, inputs: #addNombre #addApellido1 #addCorreo #addTelefono
+const formAgregarCliente = document.getElementById("formAgregarCliente");
+if (formAgregarCliente) {
+    formAgregarCliente.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const nombre = (document.getElementById("addNombre")?.value || "").trim();
+        const apellido1 = (document.getElementById("addApellido1")?.value || "").trim();
+        const correo = (document.getElementById("addCorreo")?.value || "").trim();
+        const telefono = (document.getElementById("addTelefono")?.value || "").trim();
+
+        if (!nombre || !telefono) return alert("Nombre y teléfono son obligatorios.");
+
+        // ID igual que en tu reserva: correo o teléfono
+        const idClie = (correo || telefono).replace(/[.#$[\]]/g,'_');
+
+        try {
+            await setDoc(doc(db, "clientes", idClie), { nombre, apellido1, correo, telefono }, { merge: true });
+            formAgregarCliente.reset();
+            alert("Cliente agregado/actualizado ✅");
+        } catch (error) {
+            console.error("Error:", error);
+            alert("No se pudo agregar el cliente. Revisa permisos (Rules).");
+        }
+    });
+}
 
 // --- 7. INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", async () => {
