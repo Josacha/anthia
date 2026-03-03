@@ -44,3 +44,53 @@
     padding: 7px 15px; border-radius: 20px; cursor: pointer; font-size: 10px; font-weight: 600;
 }
 .btn-ver-historial:hover { background: #c5a059; color: white; }
+
+
+/* =============================
+   FORMULARIO AGREGAR CLIENTE
+============================= */
+
+.form-agregar-cliente {
+    margin: 25px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(197,160,89,0.4);
+}
+
+.form-agregar-cliente input {
+    flex: 1;
+    min-width: 180px;
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid rgba(197,160,89,0.4);
+    background: #111;
+    color: white;
+    border-radius: 4px;
+}
+
+.form-agregar-cliente input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.form-agregar-cliente input:focus {
+    outline: none;
+    border-color: #c5a059;
+}
+
+.form-agregar-cliente button {
+    padding: 10px 20px;
+    background: #c5a059;
+    border: none;
+    color: #1a1a1a;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.form-agregar-cliente button:hover {
+    background: #b8923f;
+}
